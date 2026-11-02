@@ -1,5 +1,4 @@
 ---
-import { cvHref } from "@/data/assets";
 import { site } from "@/data/site";
 
 const current = Astro.url.pathname;
@@ -23,7 +22,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     </ul>
 
     <div class="nav-actions">
-      <a href={cvHref} class="cv-button" download aria-label="Download CV (PDF)">
+      <a href={site.cvPath} class="cv-button" download aria-label="Download CV (PDF)">
         CV
       </a>
 

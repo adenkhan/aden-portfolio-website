@@ -1,8 +1,8 @@
 ---
 import Button from "@/components/ui/Button.astro";
 import PageTitle from "@/components/ui/PageTitle.astro";
-import { cvHref } from "@/data/assets";
 import { home } from "@/data/home";
+import { site } from "@/data/site";
 import CharacterCard from "./CharacterCard.astro";
 ---
 
@@ -14,7 +14,7 @@ import CharacterCard from "./CharacterCard.astro";
     <p class="sub">{home.subhead}</p>
     <p class="availability">{home.availability}</p>
     <div class="cta">
-      <Button href={cvHref} download>
+      <Button href={site.cvPath} download>
         {home.ctaPrimary}
       </Button>
       <Button href="/work/" variant="secondary">

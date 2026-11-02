@@ -14,7 +14,7 @@ export default defineConfig({
   webServer: process.env.BASE_URL
     ? undefined
     : {
-        command: `npm run build && npx astro preview --port ${PORT}`,
+        command: `npm run build && npx astro preview --port ${PORT} --force`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 180_000,

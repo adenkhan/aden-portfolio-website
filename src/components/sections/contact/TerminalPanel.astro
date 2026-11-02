@@ -1,5 +1,4 @@
 ---
-import { cvHref } from "@/data/assets";
 import { site } from "@/data/site";
 import { contact } from "@/data/timeline";
 
@@ -32,7 +31,7 @@ const rows = [
       <div class="row">
         <dt>cv</dt>
         <dd>
-          <a href={cvHref} download>
+          <a href={site.cvPath} download>
             {site.cvLabel} (PDF)
           </a>
         </dd>

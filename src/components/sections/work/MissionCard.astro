@@ -24,6 +24,11 @@ const { mission } = Astro.props;
     <h3>{mission.title}</h3>
     <p class="where">{mission.role ? `${mission.org}, ${mission.role}` : mission.org}</p>
     <p class="result">{mission.result}</p>
+    <ul class="tags" aria-label="Skills used">
+      {mission.tags.map((tag) => (
+        <li>{tag}</li>
+      ))}
+    </ul>
     <a class="related" href={mission.related.href}>
       {mission.related.label}
     </a>
@@ -75,6 +80,25 @@ const { mission } = Astro.props;
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
     overflow-wrap: anywhere;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tags li {
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--color-text-muted);
   }
 
   .related {

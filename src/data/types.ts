@@ -23,6 +23,7 @@ export interface SiteConfig {
   nav: NavItem[];
   hudTag: string;
   cvLabel: string;
+  cvPath: string;
   footer: { copyright: string };
 }
 
@@ -42,7 +43,6 @@ export interface HomeCopy {
   ctaPrimary: string;
   ctaSecondary: string;
   statBars: [string, string, string, string];
-  stats: [Stat, Stat, Stat, Stat];
   teaserHeading: string;
   teaser: string;
   teaserLink: Link;
@@ -57,6 +57,8 @@ export interface Mission {
   result: string;
   lane: Lane;
   related: Link;
+  /** Short labels from the mission copy and skills list; not new claims. */
+  tags: string[];
   evidence?: AssetKey;
 }
 
@@ -109,7 +111,13 @@ export interface ContactCopy {
   prompt: string;
   channelsHeading: string;
   messageHeading: string;
-  messageNote: string;
+  form: {
+    lead: string;
+    name: string;
+    email: string;
+    message: string;
+    submit: string;
+  };
 }
 
 export interface PageSeo {

@@ -76,5 +76,11 @@ export const contact: ContactCopy = {
   prompt: "$ open --channel",
   channelsHeading: "Email, LinkedIn and GitHub",
   messageHeading: "Send a message",
-  messageNote: "The contact form arrives in a later update. Until then, email works best:",
+  form: {
+    lead: "Prefer email? Write to",
+    name: "Name",
+    email: "Email",
+    message: "Message",
+    submit: "Send message",
+  },
 };

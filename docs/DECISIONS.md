@@ -220,3 +220,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Prettier skips Markdown (`*.md`), so docs tables keep their hand formatting.
 - Decision: Scripts import `src/data/assets.ts` directly (Node 24 strips TypeScript types), so image loading moved to `src/lib/images.ts` to keep `assets.ts` free of Vite-only `import.meta.glob`.
 - Source: p08.
+
+## 2026-11-02 — p09 motion-free baseline
+- Decision: No Kokonut UI or Bklit component is used. All 107 Kokonut items are interactive React (Motion, canvas, WebGL); Bklit items are charts that need data series the CV does not contain, so using them would invent numbers. Everything is native `.astro` HTML and CSS.
+- Decision: Missions carry `tags` but no separate `problem` or `action` fields. The sources have no problem or action copy beyond the mission title (the goal) and the result sentence (what was done and what it achieved); writing new text would break "do not invent". Tags are short labels taken from the mission copy and the skills list.
+- Decision: Stats moved to `src/data/stats.ts`; the CV path moved to `site.cvPath`.
+- Decision: The Home avatar uses Astro `<Image>` (WebP, widths 360/560/840, 1200×1500 intrinsic size, eager, `fetchpriority="high"`), as asked. Other images keep `<Picture>` with AVIF and WebP.
+- Decision: The contact form is a static Netlify form (`data-netlify="true"`, `netlify-honeypot="bot-field"`, hidden `form-name`, `action="/thanks/"`) with labelled Name, Email and Message fields and an email fallback line above it ("Prefer email? Write to …").
+- Decision: Links inside paragraphs are underlined site-wide. Lighthouse flagged the Contact links as relying on colour alone (1.74:1 against the surrounding text).
+- Decision: Playwright's web server runs `astro preview --force` so a stale preview server cannot block the suite.
+- Result: Lighthouse mobile (simulated throttling, local preview), Performance / Accessibility / Best Practices / SEO: Home 99/100/100/100 (LCP 1.7 s, CLS 0, TBT 0 ms); About 100/100/100/100 (LCP 1.5 s); Work 99/100/100/100 (LCP 1.9 s); Contact 100/100/100/100 (LCP 1.5 s, CLS 0.004). Local scores, not the live site; p21 re-runs them on Netlify.
+- Source: p09.

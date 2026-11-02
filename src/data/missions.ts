@@ -13,6 +13,7 @@ export const missions: Mission[] = [
     result: "Performance-driven Meta campaigns cut customer acquisition cost by 72%",
     lane: "both",
     related: sadiqArc,
+    tags: ["Meta Ads", "performance marketing"],
     evidence: "mission-01",
   },
   {
@@ -23,6 +24,7 @@ export const missions: Mission[] = [
     result: "Amplitude analysis guided onboarding, retention and adoption fixes across web and mobile",
     lane: "data",
     related: sadiqArc,
+    tags: ["Amplitude", "onboarding", "retention"],
     evidence: "mission-02",
   },
   {
@@ -33,6 +35,7 @@ export const missions: Mission[] = [
     result: "Pitch decks, sales enablement assets, whitepapers and case studies for online sellers",
     lane: "creative",
     related: sadiqArc,
+    tags: ["sales enablement", "pitch decks", "case studies"],
     evidence: "mission-03",
   },
   {
@@ -44,6 +47,7 @@ export const missions: Mission[] = [
     result: "Internal app combining Ahrefs keyword data and competitor research in one drafting flow",
     lane: "data",
     related: pearlsArc,
+    tags: ["SEO", "Ahrefs"],
     evidence: "mission-04",
   },
   {
@@ -54,6 +58,7 @@ export const missions: Mission[] = [
     result: "Checker that flags overlapping search intent before publishing",
     lane: "data",
     related: pearlsArc,
+    tags: ["SEO", "search intent"],
     evidence: "mission-05",
   },
   {
@@ -64,6 +69,7 @@ export const missions: Mission[] = [
     result: "HubSpot and n8n workflows for lead capture, enrichment, lifecycle email and CRM handoff",
     lane: "data",
     related: pearlsArc,
+    tags: ["HubSpot", "n8n"],
     evidence: "mission-06",
   },
   {
@@ -76,6 +82,7 @@ export const missions: Mission[] = [
       "Outreach pipelines in LinkedIn Sales Navigator; a funding tracker targeting 1–2 applications a week",
     lane: "both",
     related: { label: "Read the Go-to-market arc", href: "/about/#arc-go-to-market" },
+    tags: ["LinkedIn Sales Navigator", "go-to-market"],
     evidence: "mission-07",
   },
   {
@@ -87,6 +94,7 @@ export const missions: Mission[] = [
     result: "+40% awareness for i2iScale across 3 concurrent initiatives",
     lane: "creative",
     related: { label: "Read the Storyteller arc", href: "/about/#arc-storyteller" },
+    tags: ["LinkedIn", "Instagram"],
     evidence: "mission-08",
   },
   {
@@ -97,6 +105,7 @@ export const missions: Mission[] = [
     result: "$7,000+ in sponsorships from 15+ proposals; 1,500+ new followers in six months",
     lane: "creative",
     related: { label: "See the creative skills", href: "/work/#skills-creative" },
+    tags: ["sponsorships", "social strategy"],
     evidence: "mission-09",
   },
 ];

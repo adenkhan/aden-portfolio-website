@@ -84,6 +84,3 @@ export function getSlot(id: AssetKey): AssetSlot {
   if (!slot) throw new Error(`Unknown asset slot: ${id}`);
   return slot;
 }
-
-/** Public URL of the CV. The file always exists (a generated stand-in until the real CV replaces it). */
-export const cvHref = "/cv/aden-khan-cv.pdf";

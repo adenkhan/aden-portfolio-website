@@ -1,18 +1,32 @@
 ---
-import Img from "@/components/ui/Img.astro";
+import { Image } from "astro:assets";
+import { getSlot } from "@/data/assets";
 import { home } from "@/data/home";
 import { site } from "@/data/site";
+import { getImageFor, isPlaceholder } from "@/lib/images";
+
+const avatar = getSlot("avatar");
+// Dev-only badge while the generated placeholder is in place; never in production builds.
+const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
 ---
 
 <figure class="card">
   <p class="hud">{site.hudTag}</p>
-  <Img
-    asset="avatar"
-    eager
-    widths={[360, 560, 800]}
-    sizes="(min-width: 64rem) 420px, (min-width: 48rem) 40vw, 92vw"
-    class="avatar"
-  />
+  <div class="avatar">
+    <Image
+      src={getImageFor("avatar")}
+      alt={avatar.alt}
+      width={avatar.width}
+      height={avatar.height}
+      widths={[360, 560, 840]}
+      sizes="(min-width: 64rem) 400px, (min-width: 48rem) 40vw, 92vw"
+      format="webp"
+      loading="eager"
+      fetchpriority="high"
+      decoding="sync"
+    />
+    {showBadge && <span class="placeholder-badge">placeholder</span>}
+  </div>
   <ul class="bars" aria-label="Focus areas">
     {home.statBars.map((label) => (
       <li>
@@ -67,10 +81,30 @@ import { site } from "@/data/site";
     color: var(--color-text-muted);
   }
 
-  .avatar :global(img) {
-    border-radius: var(--radius-sm);
+  .avatar {
+    position: relative;
+  }
+
+  .avatar img {
+    display: block;
+    width: 100%;
+    height: auto;
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+
+  .placeholder-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-void);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
   }
 
   .bars {
