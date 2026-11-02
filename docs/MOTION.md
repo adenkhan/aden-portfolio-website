@@ -316,3 +316,15 @@ The collision point is the avatar card's centre, clamped to 62% of the screen he
 **Cost, measured.** Home first load 62.4 KB gzip (+2 KB for the intro and 2D stage); the 3D chunk is 144 KB gzip, loaded only on Home on the full tier and absent from About, Work and Contact (tested). Mobile Lighthouse on Home, cold session (the emulated phone gets the 2D version): Performance 98, LCP 2.1 s (avatar), CLS 0, TBT 0 ms, the same as before the intro. Under software WebGL the 3D disposal takes about 5 s at idle; real GPUs never take the 3D path through software rendering, but p17 must profile the 3D intro and its disposal on a real device.
 
 **Performance review.** Everything animated is transform or opacity, plus bloom and aberration inside the WebGL canvas. The 2D layers use `will-change: transform, opacity` because they are large soft gradients moved every frame for under 2 s (the skill's expensive-paint exception). The render loop runs only while the timeline does.
+
+## 9. Changes in p12 (CV reveal)
+
+Built as moment 2 describes, with these changes.
+
+- **Burst is 2D on every tier.** A purple core (scale 0.4 → 1 in 160 ms, then out by 600 ms), a ring (0.1 → 1.6 over 600 ms) and 12 sparks in the creative, data and growth colours flying out over 600 ms, all `ui-out`, transform and opacity only, centred on the button that was clicked. No Three.js: loading the 144 KB 3D chunk for a 0.6 s button effect is not worth it. Lottie stays cut.
+- **Loading.** `src/lib/motion/cv-burst.ts` is imported on the first `pointerenter` or `focus` of a CV button, never on page load (tested). If it is not ready 150 ms after a click, the dialog opens without the burst.
+- **Dialog.** Native `<dialog>` with `showModal()`, opened 380 ms after the click (the burst keeps playing behind it). Enter: opacity 0 → 1 and scale 0.96 → 1 in 220 ms; exit 140 ms; backdrop fades to `bg-void` at 80%. Done with CSS transitions and `@starting-style` rather than GSAP, which overrides the ownership table: the browser runs them off the main thread and needs no JavaScript for the exit. Browsers without `@starting-style` open and close instantly.
+- **Accessibility.** Focus moves into the dialog on open; Tab and Shift+Tab wrap inside it (Chrome's native modal otherwise lets Tab leave for the browser UI); Esc, the Close button and a backdrop click close it; focus returns to the button that opened it. Background scroll is locked with `html.dialog-open` and Lenis is paused through `ak:scroll-lock` / `ak:scroll-unlock`.
+- **Reduced motion.** No burst; the dialog and backdrop fade only, in 150 ms (an exception to the global reduced-motion reset, in `global.css`).
+- **No JavaScript.** CV buttons are plain `<a href="/cv/aden-khan-cv.pdf" download>` links.
+- **Preview card.** Title, role line, the four roles with dates, education and certification, all from `docs/cv-source.md` (`src/data/cv.ts`), plus Download PDF (`download`) and Open in new tab (`target="_blank" rel="noopener"`).

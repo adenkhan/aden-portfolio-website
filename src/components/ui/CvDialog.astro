@@ -1,0 +1,319 @@
+---
+import { cvPreview } from "@/data/cv";
+import { site } from "@/data/site";
+---
+
+<!--
+  CV dialog (docs/MOTION.md moment 2). CV buttons are plain links to the PDF; with JavaScript they
+  open this native modal <dialog> instead (focus moves in, the page behind is inert, Esc closes).
+-->
+<dialog class="cv-dialog" data-cv-dialog aria-labelledby="cv-dialog-title">
+  <div class="cv-card">
+    <header class="cv-head">
+      <h2 id="cv-dialog-title">{cvPreview.title}</h2>
+      <button type="button" class="close" data-cv-close>
+        {cvPreview.close}
+      </button>
+    </header>
+    <p class="summary">{cvPreview.summary}</p>
+    <ul class="roles">
+      {cvPreview.roles.map((role) => (
+        <li>
+          <span class="org">{role.org}</span>
+          <span class="title">{role.title}</span>
+          <span class="dates">{role.dates}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="line">{cvPreview.education}</p>
+    <p class="line">{cvPreview.certification}</p>
+    <div class="actions">
+      <a class="primary" href={site.cvPath} download>
+        {cvPreview.download}
+      </a>
+      <a class="secondary" href={site.cvPath} target="_blank" rel="noopener">
+        {cvPreview.open}
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  type BurstModule = typeof import("@/lib/motion/cv-burst");
+
+  const dialog = document.querySelector<HTMLDialogElement>("[data-cv-dialog]");
+  const triggers = [...document.querySelectorAll<HTMLAnchorElement>("[data-cv-trigger]")];
+  const BURST_WAIT_MS = 150;
+  const DIALOG_DELAY_MS = 380;
+
+  if (dialog && typeof dialog.showModal === "function") {
+    let burst: Promise<BurstModule> | null = null;
+    let opener: HTMLElement | null = null;
+    let opening = false;
+    const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const loadBurst = () => (burst ??= import("@/lib/motion/cv-burst"));
+
+    const open = () => {
+      opening = false;
+      document.documentElement.classList.add("dialog-open");
+      window.dispatchEvent(new Event("ak:scroll-lock"));
+      dialog.showModal();
+    };
+
+    const close = () => dialog.close();
+
+    dialog.addEventListener("close", () => {
+      document.documentElement.classList.remove("dialog-open");
+      window.dispatchEvent(new Event("ak:scroll-unlock"));
+      opener?.focus();
+    });
+
+    // A click on the backdrop (outside the card) closes the dialog.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) close();
+    });
+    dialog.querySelector("[data-cv-close]")?.addEventListener("click", close);
+
+    // A native modal makes the page inert, but Tab can still leave for the browser UI. Wrap it.
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      const focusable = [...dialog.querySelectorAll<HTMLElement>("a[href], button:not([disabled])")];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    for (const trigger of triggers) {
+      // Load the burst on intent, never on page load.
+      trigger.addEventListener("pointerenter", loadBurst, { once: true });
+      trigger.addEventListener("focus", loadBurst, { once: true });
+
+      trigger.addEventListener("click", async (event) => {
+        // Let modified clicks (new tab, save link) behave like the plain link.
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        if (opening || dialog.open) return;
+        opener = trigger;
+        opening = true;
+
+        if (reduced()) return open();
+        const module = await Promise.race([
+          loadBurst(),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), BURST_WAIT_MS)),
+        ]).catch(() => null);
+        if (!module) return open();
+        module.playBurst(trigger);
+        setTimeout(open, DIALOG_DELAY_MS);
+      });
+    }
+  }
+</script>
+
+<style>
+  .cv-dialog {
+    width: min(92vw, 560px);
+    max-height: min(88dvh, 720px);
+    /* Tailwind's reset zeroes margins; a modal dialog centres itself with margin: auto. */
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg-raised);
+    color: var(--color-text);
+    overflow: auto;
+    overscroll-behavior: contain;
+    /* Enter 220 ms, exit 140 ms (exit faster than enter). Modals stay centred. */
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity 140ms var(--ease-out),
+      transform 140ms var(--ease-out),
+      overlay 140ms allow-discrete,
+      display 140ms allow-discrete;
+  }
+
+  .cv-dialog[open] {
+    opacity: 1;
+    transform: none;
+    transition-duration: 220ms;
+  }
+
+  @starting-style {
+    .cv-dialog[open] {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  .cv-dialog::backdrop {
+    background-color: rgb(7 8 15 / 0);
+    transition:
+      background-color 220ms var(--ease-out),
+      overlay 220ms allow-discrete,
+      display 220ms allow-discrete;
+  }
+
+  .cv-dialog[open]::backdrop {
+    background-color: rgb(7 8 15 / 0.8);
+  }
+
+  @starting-style {
+    .cv-dialog[open]::backdrop {
+      background-color: rgb(7 8 15 / 0);
+    }
+  }
+
+  /* Reduced motion: fade only (the duration exception lives in global.css). */
+  @media (prefers-reduced-motion: reduce) {
+    .cv-dialog,
+    .cv-dialog[open] {
+      transform: none;
+    }
+
+    @starting-style {
+      .cv-dialog[open] {
+        transform: none;
+      }
+    }
+  }
+
+  .cv-card {
+    padding: 1.5rem;
+  }
+
+  .cv-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+  }
+
+  .close {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+    color: var(--color-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .summary {
+    margin: 0.5rem 0 1.25rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-muted);
+  }
+
+  .roles {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 0 1.25rem;
+    padding: 1rem 0 0;
+    list-style: none;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .roles li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 1rem;
+  }
+
+  .org {
+    font-weight: 600;
+  }
+
+  .title {
+    grid-column: 1;
+    color: var(--color-text-muted);
+    font-size: var(--text-caption);
+  }
+
+  .dates {
+    grid-row: 1;
+    grid-column: 2;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+    white-space: nowrap;
+  }
+
+  .line {
+    margin: 0 0 0.5rem;
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.625rem 1.5rem;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform var(--duration-press) ease-out;
+  }
+
+  .actions a:active {
+    transform: scale(0.97);
+  }
+
+  .primary {
+    background-color: var(--color-creative);
+    color: var(--color-on-accent);
+  }
+
+  .secondary {
+    color: var(--color-text);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .close:hover,
+    .secondary:hover {
+      box-shadow: inset 0 0 0 1px var(--color-text);
+    }
+
+    .primary:hover {
+      background-color: color-mix(in oklab, var(--color-creative), white 8%);
+    }
+  }
+
+  @media (width < 30rem) {
+    .roles li {
+      grid-template-columns: 1fr;
+    }
+
+    .dates {
+      grid-row: auto;
+      grid-column: 1;
+    }
+  }
+</style>

@@ -22,7 +22,7 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
     </ul>
 
     <div class="nav-actions">
-      <a href={site.cvPath} class="cv-button" download aria-label="Download CV (PDF)">
+      <a href={site.cvPath} class="cv-button" download aria-label="Download CV (PDF)" data-cv-trigger>
         CV
       </a>
 

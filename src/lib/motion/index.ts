@@ -49,6 +49,15 @@ export function initMotion(page: PageId): MotionHandle {
       const cleanups: Array<() => void> = [];
       const scroll = startLenis();
       cleanups.push(scroll.stop);
+      // The CV dialog locks background scroll while it is open.
+      const lock = () => scroll.lenis.stop();
+      const unlock = () => scroll.lenis.start();
+      window.addEventListener("ak:scroll-lock", lock);
+      window.addEventListener("ak:scroll-unlock", unlock);
+      cleanups.push(() => {
+        window.removeEventListener("ak:scroll-lock", lock);
+        window.removeEventListener("ak:scroll-unlock", unlock);
+      });
       // The Home intro owns the screen while it plays; smooth scroll resumes when it ends.
       if (root.classList.contains("intro")) {
         scroll.lenis.stop();

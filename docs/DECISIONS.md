@@ -254,3 +254,13 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: The 3D renderer clears to pure black; the design colour came out grey through postprocessing's colour pipeline. The page behind turns `bg-void` while the intro plays so the scrollbar gutter does not show as a strip.
 - Result: Home mobile Lighthouse before (p10) Performance 98, LCP 2.1 s; after (cold session, intro playing) Performance 98, LCP 2.1 s, CLS 0, TBT 0 ms. The emulated phone gets the 2D version, so the 3D path still needs a real-device profile in p17.
 - Source: p11, `docs/MOTION.md` §8.
+
+## 2026-11-02 — p12 CV reveal
+- Decision: Kokonut's `particle-button` is not used. It is a React component that needs `motion` and `lucide-react`, and the CV button sits in the nav on every page, so it would hydrate React (about 67 KB gzip) everywhere. The burst is a light DOM effect echoing the 2D intro.
+- Decision: The burst is 2D on every tier, including desktops that get the 3D intro; the 144 KB 3D chunk is not loaded for a 0.6 s button effect. This replaces MOTION.md moment 2's "Three.js on full tier".
+- Decision: The dialog's open/close transitions are CSS (`@starting-style`, `allow-discrete`) rather than GSAP, overriding MOTION.md's ownership table for this one component: off the main thread, no JavaScript needed for the exit.
+- Decision: Tab wraps inside the dialog explicitly, because Chrome's native modal lets focus leave for the browser UI after the last element.
+- Decision: The dialog preview shows four roles with dates, education and certification from `docs/cv-source.md`; the phone number is not shown.
+- Decision: Modified clicks (Ctrl/Cmd/Shift/Alt or middle click) on a CV button keep the plain link behaviour.
+- Fix: Tailwind's reset removed the dialog's `margin: auto`, which left it in the top-left corner; restored.
+- Source: p12, `docs/MOTION.md` §9.

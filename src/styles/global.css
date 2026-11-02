@@ -217,6 +217,20 @@
     visibility: hidden;
   }
 
+  /* The CV dialog locks background scroll (Lenis is paused too). */
+  html.dialog-open {
+    overflow: hidden;
+  }
+
+  /* Reduced motion keeps the dialog fade (docs/MOTION.md moment 2): same layer and higher
+     specificity than the reset above, so this !important wins. */
+  @media (prefers-reduced-motion: reduce) {
+    .cv-dialog,
+    .cv-dialog::backdrop {
+      transition-duration: 150ms !important;
+    }
+  }
+
   /* The Home intro overlay owns the screen while it plays. */
   html.intro {
     overflow: hidden;

@@ -143,3 +143,14 @@ export interface AssetSlot {
   alt: string;
   usedOn: string[];
 }
+
+export interface CvPreview {
+  title: string;
+  summary: string;
+  education: string;
+  roles: { org: string; title: string; dates: string }[];
+  certification: string;
+  download: string;
+  open: string;
+  close: string;
+}
