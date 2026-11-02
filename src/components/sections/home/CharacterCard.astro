@@ -15,6 +15,8 @@ const rive = import.meta.glob<string>("/src/assets/rive/avatar.riv", {
 const riveSrc = rive["/src/assets/rive/avatar.riv"];
 
 const avatar = getSlot("avatar");
+// Each focus area takes its lane colour (DESIGN.md: the multi-colour gradient is reserved for the CV button).
+const barLanes = ["both", "data", "data", "creative"] as const;
 // Dev-only badge while the generated placeholder is in place; never in production builds.
 const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
 ---
@@ -46,8 +48,8 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     {showBadge && <span class="placeholder-badge">placeholder</span>}
   </div>
   <ul class="bars" aria-label="Focus areas">
-    {home.statBars.map((label) => (
-      <li>
+    {home.statBars.map((label, i) => (
+      <li data-lane={barLanes[i]}>
         <span>{label}</span>
         <i aria-hidden="true" data-bar />
       </li>
@@ -176,6 +178,18 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     color: var(--color-text-muted);
   }
 
+  .bars [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  .bars [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  .bars [data-lane="both"] {
+    --lane-colour: var(--color-growth);
+  }
+
   .bars span {
     min-width: 6.5rem;
   }
@@ -184,6 +198,6 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
   .bars i {
     flex: 1;
     height: 2px;
-    background: linear-gradient(90deg, var(--color-creative), var(--color-growth), var(--color-data));
+    background-color: var(--lane-colour);
   }
 </style>

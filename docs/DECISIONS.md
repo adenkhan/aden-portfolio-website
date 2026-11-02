@@ -293,3 +293,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Form validation keeps the browser's native validation without JavaScript and replaces it with inline, linked, announced errors when JavaScript runs (`form.noValidate` set by script). A valid form submits natively so Netlify's handling and the `/thanks/` redirect are unchanged.
 - Decision: The `/thanks/` page reuses the terminal look with the growth purple as the success colour and repeats the email address as the fallback. Its line makes no claim about reply time (none in `docs/cv-source.md`).
 - Source: p15, `docs/MOTION.md` §12.
+
+## 2026-11-02 — p16 design audit
+- Decision: On phones, the stats strip moves into the hero, between the copy and the avatar card, so a hiring manager sees name, role, CTA and the −72% CAC proof in the first 667 px screen. From 1024 px the stats sit in the left column under the CTAs, with the card top-aligned beside them, so they are above the fold on 1440×900 and 1024×768. Hero CTAs use 1.125rem side padding under 480 px to stay on one row at 360 px. StatsStrip is now a labelled group inside the hero, not its own section.
+- Decision: Stat bars use solid lane colours. The creative→growth→data gradient stays reserved for the CV button, as DESIGN.md says.
+- Decision: New type token `display-page` (4.5rem from `lg`) for the H1 on inner pages; it was already in use as a raw value. The logo uses `title` and tags use `mono-label`.
+- Decision: Body measure is `34em`, not `65ch`: in Instrument Sans `65ch` rendered about 93 characters per line.
+- Decision: Mission 1 is the featured Work card (two columns from `lg`), because it carries the strongest proof.
+- Decision: Mobile platform baseline: no tap highlight, `touch-action: manipulation` on controls, `user-select: none` on buttons only, `viewport-fit=cover` with safe-area side padding, `interactive-widget=resizes-content`.
+- Decision: Rejected guideline suggestions: Title Case headings and second-person copy (DESIGN.md and the brief govern); `translate="no"` deferred.
+- Decision: The teaser orbs and the card pointer light stay, though impeccable flags them as purple halos; they are the brand concept and DESIGN.md allows glow in those places.
+- Source: p16, `docs/audits/ui.md`.

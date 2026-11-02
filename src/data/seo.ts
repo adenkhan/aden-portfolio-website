@@ -52,7 +52,7 @@ export const seo: Record<PageId, PageSeo> = {
     id: "404",
     path: "/404/",
     title: "Page not found | Aden Khan",
-    description: "This page does not exist. Go to Aden Khan's product marketing work or contact page.",
+    description: "This page does not exist. Go to Aden Khan’s product marketing work or contact page.",
     h1: "Page not found",
     ogImageAlt: "Aden Khan, Product Marketer",
     noindex: true,

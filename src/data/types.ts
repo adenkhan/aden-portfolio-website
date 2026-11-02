@@ -120,6 +120,7 @@ export interface ContactCopy {
     errors: { name: string; email: string; emailFormat: string; message: string };
     /** Announced on a failed submit; {count} and {fields} are filled in. */
     summary: string;
+    sending: string;
   };
   copy: { button: string; done: string; failed: string };
   thanks: { status: string; line: string };

@@ -11,7 +11,7 @@ const missions = isWorstCase() ? worstMissions : demoMissions;
   <h2 id="missions-title">{work.missionsHeading}</h2>
   <ul class="grid">
     {missions.map((mission, index) => (
-      <MissionCard mission={mission} eager={index === 0} />
+      <MissionCard mission={mission} eager={index === 0} featured={index === 0} />
     ))}
   </ul>
 </section>

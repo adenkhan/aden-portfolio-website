@@ -28,6 +28,7 @@ const { form } = contact;
     data-error-email-format={form.errors.emailFormat}
     data-error-message={form.errors.message}
     data-summary={form.summary}
+    data-sending={form.sending}
   >
     <input type="hidden" name="form-name" value="contact" />
     <p hidden>
@@ -57,6 +58,8 @@ const { form } = contact;
         name="email"
         type="email"
         autocomplete="email"
+        spellcheck="false"
+        autocapitalize="none"
         required
         aria-describedby="contact-email-error"
       />
@@ -117,7 +120,12 @@ const { form } = contact;
       const invalid = fields.filter((field) => !check(field));
       if (!invalid.length) {
         status.textContent = "";
-        return; // Valid: the browser posts the form to Netlify, which redirects to /thanks/.
+        // Valid: the browser posts the form to Netlify, which redirects to /thanks/. Show progress and
+        // stop a second press while the request is in flight.
+        const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+        button.textContent = copy.sending!;
+        queueMicrotask(() => (button.disabled = true));
+        return;
       }
       event.preventDefault();
       const labels = invalid.map((field) =>

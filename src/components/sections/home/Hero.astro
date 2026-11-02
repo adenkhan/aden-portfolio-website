@@ -4,6 +4,7 @@ import PageTitle from "@/components/ui/PageTitle.astro";
 import { home } from "@/data/home";
 import { site } from "@/data/site";
 import CharacterCard from "./CharacterCard.astro";
+import StatsStrip from "./StatsStrip.astro";
 ---
 
 <section class="container-site hero" aria-labelledby="hero-title">
@@ -26,6 +27,9 @@ import CharacterCard from "./CharacterCard.astro";
       </Button>
     </div>
   </div>
+  <div class="proof">
+    <StatsStrip />
+  </div>
   <div class="visual">
     <div class="particles" data-ambient-particles aria-hidden="true"></div>
     <CharacterCard />
@@ -33,10 +37,23 @@ import CharacterCard from "./CharacterCard.astro";
 </section>
 
 <style>
+  /* Phones: copy, then the proof strip, then the avatar card, so the proof is in the first screen. */
   .hero {
     display: grid;
-    gap: 2.5rem;
-    padding-block: 2.5rem 3rem;
+    grid-template-areas:
+      "copy"
+      "proof"
+      "visual";
+    gap: 1.25rem;
+    padding-block: 1rem 3rem;
+  }
+
+  .copy {
+    grid-area: copy;
+  }
+
+  .proof {
+    grid-area: proof;
   }
 
   .title :global(.page-title) {
@@ -45,7 +62,7 @@ import CharacterCard from "./CharacterCard.astro";
   }
 
   .sub {
-    margin: 1.5rem 0 0;
+    margin: 1rem 0 0;
     max-width: 36ch;
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
@@ -53,7 +70,7 @@ import CharacterCard from "./CharacterCard.astro";
   }
 
   .availability {
-    margin: 1rem 0 0;
+    margin: 0.75rem 0 0;
     max-width: 48ch;
     color: var(--color-text);
   }
@@ -62,10 +79,18 @@ import CharacterCard from "./CharacterCard.astro";
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Narrow phones: slightly tighter pills keep both CTAs on one row down to 360px. */
+  @media (width < 30rem) {
+    .cta :global(.btn) {
+      padding-inline: 1.125rem;
+    }
   }
 
   .visual {
+    grid-area: visual;
     position: relative;
     width: 100%;
     max-width: 420px;
@@ -87,6 +112,9 @@ import CharacterCard from "./CharacterCard.astro";
   @media (width >= 48rem) {
     .hero {
       grid-template-columns: 1.2fr 0.8fr;
+      grid-template-areas:
+        "copy visual"
+        "proof proof";
       align-items: center;
       gap: 3rem;
       padding-block: 4rem;
@@ -94,6 +122,31 @@ import CharacterCard from "./CharacterCard.astro";
 
     .visual {
       justify-self: end;
+    }
+
+    /* Desktop has room: restore the looser rhythm. */
+    .sub {
+      margin-top: 1.5rem;
+    }
+
+    .availability {
+      margin-top: 1rem;
+    }
+
+    .cta {
+      margin-top: 2rem;
+    }
+  }
+
+  /* Desktop: the proof sits under the copy in the left column, beside the card, so it clears the fold. */
+  @media (width >= 64rem) {
+    .hero {
+      grid-template-areas:
+        "copy visual"
+        "proof visual";
+      align-items: start;
+      /* Top-aligned (not centred across both rows), so the counting stats can never move the card. */
+      row-gap: 2.5rem;
     }
   }
 </style>

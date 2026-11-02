@@ -43,6 +43,12 @@ typography:
     lineHeight: 1
     fontWeight: 900
     letterSpacing: 0em
+  display-page:
+    fontFamily: Big Shoulders Display Variable
+    fontSize: 4.5rem
+    lineHeight: 1
+    fontWeight: 900
+    letterSpacing: -0.01em
   title:
     fontFamily: Big Shoulders Display Variable
     fontSize: 1.875rem
@@ -213,6 +219,7 @@ Fonts are free and self-hosted with Fontsource (variable builds, `npm i @fontsou
 
 Scale (rem, desktop; mobile steps down as listed):
 - `display-xl` 6rem on desktop, 3.5rem at 360px. Line height 0.92. Used for the H1 only.
+- `display-page` 4.5rem from `lg` up; below `lg` it uses `display-lg`. The H1 on About, Work, Contact and Thanks (added in p16).
 - `display-lg` 3.25rem, 2.25rem on mobile. H2.
 - `title` 1.875rem, 1.5rem on mobile. Card titles.
 - `body-lg` 1.1875rem. Hero subhead.
@@ -221,7 +228,7 @@ Scale (rem, desktop; mobile steps down as listed):
 - `mono-label` 0.8125rem.
 
 Rules:
-- Max line length for body text: 65ch. Hero subhead 36ch.
+- Max line length for body text: about 65–70 characters, set as `.measure { max-width: 34em }` (a `ch` is wider than an average Instrument Sans character, so 65ch rendered ~93 characters). Hero subhead 36ch.
 - Tracking never goes below -0.02em. Headings use `text-wrap: balance`.
 - Use sentence case for headings. All caps is allowed only for the single HUD tag in the character-select card.
 - Numerals in stats and dates use tabular figures.
@@ -237,7 +244,7 @@ Container: 1200px max, with 16px side padding at 360px, 24px at `md`, 40px at `l
 
 | Page | 360–479px | 480–767px | 768–1023px | 1024–1439px | 1440px |
 |---|---|---|---|---|---|
-| Home | one column: H1, subhead, buttons, avatar card, stats 2×2 | same, avatar card max 420px | hero two columns (text left, avatar right), stats 4 across | same, larger display type | container capped at 1200px, extra space is empty navy |
+| Home | one column: H1, subhead, buttons, stats 2×2, then the avatar card (proof sits in the first screen, p16) | same, avatar card max 420px | hero two columns (text left, avatar right), stats 4 across below both; from `lg` the stats sit in the left column under the CTAs, card top-aligned beside them | same, larger display type | container capped at 1200px, extra space is empty navy |
 | About | bio, then the four panels stacked | same | panels 2×2 | same | same |
 | Work | mission cards one column, skills tree stacked by lane | one column | two columns | three columns | three columns |
 | Contact | terminal panel full width | same | terminal panel max 720px, left aligned | same | same |
@@ -288,6 +295,7 @@ States use the same rules everywhere. Focus-visible: 2px `focus` outline with 3p
 | button-ghost | text only, `text-muted`, underline on hover | `text` | ring | `text-muted` | 45% opacity |
 | mission-card | `bg-surface`, 1px `line`, 12px radius. Lane shown as a filled dot plus the word Creative, Data or Both. Result sentence in `body-lg`. No coloured side stripe | border `line-strong`, title shifts to the lane colour | ring around the card if it is a link | `bg-raised` | n/a |
 | stat-card | number in `display-lg` coloured by lane, caption below in `text-muted`, cut top-right corner | none (static) | n/a | n/a | n/a |
+| stat-bar (character card) | solid fill in the stat's lane colour (`growth` for both, `data`, `creative`); never a gradient | none | n/a | n/a | n/a |
 | skill-node | `bg-surface`, `mono-label`, 4px radius; lights to the lane colour as it enters view | border lane colour | ring | n/a | n/a |
 | manga-panel | `bg-surface`, 1px `line-strong`, cut bottom-right, halftone corner, top edge in its lane colour | none | n/a | n/a | n/a |
 | terminal-panel | `bg-void`, `mono-label`, 1px `line-strong`, corner brackets in `creative` (top-left) and `data` (bottom-right) | row text to `text` | each link has its own ring | row `bg-surface` | n/a |
@@ -350,6 +358,8 @@ Not applied to code yet. When it is, it goes in `src/styles/global.css` after `@
   --text-display-xl--line-height: 0.92;
   --text-display-lg: 3.25rem;
   --text-display-lg--line-height: 1;
+  --text-display-page: 4.5rem;
+  --text-display-page--line-height: 1;
   --text-title: 1.875rem;
   --text-title--line-height: 1.05;
   --text-body-lg: 1.1875rem;

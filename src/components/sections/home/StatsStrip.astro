@@ -2,7 +2,8 @@
 import { stats } from "@/data/stats";
 ---
 
-<section class="container-site" aria-labelledby="stats-title">
+<!-- Lives inside the hero so the proof sits in the first screen on phones (p16 recruiter test). -->
+<div class="stats" role="group" aria-labelledby="stats-title">
   <h2 id="stats-title" class="sr-only">
     Product marketing results in numbers
   </h2>
@@ -10,7 +11,7 @@ import { stats } from "@/data/stats";
     {stats.map((stat) => (
       <div class="stat" data-lane={stat.lane} data-stat>
         <dt>{stat.label}</dt>
-        <dd>
+        <dd data-final={stat.display}>
           <span class="sr-only">{stat.display}</span>
           <span
             class="ticker"
@@ -26,7 +27,7 @@ import { stats } from "@/data/stats";
       </div>
     ))}
   </dl>
-</section>
+</div>
 
 <style>
   .strip {
@@ -34,7 +35,7 @@ import { stats } from "@/data/stats";
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem 1rem;
     margin: 0;
-    padding-block: 1.5rem;
+    padding-block: 1rem 1.5rem;
     border-top: 1px solid var(--color-line);
     border-bottom: 1px solid var(--color-line);
   }
@@ -67,6 +68,15 @@ import { stats } from "@/data/stats";
     display: inline-block;
   }
 
+  /* Zero-height copy of the final value: reserves its real rendered width, so content-sized tracks never resize. */
+  dd::after {
+    content: attr(data-final);
+    display: block;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+
   [data-lane="creative"] {
     --lane-colour: var(--color-creative);
   }
@@ -82,6 +92,15 @@ import { stats } from "@/data/stats";
   @media (width >= 48rem) {
     .strip {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding-block: 1.5rem;
+    }
+  }
+
+  /* In the hero's left column the strip is narrower: content-sized tracks keep "$7,000+" from colliding. */
+  @media (width >= 64rem) {
+    .strip {
+      grid-template-columns: repeat(4, auto);
+      column-gap: 1.75rem;
     }
   }
 </style>

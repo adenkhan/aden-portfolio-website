@@ -88,7 +88,7 @@ export const missions: Mission[] = [
   {
     id: "grow-a-programs-reach",
     order: 8,
-    title: "Grow a program's reach",
+    title: "Grow a program’s reach",
     org: "Invest2Innovate",
     role: "Marketing Associate",
     result: "+40% awareness for i2iScale across 3 concurrent initiatives",

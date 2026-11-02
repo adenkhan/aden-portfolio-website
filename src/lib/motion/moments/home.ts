@@ -52,7 +52,7 @@ function countUps(ctx: MomentContext): (() => void) | void {
   const restore = () => counters.forEach((el) => (el.textContent = format(el, Number(el.dataset.count))));
   for (const el of counters) el.textContent = format(el, 0);
   ScrollTrigger.create({
-    trigger: counters[0].closest("section") ?? counters[0],
+    trigger: counters[0].closest(".stats") ?? counters[0],
     start: "top 90%",
     once: true,
     onEnter: () => {

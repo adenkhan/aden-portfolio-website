@@ -7,12 +7,14 @@ interface Props {
   mission: Mission;
   /** The first card's image is above the fold on phones and is the LCP image there. */
   eager?: boolean;
+  /** The strongest proof (mission 1, −72% CAC) gets two columns on wide screens (p16). */
+  featured?: boolean;
 }
 
-const { mission, eager = false } = Astro.props;
+const { mission, eager = false, featured = false } = Astro.props;
 ---
 
-<li class="card" id={`mission-${mission.id}`} data-lane={mission.lane} data-mission>
+<li class:list={["card", { featured }]} id={`mission-${mission.id}`} data-lane={mission.lane} data-mission>
   {mission.evidence && (
     <Img
       asset={mission.evidence}
@@ -103,8 +105,8 @@ const { mission, eager = false } = Astro.props;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-sm);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    line-height: 1.6;
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
     color: var(--color-text-muted);
   }
 
@@ -126,6 +128,28 @@ const { mission, eager = false } = Astro.props;
 
   [data-lane="both"] {
     --lane-colour: var(--color-growth);
+  }
+
+  @media (width >= 64rem) {
+    .featured {
+      grid-column: span 2;
+      flex-direction: row;
+    }
+
+    .featured :global(.thumb) {
+      flex: 0 0 50%;
+    }
+
+    .featured :global(.thumb img) {
+      height: 100%;
+    }
+
+    .featured .result {
+      font-size: var(--text-title);
+      line-height: var(--text-title--line-height);
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {

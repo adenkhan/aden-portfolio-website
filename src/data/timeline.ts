@@ -2,7 +2,7 @@ import type { AboutCopy, ContactCopy, WorkCopy } from "./types";
 
 export const about: AboutCopy = {
   h1: "The origin arc: from campaigns to products",
-  bio: "I'm a BBA Marketing student at IBA Karachi who fell for the product side of marketing. I started with social campaigns and memes that converted, then moved into analytics, automation and go-to-market work for tech startups. Today I care about one question: why do people adopt a product, and how do we help more of them get there?",
+  bio: "I’m a BBA Marketing student at IBA Karachi who fell for the product side of marketing. I started with social campaigns and memes that converted, then moved into analytics, automation and go-to-market work for tech startups. Today I care about one question: why do people adopt a product, and how do we help more of them get there?",
   arcsHeading: "From storytelling to product analytics",
   arcs: [
     {
@@ -89,6 +89,7 @@ export const contact: ContactCopy = {
       message: "Write a message.",
     },
     summary: "Check {count}: {fields}.",
+    sending: "Sending…",
   },
   copy: { button: "Copy email", done: "Email copied", failed: "Could not copy. The address is" },
   thanks: { status: "// message sent", line: "Thanks for getting in touch. I will reply by email." },

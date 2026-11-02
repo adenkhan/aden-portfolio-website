@@ -31,7 +31,8 @@ test("hero entrance ends fully visible and the stat bars fill", async ({ page })
 });
 
 test("stats count up once when scrolled into view and end on the real values", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 700 });
+  // Since p16 the stats sit in the hero, so a short viewport keeps them below the fold.
+  await page.setViewportSize({ width: 1440, height: 480 });
   await page.goto("/");
   await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 2000 });
   // Screen readers always get the real numbers.
