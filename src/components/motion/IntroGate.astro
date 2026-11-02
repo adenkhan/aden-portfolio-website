@@ -1,0 +1,33 @@
+<!--
+  Home only, before first paint. Decides whether the intro plays: once per browser session
+  (sessionStorage "ak.intro", written when it starts), never for reduced motion, never if storage
+  throws. Adds html.intro so the overlay shows from the first frame, handles Esc before the intro
+  bundle loads, and drops the overlay after 4 s if that bundle never starts.
+  Debug: ?intro=replay, ?intro=2d, ?intro=3d replay it; ?intro=off skips it.
+-->
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    var KEY = "ak.intro";
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      var flag = new URLSearchParams(location.search).get("intro");
+      if (flag === "off") return;
+      if (flag === "replay" || flag === "2d" || flag === "3d") sessionStorage.removeItem(KEY);
+      if (sessionStorage.getItem(KEY)) return;
+      sessionStorage.setItem(KEY, "1");
+    } catch (e) {
+      return;
+    }
+    root.classList.add("intro");
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && root.classList.contains("intro")) root.classList.add("intro-skipped");
+    });
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted) root.classList.remove("intro", "intro-running", "intro-skipped");
+    });
+    setTimeout(function () {
+      if (!root.classList.contains("intro-running")) root.classList.remove("intro", "intro-skipped");
+    }, 4000);
+  })();
+</script>

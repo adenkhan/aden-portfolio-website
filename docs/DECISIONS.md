@@ -242,3 +242,15 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: `scripts/check-budget.mjs` now counts lazy chunks too (first load + lazy, excluding only three/postprocessing). Measured: first load 59.7 KB gzip on every page; Home total 109.0 KB with tsParticles.
 - Decision: The pointer light caches the card's rect per hover (and on scroll/resize) so `pointermove` never forces layout (animation-performance review).
 - Source: p10, `docs/MOTION.md` §7.
+
+## 2026-11-02 — p11 Home intro
+- Decision: The intro is vanilla TypeScript (`IntroOverlay.astro` + `src/lib/motion/moments/intro.ts` + `src/components/three/*`), not the requested `Intro.tsx` React island with `client:load`. Why: React's client runtime is about 67 KB gzip and would push Home from about 110 KB to about 175 KB against the 150 KB budget (ADR-002). The script runs on load, the same timing as `client:load`, and three/postprocessing are still imported dynamically. Cost if wrong: if the owner wants React here, the budget has to change first.
+- Decision: The CSS/Lottie fallback is the 2D GSAP version from MOTION.md (Lottie was cut in p07). 3D only on the full tier with real WebGL, more than 4 cores and no data saver; 600 ms load timeout; errors skip to the end.
+- Decision: Timing changed from MOTION.md moment 1: a 0.45 s charge phase opens the intro ("the avatar charges two orbs"), the collision lands at 1.0 s as before, and the overlay is removed at about 1.7 s instead of 2.6 s, since the hero reveal continues on the page. Phones run at 0.77 speed. Recorded in MOTION.md §8.
+- Decision: The collision point is the avatar card's centre (clamped to 62% of screen height on phones).
+- Decision: On Home's first visit the headline reveal waits for the intro's reveal beat (1.3 s); a skip shows the hero's final state with no reveal.
+- Decision: GPU disposal is deferred to an idle callback after the overlay is removed, after measuring a 5 s disposal under software WebGL.
+- Decision: Debug query switches `?intro=replay|2d|3d|off` exist for testing and review.
+- Decision: The 3D renderer clears to pure black; the design colour came out grey through postprocessing's colour pipeline. The page behind turns `bg-void` while the intro plays so the scrollbar gutter does not show as a strip.
+- Result: Home mobile Lighthouse before (p10) Performance 98, LCP 2.1 s; after (cold session, intro playing) Performance 98, LCP 2.1 s, CLS 0, TBT 0 ms. The emulated phone gets the 2D version, so the 3D path still needs a real-device profile in p17.
+- Source: p11, `docs/MOTION.md` §8.

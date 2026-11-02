@@ -49,6 +49,11 @@ export function initMotion(page: PageId): MotionHandle {
       const cleanups: Array<() => void> = [];
       const scroll = startLenis();
       cleanups.push(scroll.stop);
+      // The Home intro owns the screen while it plays; smooth scroll resumes when it ends.
+      if (root.classList.contains("intro")) {
+        scroll.lenis.stop();
+        window.addEventListener("ak:intro-end", () => scroll.lenis.start(), { once: true });
+      }
 
       headlines(ctx)
         .catch((error) => console.warn("[motion] headline reveal skipped", error))

@@ -2,11 +2,15 @@
 import Hero from "@/components/sections/home/Hero.astro";
 import StatsStrip from "@/components/sections/home/StatsStrip.astro";
 import Teaser from "@/components/sections/home/Teaser.astro";
+import IntroGate from "@/components/motion/IntroGate.astro";
+import IntroOverlay from "@/components/motion/IntroOverlay.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { homeJsonLd } from "@/lib/jsonld";
 ---
 
 <BaseLayout page="home" jsonLd={homeJsonLd()}>
+  <IntroGate slot="head" />
+  <IntroOverlay slot="before-nav" />
   <Hero />
   <StatsStrip />
   <Teaser />

@@ -150,6 +150,8 @@
 
   html {
     color-scheme: dark;
+    /* Reserve the scrollbar gutter so locking scroll during the intro never shifts layout. */
+    scrollbar-gutter: stable;
     background-color: var(--color-bg-base);
     -webkit-text-size-adjust: 100%;
     scrollbar-color: var(--color-line-strong) var(--color-bg-void);
@@ -213,6 +215,13 @@
   /* Hide-before-animate: only while the inline gate has set html.motion-pending (never without JS). */
   html.motion-pending [data-reveal="headline"] {
     visibility: hidden;
+  }
+
+  /* The Home intro overlay owns the screen while it plays. */
+  html.intro {
+    overflow: hidden;
+    /* Matches the overlay, so the reserved scrollbar gutter does not show as a lighter strip. */
+    background-color: var(--color-bg-void);
   }
 }
 

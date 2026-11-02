@@ -282,3 +282,37 @@ The owner's p10 prompt asked for headline reveals on all four H1s, ambient parti
 **Dev overlay.** `src/lib/motion/dev-hud.ts` shows FPS, active ScrollTriggers and the tier. It is imported only under `import.meta.env.DEV`, so production builds do not contain it (tested).
 
 **Budget, measured** (`npm run budget`, gzip): first load 59.7 KB on every page (GSAP core, ScrollTrigger, CustomEase, SplitText, ScrambleText, Lenis, motion code). Lazy: 49.3 KB of tsParticles, fetched only on Home when idle on the full tier. Home total 109.0 KB of the 150 KB budget.
+
+## 8. Changes in p11 (Home intro)
+
+Built as moment 1 describes, with these changes.
+
+**Implementation.** Vanilla modules, not a React island: `src/components/motion/IntroGate.astro` (inline, before first paint), `IntroOverlay.astro` (overlay, Skip button, boot script), `src/lib/motion/moments/intro.ts` (timeline, skip, fallbacks, cleanup), `src/components/three/` (`capability.ts`, `stage.ts`, `orbs-2d.ts`, `intro-scene.ts`, `dispose.ts`). Both renderers draw the same `IntroState` object that one GSAP timeline tweens, so the 2D and 3D versions share timing exactly.
+
+**Which version plays.** 3D only when the tier is `full`, `hardwareConcurrency > 4`, no data saver, and WebGL works without a major performance caveat (software rendering counts as unusable). Otherwise the 2D version. If the 3D chunk has not loaded and built its scene within 600 ms, the 2D version runs. Any error skips straight to the end state. Debug switches: `?intro=replay`, `?intro=2d`, `?intro=3d`, `?intro=off`.
+
+**Story and timing** (seconds; × 0.77 on phones and low-power devices):
+
+| t | Beat |
+|---|---|
+| 0–0.45 | Charge: red and blue orbs gather light either side of the avatar card's centre (scale 0.3 → 1, opacity 0 → 1, `ui-out`) |
+| 0.45–0.57 | Anticipation: pull apart 24 px (`ui-out`) |
+| 0.57–1.00 | Converge on the collision point (`ui-in-out`) |
+| 1.00 | Collision: orbs fade in 0.12; purple core 0.4 → 1 in 0.16; bloom spikes then settles over 0.4; shockwave ring 0.1 → 3.2 over 0.7 (fades from 1.4); burst particles fly out over 0.7 (3D); chromatic aberration 0.004 → 0 over 0.4 (3D desktop) |
+| 1.15–1.60 | Overlay fades (`ui-out`, 0.45), clicks pass through from 1.15 |
+| 1.30 | Hero reveal: the H1 word rise and HUD scramble start (the headline module waits for this beat on Home's first visit) |
+| ~1.7 | Overlay removed, focus moved to `<main>` if it was on Skip, smooth scroll resumes |
+
+The collision point is the avatar card's centre, clamped to 62% of the screen height on phones so it stays visible. The overlay is now removed at about 1.7 s (1.3 s on phones), not 2.6 s; the hero's own reveal continues on the page.
+
+**Skip.** The Skip button is in the HTML and visible from the first frame (the inline gate shows the overlay before first paint). Skip or Esc jumps to the end state: the overlay fades in 150 ms and the hero shows without its reveal. Esc pressed before the intro bundle loads is handled by the inline gate.
+
+**Safety nets.** The overlay only shows under `html.intro`, which the inline gate sets for new sessions without reduced motion; no JavaScript or reduced motion means no overlay and no session flag. If storage throws, no intro. If the intro bundle never starts, the gate removes the overlay after 4 s. Scroll is locked with `overflow: hidden` while `html.intro` is set, with `scrollbar-gutter: stable` so nothing shifts.
+
+**3D details.** Orthographic camera in viewport pixels; additive sprites for the orbs and core; a ring mesh; 160 burst points (80 on phones); `EffectComposer` with mipmap bloom (half resolution on phones) and a separate chromatic-aberration pass on desktop. Pixel ratio capped at 1.5 on phones, 2 on desktop. Cleared to pure black (a dark non-zero clear colour came out grey after the colour-space round trip).
+
+**Cleanup.** The overlay and canvas leave the DOM as soon as the timeline ends. GPU disposal (geometries, materials, texture, composer and passes, renderer, `forceContextLoss()`) runs at the next idle callback, so it never competes with the hero reveal. The test reads `renderer.info.memory` after disposal: 0 geometries, 0 textures.
+
+**Cost, measured.** Home first load 62.4 KB gzip (+2 KB for the intro and 2D stage); the 3D chunk is 144 KB gzip, loaded only on Home on the full tier and absent from About, Work and Contact (tested). Mobile Lighthouse on Home, cold session (the emulated phone gets the 2D version): Performance 98, LCP 2.1 s (avatar), CLS 0, TBT 0 ms, the same as before the intro. Under software WebGL the 3D disposal takes about 5 s at idle; real GPUs never take the 3D path through software rendering, but p17 must profile the 3D intro and its disposal on a real device.
+
+**Performance review.** Everything animated is transform or opacity, plus bloom and aberration inside the WebGL canvas. The 2D layers use `will-change: transform, opacity` because they are large soft gradients moved every frame for under 2 s (the skill's expensive-paint exception). The render loop runs only while the timeline does.

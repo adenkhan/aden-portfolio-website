@@ -37,6 +37,7 @@ const meta = seo[page];
     <slot name="head" />
   </head>
   <body data-page={page}>
+    <slot name="before-nav" />
     <SkipLink />
     <Nav />
     <main id="main" tabindex="-1">

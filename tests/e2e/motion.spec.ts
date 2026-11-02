@@ -1,5 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+// The Home intro has its own spec (intro.spec.ts); here it is marked as already seen this session.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    try {
+      sessionStorage.setItem("ak.intro", "1");
+    } catch {}
+  });
+});
+
 const pages = [
   { route: "/", h1: "Aden Khan, Product Marketer" },
   { route: "/about/", h1: "The origin arc: from campaigns to products" },
