@@ -69,6 +69,7 @@ export function initMotion(page: PageId): MotionHandle {
         home: () => import("./moments/home").then((m) => m.home(ctx)),
         about: () => import("./moments/about").then((m) => ctx.add(() => m.about(ctx))),
         work: () => import("./moments/work").then((m) => ctx.add(() => m.work(ctx))),
+        contact: () => import("./moments/contact").then((m) => ctx.add(() => m.contact(ctx))),
       };
       // Start page moments after the first frame, so their setup never delays the first paint
       // (the LCP image on Work). Their hidden start states come from html.motion-pending meanwhile.

@@ -1,32 +1,83 @@
 ---
 import Button from "@/components/ui/Button.astro";
 import PageTitle from "@/components/ui/PageTitle.astro";
-import { seo } from "@/data/seo";
+import { site } from "@/data/site";
+import { contact } from "@/data/timeline";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
 
 <BaseLayout page="thanks">
   <section class="container-site block">
-    <PageTitle page="thanks" />
-    <p>{seo.thanks.description}</p>
-    <div class="links">
-      <Button href="/work/">See my missions</Button>
-      <Button href="/" variant="secondary">
-        Back to home
-      </Button>
+    <div class="panel">
+      <p class="status">{contact.thanks.status}</p>
+      <PageTitle page="thanks" />
+      <p class="line">{contact.thanks.line}</p>
+      <p class="line">
+        {contact.form.lead} <a href={`mailto:${site.email}`}>{site.email}</a>.
+      </p>
+      <div class="links">
+        <Button href="/work/">See my missions</Button>
+        <Button href="/" variant="secondary">
+          Back to home
+        </Button>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
   .block {
-    padding-block: 6rem 2rem;
+    padding-block: 5rem 2rem;
   }
 
-  p {
-    max-width: 48ch;
-    margin: 1.5rem 0 0;
+  /* Same terminal language as the Contact panel, with the growth purple marking success. */
+  .panel {
+    position: relative;
+    max-width: 720px;
+    padding: 2rem 1.5rem;
+    background-color: var(--color-bg-void);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-sm);
+  }
+
+  .panel::before,
+  .panel::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .panel::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--color-growth);
+    border-left: 2px solid var(--color-growth);
+  }
+
+  .panel::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 2px solid var(--color-growth);
+    border-bottom: 2px solid var(--color-growth);
+  }
+
+  .status {
+    margin: 0 0 1rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-growth);
+  }
+
+  .line {
+    max-width: 52ch;
+    margin: 1rem 0 0;
     color: var(--color-text-muted);
+  }
+
+  .line a {
+    color: var(--color-text);
+    overflow-wrap: anywhere;
   }
 
   .links {

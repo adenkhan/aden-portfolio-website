@@ -286,3 +286,10 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Page moments start after the first frame. Tried and reverted: deferring the whole motion bundle, and inlining CSS; neither improved LCP.
 - Risk (open, p17): Work's mobile LCP measures 2.46–2.63 s locally with or without the p14 motion; the thumbnail paints about 600 ms after FCP (1.8 s). Needs a real-device check and a fix in p17.
 - Source: p14, `docs/MOTION.md` §11.
+
+## 2026-11-02 — p15 Contact
+- Decision: The terminal "types" every channel (overrides MOTION.md moment 6's prompt-only rule at the owner's request). Links and their real text are in the HTML from the start; only `aria-hidden` copies animate.
+- Decision: No Sonner. It is a React library; a tiny CSS toast with `role="status"` does the job without a React island.
+- Decision: Form validation keeps the browser's native validation without JavaScript and replaces it with inline, linked, announced errors when JavaScript runs (`form.noValidate` set by script). A valid form submits natively so Netlify's handling and the `/thanks/` redirect are unchanged.
+- Decision: The `/thanks/` page reuses the terminal look with the growth purple as the success colour and repeats the email address as the fallback. Its line makes no claim about reply time (none in `docs/cv-source.md`).
+- Source: p15, `docs/MOTION.md` §12.

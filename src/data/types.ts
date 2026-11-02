@@ -117,7 +117,12 @@ export interface ContactCopy {
     email: string;
     message: string;
     submit: string;
+    errors: { name: string; email: string; emailFormat: string; message: string };
+    /** Announced on a failed submit; {count} and {fields} are filled in. */
+    summary: string;
   };
+  copy: { button: string; done: string; failed: string };
+  thanks: { status: string; line: string };
 }
 
 export interface PageSeo {

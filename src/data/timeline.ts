@@ -82,5 +82,14 @@ export const contact: ContactCopy = {
     email: "Email",
     message: "Message",
     submit: "Send message",
+    errors: {
+      name: "Enter your name.",
+      email: "Enter your email address.",
+      emailFormat: "Enter an email address like name@example.com.",
+      message: "Write a message.",
+    },
+    summary: "Check {count}: {fields}.",
   },
+  copy: { button: "Copy email", done: "Email copied", failed: "Could not copy. The address is" },
+  thanks: { status: "// message sent", line: "Thanks for getting in touch. I will reply by email." },
 };
