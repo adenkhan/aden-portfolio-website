@@ -69,16 +69,26 @@ test("BBA, IBA Karachi and the availability line appear once, in About", async (
 test("case-study lines each stay on one line on desktop", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/work/");
-  const multiLine = await page
-    .locator("[data-case-study]")
-    .evaluateAll((studies) =>
-      studies.flatMap((study) =>
-        [study.querySelector("h3")!, ...study.querySelectorAll("dd")]
-          .filter(
-            (el) => el.getBoundingClientRect().height > parseFloat(getComputedStyle(el).lineHeight) * 1.5,
-          )
-          .map((el) => el.textContent?.trim()),
-      ),
-    );
+  const multiLine = await page.locator("[data-case-study]").evaluateAll((studies) =>
+    studies.flatMap((study) =>
+      [study.querySelector("h3")!, ...study.querySelectorAll("dd")]
+        .filter((el) => {
+          // Count line boxes from the text's rects (the result line mixes type sizes on one line).
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const rects = [...range.getClientRects()].filter((r) => r.height > 0).sort((a, b) => a.top - b.top);
+          let lines = rects.length ? 1 : 0;
+          let bottom = rects[0]?.bottom ?? 0;
+          for (const r of rects) {
+            if (r.top >= bottom - 2) {
+              lines++;
+              bottom = r.bottom;
+            } else bottom = Math.max(bottom, r.bottom);
+          }
+          return lines > 1;
+        })
+        .map((el) => el.textContent?.trim()),
+    ),
+  );
   expect(multiLine).toEqual([]);
 });

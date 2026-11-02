@@ -476,3 +476,45 @@ Stepping down changes draw ranges, pixel ratio, bloom resolution and the aberrat
 - Entry JS is 68–70 KB gzip per page, up 4–6 KB for the client router.
 - The lazy 3D world chunk (three, postprocessing, the scene) is part of the 161 KB lazy total and loads after first paint.
 - Lighthouse results are in `docs/DECISIONS.md` (r3).
+
+## 14. Work case studies as visual stories (r4)
+
+Code:
+- `src/components/sections/work/CaseStudy.astro` (layout);
+- `CaseVisual.astro` (one inline SVG per case, drawn in its end state);
+- `src/lib/motion/moments/case-visuals.ts` (beats and loops);
+- `work.ts` (sequence and gallery).
+
+**Layout.** Each case has, in order:
+- the big title and company;
+- the visual, which takes most of the card: 720×300 SVG, 40vh between 220 and 420 px on desktop, full width on phones;
+- three captions: problem, move and result.
+
+The result is the hero: its number (or its whole line, when the result has no number) is set in display type in the lane colour. Numbers count up to their real values; the width is reserved so counting never shifts layout. Schematic visuals carry a small "illustrative" caption under the drawing, never on it.
+
+**Beats.** One timeline per case, with three beats at 0, 0.45 and 0.95. Each caption arrives (opacity and 12 px) with its beat, and the visual acts in step:
+
+| Case | Problem beat | Move beat | Result beat | Loop (after the beats, only while in view) |
+|---|---|---|---|---|
+| 1 Cut the cost of growth | the cost bar stands full | the funnel fills stage by stage | the bar shrinks by 72% (real); "−72%" lands; the hero counts to −72% | the funnel stages breathe |
+| 2 Let the robots do the busywork | the four nodes pop in | the edges draw | a packet appears | three packets travel capture → enrich → email → CRM along the curves (MotionPath); each node pulses on arrival |
+| 3 An SEO writer's cockpit | the keyword chips appear in the research column | they fly into the draft | two chips with overlapping meaning collide, flash red, and the "overlap" flag appears | the clash outline pulses |
+| 4 Open doors in U.S. proptech | the dots appear | they move through prospect → contacted → meeting → partner | the weekly ticker fills; the hero shows 1–2 | the weeks light one by one |
+| 5 Make founders notice | the cards appear | they fan out like a hand of cards | the awareness bar rises 40% (real); the hero counts to +40% | the hand sways by 2° |
+| 6 Fund the club | 15 envelopes fly out (15+) | coins stack while $7,000+ counts | +1,500 followers counts and its ring draws | the top coin bobs |
+
+**Desktop sequence** (at least 1024 px wide and 600 px tall).
+- The section pins at the top and the cases move sideways, one per screen, scrubbed by scroll (scrub 0.6, distance = strip width − viewport).
+- Case 1's beats scrub as the section rises to the pin (`top 85%` → `top top`). Each later case's beats scrub as it slides in (`containerAnimation`, `left 85%` → `left 10%`).
+- The case in view is sent to the 3D world (`ak:case-active`), whose camera pulls to that case's formation.
+- Every case is focusable; focusing one scrolls the page to its place in the sequence. The strip clips with `overflow: clip`, so focus can never scroll it sideways.
+
+**Phones and tablets.** A vertical stack. Each case plays its beats once as its top passes 75% of the viewport, and reports itself to the world while it crosses the middle.
+
+**Reduced motion and no JavaScript.** A vertical stack, every visual in its end state, every number at its real value. `html.motion-pending` hides the case SVGs only until their start states are set, so the end state never flashes before the beats.
+
+**Gallery.**
+- A mouse-draggable strip with momentum: pointer drag moves the native `scrollLeft`, and `InertiaPlugin` carries the release velocity, clamped to the ends.
+- Cards tilt toward a fine pointer, at most 8° on Y and 6° on X, eased 0.4 s.
+- Touch keeps native swipe and scroll-snap; keyboard and scrollbar work unchanged.
+- The p14 pinned gallery is removed (the case sequence is now the pinned moment on Work).

@@ -7,15 +7,22 @@ import CaseStudy from "./CaseStudy.astro";
 const caseStudies = isWorstCase() ? worstCaseStudies : demoCaseStudies;
 ---
 
-<section class="container-site block" id="missions" aria-labelledby="missions-title">
+<!--
+  Case studies (r4). Default (no JS, phones, reduced motion): a vertical stack. On desktop with motion,
+  the motion layer adds .is-sequence: the section pins and the cases move sideways, one per screen,
+  scrubbed by scroll (docs/MOTION.md §14), handing each active case to the 3D camera.
+-->
+<section class="block" id="missions" aria-labelledby="missions-title" data-cases>
   <h2 id="missions-title" class="sr-only">
     {work.missionsHeading}
   </h2>
-  <ol class="list">
-    {caseStudies.map((study, index) => (
-      <CaseStudy study={study} eager={index === 0} />
-    ))}
-  </ol>
+  <div class="viewport" data-cases-viewport>
+    <ol class="list" data-cases-track aria-label={work.sequenceLabel}>
+      {caseStudies.map((study, index) => (
+        <CaseStudy study={study} index={index} total={caseStudies.length} />
+      ))}
+    </ol>
+  </div>
 </section>
 
 <style>
@@ -25,9 +32,47 @@ const caseStudies = isWorstCase() ? worstCaseStudies : demoCaseStudies;
 
   .list {
     display: grid;
-    gap: 1.25rem;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 max(1rem, env(safe-area-inset-left, 0px));
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .list {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  /* Pinned sequence: a row of full-width panels; the section clips them (overflow: clip cannot be
+     scrolled programmatically, so focusing an off-screen case never shifts the strip). */
+  .block:global(.is-sequence) {
+    padding-block: 0;
+  }
+
+  .block:global(.is-sequence) .viewport {
+    height: 100svh;
+    overflow: clip;
+  }
+
+  .block:global(.is-sequence) .list {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    max-width: none;
+    height: 100%;
     margin: 0;
     padding: 0;
-    list-style: none;
+  }
+
+  .block:global(.is-sequence) .list > :global(li) {
+    display: grid;
+    align-items: center;
+    /* --panel is the viewport width without the scrollbar, set by the motion layer. */
+    flex: 0 0 var(--panel, 100vw);
+    width: var(--panel, 100vw);
+    padding: 1.5rem max(1.5rem, calc((var(--panel, 100vw) - 1200px) / 2 + 1.5rem));
   }
 </style>

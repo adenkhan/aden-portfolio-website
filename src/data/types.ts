@@ -45,6 +45,41 @@ export interface HomeCopy {
 }
 
 /** One Work case study: each field renders as a single line on desktop. */
+/** A number the visual counts up to. Only values already in the copy or docs/cv-source.md. */
+export interface CountUp {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+}
+
+/**
+ * The visual story for one case study (r4). Labels are short; any shape that is not real data is
+ * marked "illustrative" on screen (`illustrative: true`).
+ */
+export type CaseVisual =
+  | { kind: "cac"; illustrative: true; costLabel: string; drop: number; funnel: string[] }
+  | { kind: "workflow"; illustrative: true; steps: string[] }
+  | {
+      kind: "cockpit";
+      illustrative: true;
+      column: string;
+      draft: string;
+      keywords: string[];
+      overlap: [number, number];
+      flag: string;
+    }
+  | { kind: "pipeline"; illustrative: true; stages: string[]; tickerLabel: string }
+  | { kind: "reach"; illustrative: true; lift: number; liftLabel: string; cards: string[] }
+  | {
+      kind: "club";
+      illustrative: false;
+      proposals: CountUp;
+      proposalsLabel: string;
+      raised: CountUp;
+      followers: CountUp;
+      followersLabel: string;
+    };
+
 export interface CaseStudy {
   id: string;
   order: number;
@@ -52,7 +87,14 @@ export interface CaseStudy {
   company: string;
   problem: string;
   move: string;
+  /** The owner's result line, word for word: `resultLead` + " " + `resultRest`. */
   result: string;
+  /** The hero of the card (the number when there is one). */
+  resultLead: string;
+  resultRest: string;
+  /** Counts up to `resultLead` when it is a number. */
+  count?: CountUp;
+  visual: CaseVisual;
   lane: Lane;
   evidence?: AssetKey;
 }
@@ -97,6 +139,10 @@ export interface WorkCopy {
   galleryHeading: string;
   /** Screen-reader labels for each case-study line; the design marks them with icons. */
   caseLabels: { company: string; problem: string; move: string; result: string };
+  /** Marks a schematic visual that is not real data. */
+  illustrative: string;
+  /** Screen-reader label for the horizontal case-study sequence on desktop. */
+  sequenceLabel: string;
 }
 
 export interface ContactCopy {

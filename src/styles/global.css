@@ -248,9 +248,9 @@
     visibility: hidden;
   }
 
-  /* Mission cards only move (their thumbnail can be the LCP image). */
-  html.motion-pending [data-mission] {
-    transform: translateY(24px);
+  /* Case-study visuals (r4) wait for their start states, so the end state never flashes first. */
+  html.motion-pending [data-case-visual] svg {
+    visibility: hidden;
   }
 
   /* The CV dialog locks background scroll (Lenis is paused too). */

@@ -158,20 +158,11 @@ function wirePage(world: World, reduced: boolean): () => void {
   }
 
   if (station === "work") {
-    document.querySelectorAll("[data-case-study]").forEach((study, i) => {
-      if (reduced) return;
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: study,
-          start: "top 62%",
-          end: "bottom 38%",
-          onToggle: (self) => {
-            if (self.isActive) input.activeCase = i;
-            else if (input.activeCase === i) input.activeCase = -1;
-            world.notifyInput();
-          },
-        }),
-      );
+    // The Work motion layer reports the case in view (pinned sideways sequence on desktop, vertical
+    // stack on phones) with ak:case-active; the camera pulls to that case's formation (r4).
+    on(window, "ak:case-active", (event) => {
+      input.activeCase = (event as CustomEvent<{ index: number }>).detail.index;
+      world.notifyInput();
     });
     const tree = document.querySelector("[data-tree]");
     input.lanes = [...document.querySelectorAll("[data-tree-lane]")];

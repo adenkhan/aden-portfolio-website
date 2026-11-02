@@ -61,6 +61,8 @@ export const work: WorkCopy = {
   skillsHeading: "Skills",
   galleryHeading: "Creative drops",
   caseLabels: { company: "Company", problem: "Problem", move: "Move", result: "Result" },
+  illustrative: "illustrative",
+  sequenceLabel: "Case studies, scroll to move through them",
 };
 
 export const contact: ContactCopy = {

@@ -15,6 +15,8 @@ Slot data (paths, sizes, alt text) lives in `src/data/assets.ts`. Alt text follo
 |---|---|---|---|---|---|---|
 | avatar | `src/assets/avatar/avatar.png` | 1200×1500 (4:5) | PNG | `/` hero, character-select card (LCP image) | The original illustrated avatar, high resolution | Illustrated anime avatar of Aden Khan, product marketer |
 | ogDefault | `src/assets/og/default.png` | 1200×630 | PNG | `og:image` / `twitter:image` on every page | Social card (prompt 18 adds per-page cards) | Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple |
+> **r4:** the case studies render visual stories (`src/components/sections/work/CaseVisual.astro`) instead of these six images, so the mission slots are **reserved** for real evidence screenshots and are not shown on the site yet. The gallery slots below are still used.
+
 | mission-01 | `src/assets/work/mission-01.webp` | 1200×800 (3:2) | WebP | `/work/` case study 1 | Meta ads and Amplitude results, Sadiq.ai | Meta ads and Amplitude results for Sadiq.ai showing lower customer acquisition cost |
 | mission-02 | `src/assets/work/mission-02.webp` | 1200×800 | WebP | `/work/` case study 2 | HubSpot / n8n workflow, 10Pearls | HubSpot and n8n workflow automating lead capture and CRM handoff at 10Pearls |
 | mission-03 | `src/assets/work/mission-03.webp` | 1200×800 | WebP | `/work/` case study 3 | The SEO writing app and cannibalization checker, 10Pearls | SEO writing app with Ahrefs keyword ideas and a cannibalization checker, built at 10Pearls |

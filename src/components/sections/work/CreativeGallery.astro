@@ -56,14 +56,27 @@ const ids = isWorstCase()
     scroll-padding-inline: 1rem;
   }
 
-  /* Desktop pin (MOTION.md §11): GSAP moves the strip sideways; the section clips it. */
-  .block:global(.pinned) {
-    overflow-x: clip;
+  /* Draggable with momentum (r4, fine pointer): inertia owns the stop position, so no snapping,
+     and dragging never selects text or ghost-drags an image. */
+  .strip:global(.is-draggable) {
+    scroll-snap-type: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
   }
 
-  .block:global(.pinned) .strip {
-    overflow: visible;
-    scroll-snap-type: none;
+  .strip:global(.is-dragging) {
+    cursor: grabbing;
+  }
+
+  .strip:global(.is-draggable) :global(img) {
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+
+  /* Room for the 3D tilt, so a leaning card is never clipped. */
+  .strip {
+    padding-block: 1rem 1.5rem;
   }
 
   .strip li {

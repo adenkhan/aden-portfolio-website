@@ -1,43 +1,53 @@
 ---
-import Img from "@/components/ui/Img.astro";
 import { work } from "@/data/timeline";
 import type { CaseStudy } from "@/data/types";
+import CaseVisual from "./CaseVisual.astro";
 
 interface Props {
   study: CaseStudy;
-  /** The first case study's image is above the fold on phones and is the LCP image there. */
-  eager?: boolean;
+  index: number;
+  total: number;
 }
 
-const { study, eager = false } = Astro.props;
+const { study, index, total } = Astro.props;
 const labels = work.caseLabels;
+const titleId = `case-${study.id}-title`;
+const count = study.count;
 ---
 
 <!--
-  One case study (r2): title / company / problem / move / result. Each field is one line on desktop;
-  icons mark problem, move and result visually, and sr-only terms name them for screen readers.
+  One case study as a visual story (r4): title and company, then the visual (most of the space), then
+  problem / move / result as three short captions that arrive with the visual's beats (data-beat).
+  Fully understandable from the captions alone; the visual is decorative for assistive tech.
+  Keyboard: each case is focusable; on desktop, focusing one scrolls the pinned sequence to it.
 -->
-<li class="card" id={`mission-${study.id}`} data-lane={study.lane} data-mission data-case-study>
-  {study.evidence && (
-    <Img
-      asset={study.evidence}
-      widths={[400, 600, 800]}
-      sizes="(min-width: 48rem) 240px, 92vw"
-      class="thumb"
-      eager={eager}
-    />
-  )}
-  <div class="body" data-mission-body>
-    <h3>{study.title}</h3>
-    <dl>
-      <div class="row company">
-        <dt class="sr-only">{labels.company}</dt>
-        <dd>
-          <span class="dot" aria-hidden="true"></span>
-          {study.company}
-        </dd>
-      </div>
-      <div class="row">
+<li
+  class="case"
+  id={`mission-${study.id}`}
+  data-lane={study.lane}
+  data-mission
+  data-case-study
+  data-case-index={index}
+  tabindex="0"
+  aria-labelledby={titleId}
+>
+  <div class="card">
+    <header class="head">
+      <p class="index" aria-hidden="true">
+        {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+      </p>
+      <h3 id={titleId}>{study.title}</h3>
+      <p class="company">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="sr-only">{labels.company}: </span>
+        {study.company}
+      </p>
+    </header>
+
+    <CaseVisual visual={study.visual} />
+
+    <dl class="captions" data-mission-body>
+      <div class="row" data-beat="1">
         <dt>
           <span class="sr-only">{labels.problem}</span>
           <span class="icon problem" aria-hidden="true">
@@ -46,7 +56,7 @@ const labels = work.caseLabels;
         </dt>
         <dd>{study.problem}</dd>
       </div>
-      <div class="row">
+      <div class="row" data-beat="2">
         <dt>
           <span class="sr-only">{labels.move}</span>
           <span class="icon move" aria-hidden="true">
@@ -55,50 +65,94 @@ const labels = work.caseLabels;
         </dt>
         <dd>{study.move}</dd>
       </div>
-      <div class="row result" data-mission-result>
+      <div class="row result" data-beat="3" data-mission-result>
         <dt>
           <span class="sr-only">{labels.result}</span>
           <span class="icon" aria-hidden="true">
             ▲
           </span>
         </dt>
-        <dd>{study.result}</dd>
+        <dd>
+          <span class="lead">
+            {count ? (
+              <>
+                <span class="sr-only">{study.resultLead}</span>
+                <span class="ticker" aria-hidden="true" data-final={study.resultLead}>
+                  <span data-count={count.value} data-prefix={count.prefix} data-suffix={count.suffix}>
+                    {study.resultLead}
+                  </span>
+                </span>
+              </>
+            ) : (
+              study.resultLead
+            )}
+          </span>
+          {study.resultRest && <span class="rest"> {study.resultRest}</span>}
+        </dd>
       </div>
     </dl>
   </div>
 </li>
 
 <style>
+  .case {
+    outline: none;
+  }
+
+  .case:focus-visible .card {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
   .card {
     display: grid;
-    overflow: hidden;
-    background-color: var(--color-bg-surface);
+    gap: 1rem;
+    padding: 1.25rem;
+    background-color: color-mix(in srgb, var(--color-bg-surface) 88%, transparent);
     border: 1px solid var(--color-line);
     border-radius: var(--radius-md);
-    transition: border-color var(--duration-hover) ease;
   }
 
-  .thumb :global(img) {
-    display: block;
-    width: 100%;
-    height: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: cover;
-  }
-
-  .body {
+  .head {
     display: grid;
-    gap: 0.75rem;
-    min-width: 0;
-    padding: 1.25rem 1.5rem 1.5rem;
+    gap: 0.25rem;
+  }
+
+  .index {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--lane-colour);
   }
 
   h3 {
     margin: 0;
-    font-size: var(--text-title);
-    line-height: var(--text-title--line-height);
-    font-weight: 800;
-    transition: color var(--duration-hover) ease;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  .company {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .dot {
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--lane-colour);
+  }
+
+  .card :global(.stage) {
+    aspect-ratio: 720 / 300;
   }
 
   dl {
@@ -114,10 +168,6 @@ const labels = work.caseLabels;
     gap: 0.5rem;
   }
 
-  .row.company {
-    display: block;
-  }
-
   dt {
     margin: 0;
   }
@@ -126,23 +176,6 @@ const labels = work.caseLabels;
     margin: 0;
     color: var(--color-text-muted);
     overflow-wrap: anywhere;
-  }
-
-  .company dd {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: var(--text-mono-label);
-    color: var(--color-text-subtle);
-  }
-
-  .dot {
-    flex-shrink: 0;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background-color: var(--lane-colour);
   }
 
   .icon {
@@ -171,18 +204,45 @@ const labels = work.caseLabels;
     box-shadow: inset 0 0 0 1px var(--lane-colour);
   }
 
+  /* The result is the hero: its number (or line) in display type, the rest as its caption. */
   .result {
     align-items: center;
     margin-top: 0.25rem;
   }
 
   .result dd {
+    color: var(--color-text);
+  }
+
+  .lead {
     font-family: var(--font-display);
-    font-size: var(--text-title);
-    line-height: var(--text-title--line-height);
-    font-weight: 800;
+    font-size: var(--text-display-lg);
+    line-height: 1;
+    font-weight: 900;
     font-variant-numeric: tabular-nums;
     color: var(--lane-colour);
+  }
+
+  .rest {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 800;
+    color: var(--color-text);
+  }
+
+  /* Counting never changes width: the final value reserves the space (CLS). */
+  .ticker {
+    display: inline-grid;
+  }
+
+  .ticker > span,
+  .ticker::after {
+    grid-area: 1 / 1;
+  }
+
+  .ticker::after {
+    content: attr(data-final);
+    visibility: hidden;
   }
 
   [data-lane="creative"] {
@@ -197,33 +257,17 @@ const labels = work.caseLabels;
     --lane-colour: var(--color-growth);
   }
 
-  /* Tablet and up: image beside the text, so each line has the width to stay on one line on desktop. */
   @media (width >= 48rem) {
     .card {
-      grid-template-columns: 240px minmax(0, 1fr);
-    }
-
-    .card > :global(.thumb) {
-      height: 100%;
-    }
-
-    .thumb :global(img) {
-      aspect-ratio: auto;
-    }
-
-    .body {
-      padding: 1.5rem 2rem;
-      align-content: center;
+      padding: 1.75rem 2rem;
     }
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .card:hover {
-      border-color: var(--color-line-strong);
-    }
-
-    .card:hover h3 {
-      color: var(--lane-colour);
+  /* Desktop sequence (≥ 1024 px): one case per screen, the visual sized to the viewport height. */
+  @media (width >= 64rem) {
+    .card :global(.stage) {
+      aspect-ratio: auto;
+      height: clamp(220px, 40vh, 420px);
     }
   }
 </style>

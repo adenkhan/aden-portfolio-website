@@ -404,3 +404,21 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
   Every default run meets the R1 budgets; SEO and Accessibility are ≥ 95 everywhere.
 - Risk (open): **forced 3D on mobile Home scores 55** (budget 65). The cause is TBT of about 2 s at 4× throttling, from building the world and the 3D intro during load. Real phones with a GPU take this path, so a real-device Lighthouse run is needed. If it confirms the shortfall, the candidate fix is on the low tier: play the 2D intro and boot the world after it ends (still a 3D world, with a lighter intro). The owner decides, because it changes the R1 "lighter, never removed" reading.
 - Source: r3, `docs/MOTION.md` §13.
+
+## 2026-11-03 — r4: visual case studies
+- Decision: each Work case is a visual story, laid out as title and company, then the visual (most of the card), then problem / move / result captions that arrive with the visual's beats. The result number is the hero and counts up. `docs/MOTION.md` §14 has the choreography.
+- Decision: **SVG + GSAP for every visual, not Bklit.** The shadcn MCP shows Bklit's `funnel-chart` and `bar-chart`, but both are React components animated by `motion`. They would add a React island to Work, and they play their own entrance, which can't be scrubbed by the pinned GSAP timeline. The brief allowed "Bklit or SVG + GSAP". Cost if wrong: a later swap of case 1's SVG for a Bklit chart in a React island.
+- Decision: only numbers from `src/data`:
+  - −72%, +40%, 1–2 a week, 15+, $7,000+ and +1,500, all from the r2 copy and `docs/cv-source.md`;
+  - funnel stages, pipeline dots, week ticks, keyword chips and card labels are schematic, so cases 1–5 show a visible "illustrative" caption;
+  - case 6 draws only real counts, so it has none.
+- Decision: the result line is split into `resultLead` and `resultRest` in the data (together they are the owner's copy, word for word), with an optional `count`. Cases 2 and 3 have no number, so their whole result line is the hero without a count-up. Case 4's "1–2" is a range, so it isn't counted.
+- Decision: the six mission screenshot slots are no longer shown; the visuals replace them. The slots are kept as reserved for evidence (`docs/ASSETS.md`).
+- Decision: on desktop the cases form a pinned, sideways, scroll-scrubbed sequence. The active case goes to the 3D world through an `ak:case-active` event, which replaces the world's per-case ScrollTriggers (they can't see horizontal movement). Phones get a vertical stack that plays each case on entry.
+- Ruling: **the gallery uses InertiaPlugin with a hand-rolled pointer drag, not Draggable.** Draggable's `scrollLeft` mode wraps the list items in a `div`, which broke the `<ul>` (items stacked vertically, invalid list markup). Driving the native `scrollLeft` keeps the list, the scrollbar, the arrow keys and touch swipe. Cost if wrong: none for visitors; Draggable could return with an `x`-type wrapper later.
+- Ruling: the p14 pinned gallery is removed; Work's pinned moment is now the case sequence (one hero motion per screen).
+- Ruling: the r2 rule "each line stays one line on desktop" still holds. The captions run full width under the visual (tested at 1440 by counting line boxes).
+- Verification:
+  - `npm run verify` passes, with new tests for: the pin and sideways movement; counts reaching their real values; keyboard focus scrolling a case into view; the phone stack; gallery momentum; and reduced-motion and no-JS end states.
+  - Screenshots are in `docs/screens/` (`work-case-*`).
+- Source: r4, `docs/MOTION.md` §14.

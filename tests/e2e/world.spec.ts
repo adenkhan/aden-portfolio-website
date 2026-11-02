@@ -80,7 +80,8 @@ test("Work: case studies pull the camera to their formation; skills light the co
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/work/?world=force");
   await ready(page);
-  await centre(page.locator("[data-case-study]").nth(2));
+  await expect(page.locator("[data-cases]")).toHaveClass(/is-sequence/, { timeout: 10000 });
+  await page.locator("[data-case-study]").nth(2).focus();
   await expect
     .poll(() => page.evaluate(() => window.__akWorld!.world.input.activeCase), { timeout: 8000 })
     .toBe(2);

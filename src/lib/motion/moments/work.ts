@@ -1,46 +1,131 @@
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
+import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { gsap, ScrollTrigger } from "../eases";
 import type { MomentContext } from "../types";
+import { buildCase, type CaseMotion } from "./case-visuals";
 
-gsap.registerPlugin(DrawSVGPlugin);
+gsap.registerPlugin(DrawSVGPlugin, InertiaPlugin);
 const SVG = "http://www.w3.org/2000/svg";
 
-/**
- * Mission cards enter as a staggered group (MOTION.md §11). The thumbnail is often the LCP image, so
- * cards only move; their text fades, and the result line arrives last as the emphasis.
- */
-function missions(ctx: MomentContext): void {
-  const cards = gsap.utils.toArray<HTMLElement>("[data-mission]");
-  if (!cards.length) return;
-  const lite = ctx.tier === "lite";
-  gsap.set(cards, { y: 24 });
-  gsap.set(
-    cards.map((c) => c.querySelector("[data-mission-body]")),
-    { opacity: 0 },
-  );
-  gsap.set(
-    cards.map((c) => c.querySelector("[data-mission-result]")),
-    { opacity: 0, y: 8 },
-  );
+const caseActive = (index: number) =>
+  window.dispatchEvent(new CustomEvent("ak:case-active", { detail: { index } }));
 
-  ScrollTrigger.batch(cards, {
-    start: "top 90%",
-    once: true,
-    onEnter: (batch) => {
-      const tl = gsap.timeline({ defaults: { ease: "ui-out" } });
-      tl.to(batch, { y: 0, duration: lite ? 0.45 : 0.55, stagger: 0.06 }, 0)
-        .to(
-          batch.map((c) => c.querySelector("[data-mission-body]")),
-          { opacity: 1, duration: 0.4, stagger: 0.06 },
-          0.05,
-        )
-        .to(
-          batch.map((c) => c.querySelector("[data-mission-result]")),
-          { opacity: 1, y: 0, duration: 0.45, stagger: 0.06 },
-          0.2,
-        );
-    },
-  });
+/**
+ * Case studies as visual stories (r4, docs/MOTION.md §14). Each case has three beats (problem, move,
+ * result) and a subtle loop that starts once the beats have played and runs only while it is in view.
+ * Desktop (≥ 1024 px wide, ≥ 600 px tall): the section pins and the cases move sideways, one per
+ * screen, each case's beats scrubbed by scroll. Phones and tablets: a vertical stack; each case plays
+ * once as it enters view. Either way the active case is reported to the 3D world (ak:case-active).
+ */
+function cases(ctx: MomentContext): (() => void) | void {
+  const section = document.querySelector<HTMLElement>("[data-cases]");
+  const viewport = section?.querySelector<HTMLElement>("[data-cases-viewport]");
+  const track = section?.querySelector<HTMLElement>("[data-cases-track]");
+  if (!section || !viewport || !track) return;
+  const panels = gsap.utils.toArray<HTMLElement>(track.querySelectorAll("[data-case-study]"));
+  const motions: CaseMotion[] = panels.map((panel) => buildCase(panel));
+  const triggers: ScrollTrigger[] = [];
+  const cleanups: Array<() => void> = [];
+  let active = -1;
+
+  const setActive = (index: number) => {
+    if (index === active) return;
+    active = index;
+    caseActive(index);
+    // Loops run only for the case in view, and only after its beats have played once.
+    motions.forEach((m, i) => (i === index && m.beats.progress() === 1 ? m.loop.play() : m.loop.pause()));
+  };
+
+  const sequence = window.matchMedia("(min-width: 1024px) and (min-height: 600px)").matches;
+  if (sequence) {
+    section.classList.add("is-sequence");
+    const setPanel = () => section.style.setProperty("--panel", `${document.documentElement.clientWidth}px`);
+    setPanel();
+    const distance = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
+    const last = panels.length - 1;
+    const slide = gsap.to(track, {
+      x: () => -distance(),
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: () => `+=${distance()}`,
+        pin: true,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        onRefreshInit: setPanel,
+        onUpdate: (self) => setActive(Math.round(self.progress * last)),
+        onToggle: (self) => setActive(self.isActive ? Math.round(self.progress * last) : -1),
+      },
+    });
+    triggers.push(slide.scrollTrigger!);
+
+    // Beats: case 1 plays as the section scrolls up to the pin; the rest as each slides into view.
+    motions.forEach((m, i) => {
+      const st = ScrollTrigger.create(
+        i === 0
+          ? { trigger: section, start: "top 85%", end: "top top", scrub: 0.5, animation: m.beats }
+          : {
+              trigger: panels[i],
+              containerAnimation: slide,
+              start: "left 85%",
+              end: "left 10%",
+              scrub: 0.5,
+              animation: m.beats,
+            },
+      );
+      triggers.push(st);
+      m.beats.eventCallback("onComplete", () => i === active && m.loop.play());
+    });
+
+    // Keyboard: focusing a case scrolls the pinned sequence to it (the strip itself never scrolls).
+    panels.forEach((panel, i) => {
+      const onFocus = () => {
+        const st = slide.scrollTrigger!;
+        window.scrollTo({ top: st.start + (st.end - st.start) * (last ? i / last : 0), behavior: "instant" });
+      };
+      panel.addEventListener("focus", onFocus);
+      cleanups.push(() => panel.removeEventListener("focus", onFocus));
+    });
+
+    cleanups.push(() => {
+      gsap.set(track, { clearProps: "transform" });
+      section.classList.remove("is-sequence");
+      section.style.removeProperty("--panel");
+    });
+  } else {
+    panels.forEach((panel, i) => {
+      const m = motions[i];
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: panel,
+          start: "top 75%",
+          once: true,
+          onEnter: () => m.beats.play(),
+        }),
+        ScrollTrigger.create({
+          trigger: panel,
+          start: "top 62%",
+          end: "bottom 38%",
+          onToggle: (self) => setActive(self.isActive ? i : active === i ? -1 : active),
+        }),
+      );
+      m.beats.eventCallback("onComplete", () => i === active && m.loop.play());
+    });
+  }
+
+  // The pin changes the page height: re-measure every trigger (including the world's) once settled.
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+
+  return () => {
+    triggers.forEach((t) => t.kill());
+    motions.forEach((m) => {
+      m.beats.kill();
+      m.loop.kill();
+    });
+    cleanups.forEach((fn) => fn());
+    caseActive(-1);
+  };
 }
 
 /**
@@ -144,53 +229,85 @@ function skillsTree(ctx: MomentContext): (() => void) | void {
 }
 
 /**
- * Creative gallery: pinned horizontal scroll on desktop (fine pointer, ≥ 1024 px); phones and tablets
- * keep native swipe with scroll-snap. Arrow keys on the focused strip still move through it.
+ * Creative gallery (r4): a mouse-draggable strip with momentum, and cards that tilt in 3D toward a
+ * fine pointer. Dragging moves the strip's native scroll position and InertiaPlugin carries the
+ * release velocity, so the scrollbar, arrow keys and touch swipe keep working. (Draggable's
+ * scrollLeft mode wraps the list items in a div, which breaks the list; see docs/DECISIONS.md, r4.)
+ * Touch devices keep native swipe; their momentum is the browser's own.
  */
 function gallery(ctx: MomentContext): (() => void) | void {
-  if (!ctx.fine || !window.matchMedia("(min-width: 1024px)").matches) return;
-  const section = document.querySelector<HTMLElement>("[data-gallery]");
-  const track = section?.querySelector<HTMLElement>("[data-gallery-track]");
-  if (!section || !track) return;
+  const track = document.querySelector<HTMLElement>("[data-gallery] [data-gallery-track]");
+  if (!track) return;
+  const cleanups: Array<() => void> = [];
 
-  section.classList.add("pinned");
-  // Pinned, the strip no longer scrolls natively, so smooth scroll must handle the wheel over it.
-  track.removeAttribute("data-lenis-prevent");
-  const distance = () => Math.max(0, track.scrollWidth - track.clientWidth);
-  const tween = gsap.to(track, {
-    x: () => -distance(),
-    ease: "none",
-    scrollTrigger: {
-      trigger: section,
-      start: "top 12%",
-      end: () => `+=${distance()}`,
-      pin: true,
-      scrub: 0.5,
-      invalidateOnRefresh: true,
-    },
-  });
+  if (ctx.fine) {
+    track.classList.add("is-draggable");
+    InertiaPlugin.track(track, "scrollLeft");
+    let startX = 0;
+    let startScroll = 0;
+    let dragging = false;
+    const max = () => track.scrollWidth - track.clientWidth;
+    const down = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+      dragging = true;
+      startX = event.clientX;
+      startScroll = track.scrollLeft;
+      gsap.killTweensOf(track);
+      track.setPointerCapture(event.pointerId);
+      track.classList.add("is-dragging");
+    };
+    const move = (event: PointerEvent) => {
+      if (dragging) track.scrollLeft = startScroll - (event.clientX - startX);
+    };
+    const up = () => {
+      if (!dragging) return;
+      dragging = false;
+      track.classList.remove("is-dragging");
+      gsap.to(track, { inertia: { scrollLeft: { velocity: "auto", min: 0, max: max() } } });
+    };
+    track.addEventListener("pointerdown", down);
+    track.addEventListener("pointermove", move);
+    track.addEventListener("pointerup", up);
+    track.addEventListener("pointercancel", up);
+    cleanups.push(() => {
+      track.removeEventListener("pointerdown", down);
+      track.removeEventListener("pointermove", move);
+      track.removeEventListener("pointerup", up);
+      track.removeEventListener("pointercancel", up);
+      InertiaPlugin.untrack(track);
+      gsap.killTweensOf(track);
+      track.classList.remove("is-draggable", "is-dragging");
+    });
 
-  const step = () => (track.firstElementChild as HTMLElement | null)?.offsetWidth ?? 300;
-  const onKey = (event: KeyboardEvent) => {
-    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-    event.preventDefault();
-    window.scrollBy({ top: (event.key === "ArrowRight" ? 1 : -1) * step(), behavior: "instant" });
-  };
-  track.addEventListener("keydown", onKey);
-  return () => {
-    track.removeEventListener("keydown", onKey);
-    tween.scrollTrigger?.kill();
-    tween.kill();
-    gsap.set(track, { clearProps: "transform" });
-    section.classList.remove("pinned");
-    track.setAttribute("data-lenis-prevent", "");
-  };
+    // Tilt: each card leans toward the pointer (rotateX/Y, at most 8°), and settles back on leave.
+    for (const figure of track.querySelectorAll<HTMLElement>("figure")) {
+      const rx = gsap.quickTo(figure, "rotationX", { duration: 0.4, ease: "ui-out" });
+      const ry = gsap.quickTo(figure, "rotationY", { duration: 0.4, ease: "ui-out" });
+      gsap.set(figure, { transformPerspective: 700 });
+      const move = (event: PointerEvent) => {
+        const box = figure.getBoundingClientRect();
+        ry(((event.clientX - box.left) / box.width - 0.5) * 16);
+        rx(-((event.clientY - box.top) / box.height - 0.5) * 12);
+      };
+      const leave = () => {
+        rx(0);
+        ry(0);
+      };
+      figure.addEventListener("pointermove", move);
+      figure.addEventListener("pointerleave", leave);
+      cleanups.push(() => {
+        figure.removeEventListener("pointermove", move);
+        figure.removeEventListener("pointerleave", leave);
+        gsap.set(figure, { clearProps: "transform" });
+      });
+    }
+  }
+  return () => cleanups.forEach((fn) => fn());
 }
 
 export function work(ctx: MomentContext): () => void {
   const cleanups: Array<() => void> = [];
-  missions(ctx);
-  for (const moment of [skillsTree, gallery]) {
+  for (const moment of [cases, skillsTree, gallery]) {
     const cleanup = moment(ctx);
     if (cleanup) cleanups.push(cleanup);
   }

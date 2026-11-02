@@ -21,19 +21,73 @@ test("About: origin-arc panels assemble and settle; education and goals reveal",
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
 });
 
-test("Work: mission cards enter as a group; thumbnails never fade (LCP)", async ({ page }) => {
-  await page.goto("/work/");
-  const firstThumb = page.locator("[data-mission] img").first();
-  expect(await firstThumb.evaluate((img) => getComputedStyle(img.closest("[data-mission]")!).opacity)).toBe(
-    "1",
-  );
-  for (const card of (await page.locator("[data-mission]").all()).slice(0, 4)) {
-    await card.scrollIntoViewIfNeeded();
-    await expect.poll(() => settled(card), { timeout: 3000 }).toBe(true);
-    await expect
-      .poll(() => card.locator("[data-mission-result]").evaluate((n) => getComputedStyle(n).opacity))
-      .toBe("1");
-  }
+const caseScroll = (page: import("@playwright/test").Page, index: number) =>
+  page.evaluate((i) => {
+    // The pinned sequence moves one case per (viewport width) of scroll.
+    const section = document.querySelector<HTMLElement>("[data-cases]")!;
+    const top = section.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo(0, top + i * document.documentElement.clientWidth);
+  }, index);
+
+test("Work desktop: cases pin and move sideways; each plays its beats and counts to the real value", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/work/?world=off");
+  const section = page.locator("[data-cases]");
+  await expect(section).toHaveClass(/is-sequence/);
+  const cases = page.locator("[data-case-study]");
+  await expect(cases).toHaveCount(6);
+
+  // Case 1 plays as the section scrolls up to the pin.
+  await caseScroll(page, 0);
+  const first = cases.first();
+  await expect
+    .poll(() => first.locator('[data-beat="3"]').evaluate((n) => getComputedStyle(n).opacity), {
+      timeout: 4000,
+    })
+    .toBe("1");
+  await expect(first.locator("[data-count]")).toHaveText("−72%", { timeout: 4000 });
+  // Screen readers get the real value from the start.
+  await expect(first.locator(".lead .sr-only")).toHaveText("−72%");
+
+  // Scrolling moves the strip sideways (not the page content down).
+  await caseScroll(page, 5);
+  await expect
+    .poll(
+      () =>
+        page.locator("[data-cases-track]").evaluate((n) => new DOMMatrix(getComputedStyle(n).transform).m41),
+      { timeout: 4000 },
+    )
+    .toBeLessThan(-1000);
+  await expect(cases.nth(5).locator("[data-count]")).toHaveText("$7,000+", { timeout: 4000 });
+  await expect(cases.nth(5).locator("[data-viz-count]").nth(2)).toHaveText("+1,500");
+});
+
+test("Work desktop: every case is keyboard-reachable; focusing one scrolls it into view", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/work/?world=off");
+  // Wait for the motion layer to build the sequence (it attaches the focus handlers).
+  await expect(page.locator("[data-cases]")).toHaveClass(/is-sequence/);
+  const third = page.locator("[data-case-study]").nth(2);
+  await third.focus();
+  await expect(third).toBeFocused();
+  await expect
+    .poll(() => third.evaluate((n) => Math.round(n.getBoundingClientRect().left)), { timeout: 4000 })
+    .toBeLessThan(20);
+  await expect(third).toHaveAccessibleName("An SEO writer’s cockpit");
+});
+
+test("Work phones: cases stack vertically and each plays as it enters", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/work/?world=off");
+  await expect(page.locator("[data-cases]")).not.toHaveClass(/is-sequence/);
+  await expect(page.locator(".pin-spacer")).toHaveCount(0);
+  const fifth = page.locator("[data-case-study]").nth(4);
+  await fifth.scrollIntoViewIfNeeded();
+  await expect(fifth.locator("[data-count]")).toHaveText("+40%", { timeout: 4000 });
 });
 
 test("Work: skills tree draws SVG branches; skills stay real text", async ({ page }) => {
@@ -58,20 +112,20 @@ test("Work: skills tree draws SVG branches; skills stay real text", async ({ pag
   await expect(tree.getByText("Amplitude", { exact: true })).toBeVisible();
 });
 
-test("Work: gallery pins and scrolls sideways on desktop", async ({ page }) => {
+test("Work: the gallery drags with momentum on desktop and keeps native scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/work/");
-  const gallery = page.locator("[data-gallery]");
-  await expect(gallery).toHaveClass(/pinned/);
+  await page.goto("/work/?world=off");
   const track = page.locator("[data-gallery-track]");
-  // Scroll 600 px past the pin start; the strip should have moved sideways.
-  await page.evaluate(() => {
-    const top = document.querySelector("[data-gallery]")!.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo(0, top + 600);
-  });
-  await expect
-    .poll(() => track.evaluate((n) => new DOMMatrix(getComputedStyle(n).transform).m41), { timeout: 3000 })
-    .toBeLessThan(-50);
+  await track.scrollIntoViewIfNeeded();
+  await expect(track).toHaveClass(/is-draggable/);
+  const box = (await track.boundingBox())!;
+  await page.mouse.move(box.x + 600, box.y + 150);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 300, box.y + 150, { steps: 6 });
+  await page.mouse.up();
+  // Momentum carries it past the 300 px dragged.
+  await expect.poll(() => track.evaluate((n) => n.scrollLeft), { timeout: 3000 }).toBeGreaterThan(300);
+  expect(await track.evaluate((n) => getComputedStyle(n).overflowX)).toBe("auto");
   // Images are lazy and keep their slot alt text.
   const imgs = track.locator("img");
   await expect(imgs.first()).toHaveAttribute("loading", "lazy");
@@ -81,13 +135,15 @@ test("Work: gallery pins and scrolls sideways on desktop", async ({ page }) => {
   );
 });
 
-test("Work: no pin on narrow screens; native swipe with scroll-snap", async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 812 });
-  await page.goto("/work/");
-  await expect(page.locator("[data-gallery]")).not.toHaveClass(/pinned/);
-  const track = page.locator("[data-gallery-track]");
-  expect(await track.evaluate((n) => getComputedStyle(n).scrollSnapType)).toContain("x");
-  expect(await track.evaluate((n) => getComputedStyle(n).overflowX)).toBe("auto");
+test.describe("touch phone", () => {
+  test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true });
+  test("Work: the gallery is a native swipe strip with scroll-snap", async ({ page }) => {
+    await page.goto("/work/");
+    const track = page.locator("[data-gallery-track]");
+    expect(await track.evaluate((n) => getComputedStyle(n).scrollSnapType)).toContain("x");
+    expect(await track.evaluate((n) => getComputedStyle(n).overflowX)).toBe("auto");
+    await expect(track).not.toHaveClass(/is-draggable/);
+  });
 });
 
 test.describe("reduced motion", () => {
@@ -96,11 +152,13 @@ test.describe("reduced motion", () => {
     await page.goto("/about/");
     for (const panel of await page.locator("[data-arc-panel]").all()) expect(await settled(panel)).toBe(true);
     await page.goto("/work/");
-    expect(await settled(page.locator("[data-mission]").first())).toBe(true);
+    // Cases stack, unpinned, every visual in its end state and every count on its real value.
+    await expect(page.locator("[data-cases]")).not.toHaveClass(/is-sequence/);
+    await expect(page.locator(".pin-spacer")).toHaveCount(0);
+    await expect(page.locator("[data-count]").first()).toHaveText("−72%");
+    await expect(page.locator("[data-case-visual] svg").first()).toBeVisible();
     await expect(page.locator("svg.tree-svg")).toHaveCount(0);
     await expect(page.locator("[data-tree] .connector").first()).toBeVisible();
-    await expect(page.locator("[data-gallery]")).not.toHaveClass(/pinned/);
-    await expect(page.locator(".pin-spacer")).toHaveCount(0);
   });
 });
 
@@ -111,6 +169,8 @@ test.describe("without JavaScript", () => {
     await expect(page.locator("[data-arc-panel]").first()).toBeVisible();
     await page.goto("/work/");
     await expect(page.locator("[data-mission-result]").first()).toBeVisible();
+    await expect(page.locator("[data-case-visual] svg").first()).toBeVisible();
+    await expect(page.locator("[data-count]").first()).toHaveText("−72%");
     await expect(page.locator("[data-tree] .connector").first()).toBeVisible();
   });
 });

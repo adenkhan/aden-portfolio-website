@@ -107,7 +107,7 @@ Patterns for images that arrive later:
 - Dashboard or screenshot: `<Tool> <what it shows> for <company>`
 - Campaign result: `<Channel> <metric> chart for <program or company>, <period>`
 
-Alt strings live in `src/data/assets.ts`, one per asset slot. Since r2 the six case-study images carry the company and tool names (Sadiq.ai, Meta, Amplitude, 10Pearls, HubSpot, n8n, Ahrefs, Leasap, Sales Navigator, Invest2Innovate), which the visible copy now keeps short.
+Alt strings live in `src/data/assets.ts`, one per asset slot. Since r2 the six case-study images carry the company and tool names (Sadiq.ai, Meta, Amplitude, 10Pearls, HubSpot, n8n, Ahrefs, Leasap, Sales Navigator, Invest2Innovate), which the visible copy now keeps short. **r4:** the case studies now show visual stories (inline SVG, `aria-hidden`; captions carry the meaning) instead of these images, so the slots are reserved for evidence screenshots. Company and tool names stay in the visible captions, which are real HTML.
 
 ## 6. Social cards
 
