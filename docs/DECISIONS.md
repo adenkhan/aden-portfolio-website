@@ -141,3 +141,19 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Lighthouse SEO ≥ 95 is the pass floor per the owner's p05 budgets; 100 remains the aim from the brief.
 - Source: p05, `docs/ENGINEERING-PLAN.md` §9.
 - Supersedes: "SEO 100" as a hard target in the 2026-11-02 Lighthouse targets entry.
+
+## 2026-11-02 — Site URL constant
+- Decision: `SITE_URL = "https://aden-khan-portfolio.netlify.app"` in `src/data/site.ts`, the only place the origin is written. Prompt 21 replaces it with the live URL.
+- Source: p06, owner's value; `docs/SEO.md` §1.
+- Supersedes: the `https://adenkhan.netlify.app` placeholder in the "Site URL placeholder and /thanks route" entry.
+
+## 2026-11-02 — H1 sublines on About and Contact
+- Decision: Keep "The origin arc: from campaigns to products" and "Open a channel" word for word, and add a visible second line inside each H1: "About Aden Khan, product marketer" and "Contact Aden Khan, product marketer".
+- Why: CLAUDE.md requires every H1 to contain a target keyword; these two did not. Visible text, no hidden keywords. The owner can remove the sublines if they accept the rubric risk.
+- Source: p06, `docs/SEO.md` §3 and §10.
+
+## 2026-11-02 — Metadata rules from the fixing-metadata review
+- Decision: Trailing slash always; deploy previews `noindex`; one JSON-LD block per page (Home `@graph` of WebSite + Person, About `ProfilePage`); `/thanks/` and `/404` get titles, descriptions and `noindex`; OG tags include image alt, site name, locale and size; per-page OG images; mission cards link to the About arc (or skills lane) that tells the longer story; no web manifest. Titles keep the owner's mixed formats.
+- Why: Each closes a gap the review found (`docs/SEO.md` §10).
+- Source: p06, `docs/SEO.md`.
+- Supersedes: separate Person and WebSite JSON-LD blocks and the single default OG image in `docs/ENGINEERING-PLAN.md` (updated in the same commit).

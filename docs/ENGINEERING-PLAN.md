@@ -176,6 +176,7 @@ export interface Mission {
   order: number;                     // 1–9, as in the design plan
   title: string; org: string; role?: string; result: string;
   lane: Lane;
+  related: Link;                     // section with the longer story, e.g. /about/#arc-growth (docs/SEO.md §9)
   evidence?: AssetKey;               // screenshot slot, optional
 }
 
@@ -192,8 +193,9 @@ export interface AboutCopy {
 export interface ContactCopy { h1: string; line: string; prompt: string; }
 
 export interface PageSeo {
-  id: PageId; path: string; title: string; description: string; h1: string;
-  ogImage?: string; noindex?: boolean;
+  id: PageId; path: string; title: string; description: string;
+  h1: string; h1Sub?: string;        // visible second line inside the H1 (About, Contact)
+  ogImage?: string; ogImageAlt?: string; noindex?: boolean;
 }
 
 export type AssetKey = "avatar" | "cvPdf" | "ogDefault" | `gallery-${string}`;
@@ -231,11 +233,13 @@ interface Props {
 ```
 Outputs: `<title>`, meta description, canonical link, Open Graph (`og:type website`, `og:title`, `og:description`, `og:url`, `og:image`, `og:image:width/height`, `og:site_name`), Twitter `summary_large_image`, theme-color `#0B0D1A`, and one `<script type="application/ld+json">` per item (`set:html={JSON.stringify(item)}`).
 
-- **Site URL:** `site: "https://adenkhan.netlify.app"` in `astro.config.mjs` until a custom domain exists. Record the final URL in `DECISIONS.md` at deploy (p21).
+- **Site URL:** one constant, `SITE_URL = "https://aden-khan-portfolio.netlify.app"` in `src/data/site.ts`, imported by `astro.config.mjs` as `site`. p21 replaces it with the live URL and records it in `DECISIONS.md`. `trailingSlash: "always"`, `build.format: "directory"`.
+- **Preview indexing:** `<SEO>` adds `noindex, nofollow` when `process.env.CONTEXT` is set and is not `production` (Netlify deploy previews and branch deploys).
+- **Per-page OG images:** `og/home.png`, `og/about.png`, `og/work.png`, `og/contact.png` (1200×630, p18), falling back to `og/default.png`. Full tag list and alt text in `docs/SEO.md` §6.
 - **Sitemap:** `@astrojs/sitemap` with `filter: (p) => !/\/(thanks|404)\/?$/.test(p)`.
 - **robots.txt:** `src/pages/robots.txt.ts` returns `User-agent: *`, `Allow: /`, `Sitemap: <site>/sitemap-index.xml`.
-- **JSON-LD:** Home gets `Person` (`name`, `jobTitle: "Product Marketer"`, `url`, `sameAs: [linkedin, github]`, `alumniOf: Institute of Business Administration (IBA), Karachi`, `address: Karachi, PK`) and `WebSite`. Other pages get `BreadcrumbList` only if p18 decides it helps; otherwise nothing.
-- Alt text, keyword placement and the final per-page checklist go in `docs/SEO.md` (written in p18).
+- **JSON-LD:** one block per page. Home: one `@graph` with `WebSite` and `Person` (`@id` `<SITE_URL>/#person`; `name`, `jobTitle`, `url`, `email`, `address`, `alumniOf`, `sameAs`). About: `ProfilePage` with `mainEntity` referencing the Person `@id`. Work and Contact: none. Exact JSON in `docs/SEO.md` §7.
+- Titles, descriptions, H1s (including the About and Contact H1 sublines), H2 structure, alt text, internal links and the pre-launch checklist are specified in `docs/SEO.md`.
 
 ## 5. Motion layer
 

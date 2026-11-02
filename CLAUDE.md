@@ -86,7 +86,7 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
 | `docs/MOTION.md` | Motion system: tiers, moments, budget, checklist | exists |
 | `docs/ENGINEERING-PLAN.md` | Architecture, folders, data types, budgets, tests, deploy, milestones p08–p22, risks | exists |
-| `docs/SEO.md` | SEO implementation details | pending |
+| `docs/SEO.md` | SEO spec: SITE_URL, titles, H1/H2s, alt text, OG, JSON-LD, links, checklist, copy appendix | exists |
 | `docs/DECISIONS.md` | Running log of decisions | exists |
 
 ## 7. Definition of done
