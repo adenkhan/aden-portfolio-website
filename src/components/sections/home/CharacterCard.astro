@@ -1,0 +1,103 @@
+---
+import Img from "@/components/ui/Img.astro";
+import { home } from "@/data/home";
+import { site } from "@/data/site";
+---
+
+<figure class="card">
+  <p class="hud">{site.hudTag}</p>
+  <Img
+    asset="avatar"
+    eager
+    widths={[360, 560, 800]}
+    sizes="(min-width: 64rem) 420px, (min-width: 48rem) 40vw, 92vw"
+    class="avatar"
+  />
+  <ul class="bars" aria-label="Focus areas">
+    {home.statBars.map((label) => (
+      <li>
+        <span>{label}</span>
+        <i aria-hidden="true" />
+      </li>
+    ))}
+  </ul>
+</figure>
+
+<style>
+  .card {
+    position: relative;
+    margin: 0;
+    padding: 1rem;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+
+  /* HUD corner brackets: allowed on this card only (DESIGN.md motifs). */
+  .card::before,
+  .card::after {
+    content: "";
+    position: absolute;
+    width: 1.25rem;
+    height: 1.25rem;
+    pointer-events: none;
+  }
+
+  .card::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--color-creative);
+    border-left: 2px solid var(--color-creative);
+    border-top-left-radius: var(--radius-md);
+  }
+
+  .card::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 2px solid var(--color-data);
+    border-bottom: 2px solid var(--color-data);
+    border-bottom-right-radius: var(--radius-md);
+  }
+
+  .hud {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .avatar :global(img) {
+    border-radius: var(--radius-sm);
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .bars {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bars li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-muted);
+  }
+
+  .bars span {
+    min-width: 6.5rem;
+  }
+
+  /* Equal-length decoration, not a rating (brief decision 10). */
+  .bars i {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-creative), var(--color-growth), var(--color-data));
+  }
+</style>

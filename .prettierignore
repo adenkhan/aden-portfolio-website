@@ -1,0 +1,11 @@
+dist
+.astro
+node_modules
+package-lock.json
+public
+docs/design-canvas
+test-results
+playwright-report
+.superpowers
+*.md
+src/data/placeholder-hashes.json

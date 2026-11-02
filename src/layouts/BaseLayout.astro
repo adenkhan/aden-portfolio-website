@@ -1,0 +1,51 @@
+---
+import "@/styles/global.css";
+import displayFont from "@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2?url";
+import Footer from "@/components/layout/Footer.astro";
+import Nav from "@/components/layout/Nav.astro";
+import SEO from "@/components/layout/SEO.astro";
+import SkipLink from "@/components/layout/SkipLink.astro";
+import { seo } from "@/data/seo";
+import type { PageId } from "@/data/types";
+
+interface Props {
+  page: PageId;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { page, jsonLd } = Astro.props;
+const meta = seo[page];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <SEO
+      title={meta.title}
+      description={meta.description}
+      ogImageAlt={meta.ogImageAlt}
+      noindex={meta.noindex}
+      jsonLd={jsonLd}
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <SkipLink />
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

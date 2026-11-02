@@ -1,0 +1,142 @@
+---
+import { skillLanes } from "@/data/skills";
+import { work } from "@/data/timeline";
+---
+
+<section class="container-site block" id="skills" aria-labelledby="skills-title">
+  <h2 id="skills-title">{work.skillsHeading}</h2>
+  <div class="tree">
+    <span class="trunk" aria-hidden="true"></span>
+    <ul class="lanes">
+      {skillLanes.map((lane) => (
+        <li class="lane" id={`skills-${lane.id}`} data-lane={lane.lane}>
+          <span class="connector" aria-hidden="true" />
+          <h3>{lane.label}</h3>
+          <ul class="chips">
+            {lane.skills.map((skill) => (
+              <li>{skill}</li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 2rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tree {
+    position: relative;
+  }
+
+  /* Trunk: vertical on mobile, horizontal from 64rem. Connectors are scaled in by the motion layer later. */
+  .trunk {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background-color: var(--color-line-strong);
+  }
+
+  .lanes {
+    display: grid;
+    gap: 2rem;
+    padding-left: 1.5rem;
+  }
+
+  .lane {
+    position: relative;
+    scroll-margin-top: 2rem;
+  }
+
+  .connector {
+    position: absolute;
+    top: 0.85rem;
+    left: -1.5rem;
+    width: 1.25rem;
+    height: 2px;
+    background-color: var(--lane-colour);
+  }
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chips li {
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text-muted);
+  }
+
+  [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
+  }
+
+  @media (width >= 48rem) {
+    .lanes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .trunk {
+      top: 0;
+      right: 0;
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+
+    .lanes {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding-top: 2rem;
+      padding-left: 0;
+    }
+
+    .connector {
+      top: -2rem;
+      left: 0;
+      width: 2px;
+      height: 1.5rem;
+    }
+  }
+</style>

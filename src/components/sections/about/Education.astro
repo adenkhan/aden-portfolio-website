@@ -1,0 +1,44 @@
+---
+import { about } from "@/data/timeline";
+
+const { education } = about;
+---
+
+<section class="container-site block" id="education" aria-labelledby="education-title">
+  <h2 id="education-title">{about.educationHeading}</h2>
+  <p class="school">{education.school}</p>
+  <p class="meta">
+    {education.degree} · {education.years}
+  </p>
+  <p class="measure">Relevant courses: {education.courses.join(", ")}.</p>
+  <p class="measure">Certified: {education.certification}.</p>
+</section>
+
+<style>
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  p {
+    margin: 0 0 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .school {
+    color: var(--color-text);
+    font-size: var(--text-body-lg);
+    font-weight: 600;
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+  }
+</style>

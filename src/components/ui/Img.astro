@@ -1,0 +1,64 @@
+---
+import { Picture } from "astro:assets";
+import { getSlot } from "@/data/assets";
+import type { AssetKey } from "@/data/types";
+import { getImageFor, isPlaceholder } from "@/lib/images";
+
+interface Props {
+  asset: AssetKey;
+  widths: number[];
+  sizes: string;
+  /** Decorative images pass alt="" explicitly; otherwise the slot's alt from docs/SEO.md is used. */
+  alt?: string;
+  eager?: boolean;
+  class?: string;
+}
+
+const { asset, widths, sizes, eager = false, class: className } = Astro.props;
+const meta = getSlot(asset);
+const alt = Astro.props.alt ?? meta.alt;
+// The badge renders in dev only and never ships in a production build.
+const showBadge = import.meta.env.DEV && isPlaceholder(asset);
+---
+
+<div class:list={["img-slot", className]}>
+  <Picture
+    src={getImageFor(asset)}
+    formats={["avif", "webp"]}
+    fallbackFormat="webp"
+    widths={widths}
+    sizes={sizes}
+    width={meta.width}
+    height={meta.height}
+    alt={alt}
+    loading={eager ? "eager" : "lazy"}
+    fetchpriority={eager ? "high" : "auto"}
+    decoding={eager ? "sync" : "async"}
+  />
+  {showBadge && <span class="placeholder-badge">placeholder</span>}
+</div>
+
+<style>
+  .img-slot {
+    position: relative;
+  }
+
+  .img-slot :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .placeholder-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-void);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
+</style>

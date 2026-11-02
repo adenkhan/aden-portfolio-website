@@ -1,0 +1,207 @@
+---
+import { cvHref } from "@/data/assets";
+import { site } from "@/data/site";
+
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => (href === "/" ? current === "/" : current.startsWith(href));
+---
+
+<header class="site-nav">
+  <nav class="container-site nav-inner" aria-label="Main">
+    <a href="/" class="logo" aria-label="Aden Khan, home">
+      AK
+    </a>
+
+    <ul class="links-desktop">
+      {site.nav.map((item) => (
+        <li>
+          <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="nav-actions">
+      <a href={cvHref} class="cv-button" download aria-label="Download CV (PDF)">
+        CV
+      </a>
+
+      <details class="menu" data-menu>
+        <summary aria-label="Menu">
+          <span class="menu-label">Menu</span>
+        </summary>
+        <ul class="links-mobile">
+          {site.nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </div>
+  </nav>
+</header>
+
+<script>
+  // Progressive enhancement: the <details> menu works without JS. This adds Esc and outside-click closing.
+  const menu = document.querySelector<HTMLDetailsElement>("[data-menu]");
+  if (menu) {
+    const summary = menu.querySelector("summary");
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menu.open) {
+        menu.open = false;
+        summary?.focus();
+      }
+    });
+    document.addEventListener("click", (event) => {
+      if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
+    });
+  }
+</script>
+
+<style>
+  .site-nav {
+    position: relative;
+    z-index: var(--z-nav);
+    background-color: var(--color-bg-base);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 72px;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .links-desktop {
+    display: none;
+  }
+
+  .links-desktop a,
+  .links-mobile a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-hover) ease;
+  }
+
+  .links-desktop a[aria-current="page"],
+  .links-mobile a[aria-current="page"] {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.45em;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .cv-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 1.125rem;
+    border-radius: var(--radius-pill);
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      box-shadow var(--duration-hover) ease,
+      transform var(--duration-press) ease-out;
+  }
+
+  .cv-button:active {
+    transform: scale(0.97);
+  }
+
+  .menu {
+    position: relative;
+  }
+
+  .menu summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.875rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .menu[open] summary {
+    background-color: var(--color-bg-surface);
+  }
+
+  .links-mobile {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 12rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--color-bg-raised);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-md);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .links-desktop a:hover,
+    .links-mobile a:hover {
+      color: var(--color-text);
+    }
+
+    .cv-button:hover {
+      box-shadow: inset 0 0 0 1px var(--color-text);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .links-desktop {
+      display: flex;
+      gap: 1.75rem;
+      margin-left: auto;
+      margin-right: 1.25rem;
+    }
+
+    .menu {
+      display: none;
+    }
+  }
+</style>

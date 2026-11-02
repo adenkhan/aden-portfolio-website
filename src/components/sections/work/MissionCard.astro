@@ -1,0 +1,113 @@
+---
+import Img from "@/components/ui/Img.astro";
+import LaneTag from "@/components/ui/LaneTag.astro";
+import type { Mission } from "@/data/types";
+
+interface Props {
+  mission: Mission;
+}
+
+const { mission } = Astro.props;
+---
+
+<li class="card" id={`mission-${mission.id}`} data-lane={mission.lane}>
+  {mission.evidence && (
+    <Img
+      asset={mission.evidence}
+      widths={[400, 600, 800]}
+      sizes="(min-width: 64rem) 360px, (min-width: 48rem) 45vw, 92vw"
+      class="thumb"
+    />
+  )}
+  <div class="body">
+    <LaneTag lane={mission.lane} />
+    <h3>{mission.title}</h3>
+    <p class="where">{mission.role ? `${mission.org}, ${mission.role}` : mission.org}</p>
+    <p class="result">{mission.result}</p>
+    <a class="related" href={mission.related.href}>
+      {mission.related.label}
+    </a>
+  </div>
+</li>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-hover) ease;
+  }
+
+  .thumb :global(img) {
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  .body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  h3 {
+    margin: 0.25rem 0 0;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+    transition: color var(--duration-hover) ease;
+  }
+
+  .where {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+  }
+
+  .result {
+    margin: 0.25rem 0 0;
+    flex: 1;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    overflow-wrap: anywhere;
+  }
+
+  .related {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 44px;
+    color: var(--color-text-muted);
+  }
+
+  [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      border-color: var(--color-line-strong);
+    }
+
+    .card:hover h3 {
+      color: var(--lane-colour);
+    }
+
+    .related:hover {
+      color: var(--color-text);
+    }
+  }
+</style>

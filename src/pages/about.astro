@@ -1,0 +1,32 @@
+---
+import CareerGoals from "@/components/sections/about/CareerGoals.astro";
+import Education from "@/components/sections/about/Education.astro";
+import OriginArc from "@/components/sections/about/OriginArc.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import { about } from "@/data/timeline";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { aboutJsonLd } from "@/lib/jsonld";
+---
+
+<BaseLayout page="about" jsonLd={aboutJsonLd()}>
+  <header class="container-site page-head">
+    <PageTitle page="about" />
+    <p class="measure intro">{about.bio}</p>
+  </header>
+  <OriginArc />
+  <Education />
+  <CareerGoals />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-top: 3rem;
+  }
+
+  .intro {
+    margin: 1.5rem 0 0;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-muted);
+  }
+</style>

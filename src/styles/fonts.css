@@ -1,0 +1,5 @@
+/* Self-hosted variable fonts (Fontsource, font-display: swap). Each face is split by
+   unicode-range, so browsers download only the latin file the copy uses. */
+@import "@fontsource-variable/big-shoulders-display";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource-variable/jetbrains-mono";

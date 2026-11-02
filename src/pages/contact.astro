@@ -1,0 +1,57 @@
+---
+import TerminalPanel from "@/components/sections/contact/TerminalPanel.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import { site } from "@/data/site";
+import { contact } from "@/data/timeline";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout page="contact">
+  <header class="container-site page-head">
+    <PageTitle page="contact" />
+    <p class="measure intro">
+      {contact.line} <a href={contact.workLink.href}>{contact.workLink.label}</a>
+    </p>
+  </header>
+  <TerminalPanel />
+  <section class="container-site block" id="message" aria-labelledby="message-title">
+    <h2 id="message-title">{contact.messageHeading}</h2>
+    <p class="measure">
+      {contact.messageNote} <a href={`mailto:${site.email}`}>{site.email}</a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-top: 3rem;
+  }
+
+  .intro {
+    margin: 1.5rem 0 0;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .intro a,
+  .block a {
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  p {
+    color: var(--color-text-muted);
+  }
+</style>

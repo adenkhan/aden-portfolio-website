@@ -1,0 +1,62 @@
+---
+import { getImage } from "astro:assets";
+import { SITE_URL } from "@/data/site";
+import { getImageFor } from "@/lib/images";
+
+interface Props {
+  title: string;
+  description: string;
+  /** Absolute URL. Defaults to SITE_URL + the current path. */
+  canonical?: string;
+  /** Absolute URL of a 1200×630 image. Defaults to the generated OG image. */
+  ogImage?: string;
+  ogImageAlt?: string;
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, ogImageAlt = title, jsonLd } = Astro.props;
+const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, SITE_URL).href;
+
+let ogImage = Astro.props.ogImage;
+if (!ogImage) {
+  const og = await getImage({ src: getImageFor("ogDefault"), width: 1200, height: 630, format: "png" });
+  ogImage = new URL(og.src, SITE_URL).href;
+}
+
+// Deploy previews and branch deploys on Netlify are never indexed (docs/SEO.md §8).
+const context = process.env.CONTEXT;
+const noindex = Astro.props.noindex || (context !== undefined && context !== "production");
+
+const ldItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const toLd = (item: Record<string, unknown>) => JSON.stringify(item).replace(/</g, "\\u003c");
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Aden Khan, Product Marketer" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={ogImageAlt} />
+<meta property="og:locale" content="en_US" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
+
+<meta name="theme-color" content="#0B0D1A" />
+<meta name="color-scheme" content="dark" />
+
+{ldItems.map((item) => (
+  <script type="application/ld+json" set:html={toLd(item)} />
+))}

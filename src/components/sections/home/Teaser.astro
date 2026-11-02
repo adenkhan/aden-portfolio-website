@@ -1,0 +1,35 @@
+---
+import { home } from "@/data/home";
+---
+
+<section class="container-site teaser" aria-labelledby="teaser-title">
+  <h2 id="teaser-title">{home.teaserHeading}</h2>
+  <p class="measure">
+    {home.teaser} <a href={home.teaserLink.href}>{home.teaserLink.label}</a>
+  </p>
+</section>
+
+<style>
+  .teaser {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-muted);
+  }
+
+  a {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+</style>

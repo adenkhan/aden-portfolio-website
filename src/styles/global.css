@@ -1,130 +1,242 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "./fonts.css";
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+/* Tokens from DESIGN.md (Tailwind v4 @theme block). Keep in sync with DESIGN.md. */
+@theme {
+  /* primitives */
+  --color-navy-950: #07080f;
+  --color-navy-900: #0b0d1a;
+  --color-navy-800: #12152a;
+  --color-navy-700: #1b1f3a;
+  --color-navy-600: #2a2f52;
+  --color-navy-400: #6970b0;
+  --color-ink-100: #f2f3fa;
+  --color-ink-300: #b4b9d6;
+  --color-ink-400: #9096bc;
+  --color-red-500: #ff4d6a;
+  --color-blue-500: #3db0ff;
+  --color-purple-500: #a77cff;
+
+  /* semantic */
+  --color-primary: var(--color-creative);
+  --color-bg-void: var(--color-navy-950);
+  --color-bg-base: var(--color-navy-900);
+  --color-bg-surface: var(--color-navy-800);
+  --color-bg-raised: var(--color-navy-700);
+  --color-line: var(--color-navy-600);
+  --color-line-strong: var(--color-navy-400);
+  --color-text: var(--color-ink-100);
+  --color-text-muted: var(--color-ink-300);
+  --color-text-subtle: var(--color-ink-400);
+  --color-creative: var(--color-red-500);
+  --color-data: var(--color-blue-500);
+  --color-growth: var(--color-purple-500);
+  --color-on-accent: var(--color-navy-900);
+  --color-focus: var(--color-blue-500);
+
+  /* type */
+  --font-display: "Big Shoulders Display Variable", "Arial Narrow", sans-serif;
+  --font-sans: "Instrument Sans Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --text-display-xl: 6rem;
+  --text-display-xl--line-height: 0.92;
+  --text-display-lg: 3.25rem;
+  --text-display-lg--line-height: 1;
+  --text-title: 1.875rem;
+  --text-title--line-height: 1.05;
+  --text-body-lg: 1.1875rem;
+  --text-body-lg--line-height: 1.55;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.5;
+  --text-mono-label: 0.8125rem;
+  --text-mono-label--line-height: 1.4;
+
+  /* shape and space */
+  --radius-sm: 4px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --spacing: 0.25rem;
+
+  /* breakpoints */
+  --breakpoint-sm: 30rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 90rem;
+
+  /* layers */
+  --z-content: 1;
+  --z-nav: 40;
+  --z-intro: 80;
+  --z-dialog: 90;
+  --z-toast: 100;
+  --z-skip: 110;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-press: 160ms;
+  --duration-hover: 150ms;
+  --duration-ui: 220ms;
+  --duration-reveal: 600ms;
+  --duration-intro: 2600ms;
+
+  /* glow: orb, burst and focus only */
+  --shadow-glow-creative: 0 0 48px 0 rgb(255 77 106 / 0.45);
+  --shadow-glow-data: 0 0 48px 0 rgb(61 176 255 / 0.45);
+  --shadow-glow-growth: 0 0 64px 0 rgb(167 124 255 / 0.55);
 }
 
+/* shadcn variables mapped onto the DESIGN.md tokens, so registry components inherit the theme. */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  --background: var(--color-bg-base);
+  --foreground: var(--color-text);
+  --card: var(--color-bg-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-bg-raised);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-creative);
+  --primary-foreground: var(--color-on-accent);
+  --secondary: var(--color-bg-surface);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-bg-surface);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-bg-raised);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-creative);
+  --border: var(--color-line);
+  --input: var(--color-line-strong);
+  --ring: var(--color-focus);
+  --radius: 12px;
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* Mobile type steps (DESIGN.md Typography). */
+@media (width < 48rem) {
+  :root {
+    --text-display-xl: 3.5rem;
+    --text-display-lg: 2.25rem;
+    --text-title: 1.5rem;
+  }
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
+    border-color: var(--color-line);
+  }
+
   html {
-    @apply font-sans;
+    color-scheme: dark;
+    background-color: var(--color-bg-base);
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: var(--color-line-strong) var(--color-bg-void);
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-bg-base);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    caret-color: var(--color-data);
+    accent-color: var(--color-growth);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-growth);
+    color: var(--color-on-accent);
+  }
+
+  /* Base reduced-motion rule. Motion code also checks the preference through gsap.matchMedia(). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
+  }
+}
+
+@layer components {
+  .container-site {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (width >= 48rem) {
+    .container-site {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .container-site {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  .measure {
+    max-width: 65ch;
+  }
+
+  /* Visible second line inside an H1 (docs/SEO.md §3). */
+  .h1-sub {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
 }

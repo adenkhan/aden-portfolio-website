@@ -1,0 +1,43 @@
+---
+import Button from "@/components/ui/Button.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import { seo } from "@/data/seo";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout page="404">
+  <section class="container-site center">
+    <PageTitle page="404" />
+    <p>{seo["404"].description}</p>
+    <div class="links">
+      <Button href="/work/">See my missions</Button>
+      <Button href="/" variant="secondary">
+        Back to home
+      </Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-block: 6rem 2rem;
+    text-align: center;
+  }
+
+  p {
+    max-width: 48ch;
+    margin: 1.5rem 0 0;
+    color: var(--color-text-muted);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>

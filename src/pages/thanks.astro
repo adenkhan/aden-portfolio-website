@@ -1,0 +1,38 @@
+---
+import Button from "@/components/ui/Button.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import { seo } from "@/data/seo";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout page="thanks">
+  <section class="container-site block">
+    <PageTitle page="thanks" />
+    <p>{seo.thanks.description}</p>
+    <div class="links">
+      <Button href="/work/">See my missions</Button>
+      <Button href="/" variant="secondary">
+        Back to home
+      </Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block {
+    padding-block: 6rem 2rem;
+  }
+
+  p {
+    max-width: 48ch;
+    margin: 1.5rem 0 0;
+    color: var(--color-text-muted);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+</style>

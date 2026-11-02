@@ -1,0 +1,80 @@
+---
+import Button from "@/components/ui/Button.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import { cvHref } from "@/data/assets";
+import { home } from "@/data/home";
+import CharacterCard from "./CharacterCard.astro";
+---
+
+<section class="container-site hero" aria-labelledby="hero-title">
+  <div class="copy">
+    <div id="hero-title" class="title">
+      <PageTitle page="home" />
+    </div>
+    <p class="sub">{home.subhead}</p>
+    <p class="availability">{home.availability}</p>
+    <div class="cta">
+      <Button href={cvHref} download>
+        {home.ctaPrimary}
+      </Button>
+      <Button href="/work/" variant="secondary">
+        {home.ctaSecondary}
+      </Button>
+    </div>
+  </div>
+  <div class="visual">
+    <CharacterCard />
+  </div>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 2.5rem 3rem;
+  }
+
+  .title :global(.page-title) {
+    font-size: var(--text-display-xl);
+    line-height: var(--text-display-xl--line-height);
+  }
+
+  .sub {
+    margin: 1.5rem 0 0;
+    max-width: 36ch;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .availability {
+    margin: 1rem 0 0;
+    max-width: 48ch;
+    color: var(--color-text);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .visual {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  @media (width >= 48rem) {
+    .hero {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+      gap: 3rem;
+      padding-block: 4rem;
+    }
+
+    .visual {
+      justify-self: end;
+    }
+  }
+</style>

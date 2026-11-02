@@ -1,0 +1,40 @@
+---
+import { about } from "@/data/timeline";
+import ArcPanel from "./ArcPanel.astro";
+---
+
+<section class="container-site block" aria-labelledby="arcs-title">
+  <h2 id="arcs-title">{about.arcsHeading}</h2>
+  <ol class="panels">
+    {about.arcs.map((arc) => (
+      <ArcPanel arc={arc} />
+    ))}
+  </ol>
+</section>
+
+<style>
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 2rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  .panels {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .panels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

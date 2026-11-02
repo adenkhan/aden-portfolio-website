@@ -1,0 +1,124 @@
+---
+import { cvHref } from "@/data/assets";
+import { site } from "@/data/site";
+import { contact } from "@/data/timeline";
+
+const rows = [
+  { key: "email", label: site.email, href: `mailto:${site.email}`, external: false },
+  { key: "linkedin", label: "linkedin.com/in/adenkhank", href: site.linkedin, external: true },
+  { key: "github", label: "github.com/adenkhan", href: site.github, external: true },
+];
+---
+
+<section class="container-site block" aria-labelledby="channels-title">
+  <h2 id="channels-title" class="sr-only">
+    {contact.channelsHeading}
+  </h2>
+  <div class="terminal">
+    <p class="prompt" aria-hidden="true">
+      {contact.prompt}
+    </p>
+    <dl>
+      {rows.map((row) => (
+        <div class="row">
+          <dt>{row.key}</dt>
+          <dd>
+            <a href={row.href} {...(row.external ? { target: "_blank", rel: "me noopener" } : {})}>
+              {row.label}
+            </a>
+          </dd>
+        </div>
+      ))}
+      <div class="row">
+        <dt>cv</dt>
+        <dd>
+          <a href={cvHref} download>
+            {site.cvLabel} (PDF)
+          </a>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<style>
+  .block {
+    padding-block: 3rem 0;
+  }
+
+  .terminal {
+    position: relative;
+    max-width: 720px;
+    padding: 1.5rem;
+    background-color: var(--color-bg-void);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+  }
+
+  /* HUD corner brackets: allowed on this panel only (DESIGN.md motifs). */
+  .terminal::before,
+  .terminal::after {
+    content: "";
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .terminal::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--color-creative);
+    border-left: 2px solid var(--color-creative);
+  }
+
+  .terminal::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 2px solid var(--color-data);
+    border-bottom: 2px solid var(--color-data);
+  }
+
+  .prompt {
+    margin: 0 0 1rem;
+    color: var(--color-text-subtle);
+    font-size: var(--text-mono-label);
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  dt {
+    color: var(--color-text-subtle);
+    font-size: var(--text-mono-label);
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+  }
+
+  dd a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+
+  @media (width < 30rem) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>

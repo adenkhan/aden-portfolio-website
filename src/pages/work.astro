@@ -1,0 +1,22 @@
+---
+import CreativeGallery from "@/components/sections/work/CreativeGallery.astro";
+import MissionGrid from "@/components/sections/work/MissionGrid.astro";
+import SkillsTree from "@/components/sections/work/SkillsTree.astro";
+import PageTitle from "@/components/ui/PageTitle.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout page="work">
+  <header class="container-site page-head">
+    <PageTitle page="work" />
+  </header>
+  <MissionGrid />
+  <SkillsTree />
+  <CreativeGallery />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-top: 3rem;
+  }
+</style>

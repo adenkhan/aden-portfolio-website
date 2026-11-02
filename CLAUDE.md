@@ -39,8 +39,9 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - Dev server (background, required by AGENTS.md): `astro dev --background`
 - Manage it: `astro dev status`, `astro dev logs`, `astro dev stop`
 - Build: `npm run build` · Preview: `npm run preview`
-- Type check: `npx astro check` (needs `@astrojs/check` and `typescript`; install them the first time it is used)
-- Tests: to be added (Playwright via `playwright-skill`).
+- Type check: `npm run check` · Format: `npm run format` · Tests: `npm test` (Playwright, builds and previews first)
+- Budget: `npm run budget` (first-load JS per page) · All gates: `npm run verify`
+- Assets: `npm run assets:check` (which slots are still placeholders), `npm run assets:generate` (recreate missing placeholders). See `docs/ASSETS.md`.
 - Add components: `npx shadcn@latest add @kokonutui/<name>` or `@bklit/<name>`
 
 ## 4. Non-negotiables
@@ -88,6 +89,7 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
 | `docs/MOTION.md` | Motion system: tiers, moments, budget, checklist | exists |
 | `docs/ENGINEERING-PLAN.md` | Architecture, folders, data types, budgets, tests, deploy, milestones p08–p22, risks | exists |
+| `docs/ASSETS.md` | Every asset slot: path, size, alt, how to swap a placeholder | exists |
 | `docs/SEO.md` | SEO spec: SITE_URL, titles, H1/H2s, alt text, OG, JSON-LD, links, checklist, copy appendix | exists |
 | `docs/DECISIONS.md` | Running log of decisions | exists |
 

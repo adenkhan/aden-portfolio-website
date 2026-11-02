@@ -1,0 +1,70 @@
+---
+import { home } from "@/data/home";
+---
+
+<section class="container-site" aria-labelledby="stats-title">
+  <h2 id="stats-title" class="sr-only">
+    Product marketing results in numbers
+  </h2>
+  <dl class="strip">
+    {home.stats.map((stat) => (
+      <div class="stat" data-lane={stat.lane}>
+        <dt>{stat.label}</dt>
+        <dd>{stat.display}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<style>
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 1rem;
+    margin: 0;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 0.25rem;
+  }
+
+  dt {
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display-lg);
+    line-height: 1;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    color: var(--lane-colour, var(--color-text));
+  }
+
+  [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
+  }
+
+  @media (width >= 48rem) {
+    .strip {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

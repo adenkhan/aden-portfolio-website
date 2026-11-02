@@ -1,0 +1,42 @@
+---
+import Button from "@/components/ui/Button.astro";
+import { about } from "@/data/timeline";
+---
+
+<section class="container-site block" id="goals" aria-labelledby="goals-title">
+  <h2 id="goals-title">{about.goalsHeading}</h2>
+  <p class="measure">{about.goals}</p>
+  <div class="links">
+    <Button href={about.goalsLinks[0].href} variant="secondary">
+      {about.goalsLinks[0].label}
+    </Button>
+    <Button href={about.goalsLinks[1].href}>{about.goalsLinks[1].label}</Button>
+  </div>
+</section>
+
+<style>
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+</style>

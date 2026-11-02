@@ -1,0 +1,31 @@
+---
+import { seo } from "@/data/seo";
+import type { PageId } from "@/data/types";
+
+interface Props {
+  page: PageId;
+}
+
+const meta = seo[Astro.props.page];
+---
+
+<h1 class="page-title">
+  {meta.h1}
+  {meta.h1Sub && <span class="h1-sub">{meta.h1Sub}</span>}
+</h1>
+
+<style>
+  .page-title {
+    margin: 0;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+  }
+
+  @media (width >= 64rem) {
+    .page-title {
+      font-size: 4.5rem;
+    }
+  }
+</style>

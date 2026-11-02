@@ -1,16 +1,13 @@
 ---
+import Hero from "@/components/sections/home/Hero.astro";
+import StatsStrip from "@/components/sections/home/StatsStrip.astro";
+import Teaser from "@/components/sections/home/Teaser.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { homeJsonLd } from "@/lib/jsonld";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout page="home" jsonLd={homeJsonLd()}>
+  <Hero />
+  <StatsStrip />
+  <Teaser />
+</BaseLayout>

@@ -1,0 +1,71 @@
+---
+import { site } from "@/data/site";
+---
+
+<footer class="site-footer">
+  <div class="container-site footer-inner">
+    <p class="copy">{site.footer.copyright}</p>
+    <ul class="links">
+      <li>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </li>
+      <li>
+        <a href={site.linkedin} rel="me noopener" target="_blank">
+          LinkedIn
+        </a>
+      </li>
+      <li>
+        <a href={site.github} rel="me noopener" target="_blank">
+          GitHub
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 6rem;
+    padding-block: 2rem;
+    background-color: var(--color-bg-void);
+    border-top: 1px solid var(--color-line);
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--color-text-muted);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 2rem;
+  }
+
+  .copy {
+    margin: 0;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .links a:hover {
+      color: var(--color-text);
+    }
+  }
+</style>

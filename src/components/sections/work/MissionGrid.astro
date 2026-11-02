@@ -1,0 +1,47 @@
+---
+import { missions } from "@/data/missions";
+import { work } from "@/data/timeline";
+import MissionCard from "./MissionCard.astro";
+---
+
+<section class="container-site block" id="missions" aria-labelledby="missions-title">
+  <h2 id="missions-title">{work.missionsHeading}</h2>
+  <ul class="grid">
+    {missions.map((mission) => (
+      <MissionCard mission={mission} />
+    ))}
+  </ul>
+</section>
+
+<style>
+  .block {
+    padding-block: 3rem 0;
+  }
+
+  h2 {
+    margin: 0 0 2rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (width >= 48rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
