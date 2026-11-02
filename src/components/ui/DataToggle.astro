@@ -1,0 +1,32 @@
+---
+import { isWorstCase } from "@/lib/fixtures";
+
+// break-ui marker: dev only, never in a production build. Static pages cannot read query strings,
+// so the data is chosen by mode: `npm run dev` (demo) or `npm run dev:worst` (worst case).
+const worst = isWorstCase();
+---
+
+{import.meta.env.DEV && (
+  <p class="data-toggle" aria-hidden="true">
+    {worst ? "Worst-case data (npm run dev:worst)" : "Demo data · npm run dev:worst for the worst case"}
+  </p>
+)}
+
+<style>
+  .data-toggle {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    z-index: 2147483000;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #d4d4d8;
+    color: #18181b;
+    font:
+      12px/1 system-ui,
+      sans-serif;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+</style>

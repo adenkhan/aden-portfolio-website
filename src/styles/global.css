@@ -223,6 +223,17 @@
     transform: scaleX(0);
   }
 
+  html.motion-pending [data-arc-panel],
+  html.motion-pending [data-reveal="section"],
+  html.motion-pending [data-mission-body] {
+    visibility: hidden;
+  }
+
+  /* Mission cards only move (their thumbnail can be the LCP image). */
+  html.motion-pending [data-mission] {
+    transform: translateY(24px);
+  }
+
   /* The CV dialog locks background scroll (Lenis is paused too). */
   html.dialog-open {
     overflow: hidden;

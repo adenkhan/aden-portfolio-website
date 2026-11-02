@@ -346,3 +346,21 @@ All in `src/lib/motion/moments/home.ts`, loaded only on Home (dynamic import fro
 **Kokonut UI.** Not used: every candidate text effect, card and button is a React component, and one React island on Home would push it past 150 KB.
 
 **Measured.** Home first load 63.8 KB, total with idle particles 115.3 KB. Mobile Lighthouse on Home (cold session, 2D intro): before Performance 98, LCP 2.1 s, CLS 0; after Performance 97, LCP 2.3 s, CLS 0, TBT 0 ms. LCP is still the avatar; its render delay grew about 165 ms under simulated throttling.
+
+## 11. Changes in p14 (About and Work)
+
+`src/lib/motion/moments/about.ts` and `work.ts`, loaded only on their page, after the first frame. Hidden start states come from `html.motion-pending` (panels, sections and mission text hidden; mission cards shifted 24 px) and then from GSAP inline styles, so no JavaScript means everything visible.
+
+| Moment | Spec |
+|---|---|
+| About: origin-arc panels | "Laid down like manga panels": at ≥ 768 px each panel slides in from its own side (24 px, alternating left/right) with a 1.5° rotation and 16 px rise, settling to 0; phones rise 16 px in place. 600 ms `ui-out` (lite 450), stagger 90 ms, ScrollTrigger batch at 85%, once. The lane-coloured top edge draws with `scaleX` 0 → 1 (500 ms, +150 ms). No pinning on About (the prompt allowed it on desktop; skipped to avoid scroll-jacking a reading page). This replaces moment 4's clip-path wipe, which would have overridden the panels' cut-corner clip-path. |
+| About: education and goals | Rise 16 px with opacity, 500 ms, stagger 80 ms, at 88%, once. |
+| Work: mission cards | Staggered group (reinstates moment 5b, cut in p04, at the owner's request): cards rise 24 px (550 ms, stagger 60 ms, batch at 90%, once); their text fades in; the result line arrives last (opacity and 8 px, +200 ms) as the emphasis. Cards only move, never fade, because the first thumbnail can be the LCP image. |
+| Work: skills tree | DrawSVG is back (reverses the p07 cut, at the owner's request): an SVG overlay is built from the live layout when the tree comes within 400 px of the viewport (trunk across the top at four columns, down the left otherwise; branches are straight drops or runs to each heading), redrawn on resize. Trunk 500 ms, branches 400 ms stagger 100 ms, then chips fade and scale from 0.96, stagger 25 ms. The skills stay real HTML text and are not focusable (not interactive). Without JavaScript or with reduced motion the CSS connectors show. `stroke-dashoffset` is painted, an accepted exception for a small SVG. |
+| Work: creative gallery | Desktop (≥ 1024 px, fine pointer): the section pins at 12% from the top and the strip moves sideways with scroll (scrub 0.5); arrow keys on the focused strip scroll the page by one card. Narrower or touch: native swipe with scroll-snap, as before. Reduced motion: never pinned. Reverses moment 5d's "no pin" at the owner's request, desktop only. |
+
+**Bklit.** Not used: it is React, and a React island on Work would break the 150 KB budget. The only number that would chart is "−72% CAC", which is relative; a before/after chart would need invented absolute values.
+
+**Resilience (break-ui).** `npm run dev:worst` renders About and Work with worst-case data (long titles, organisations and roles, an unbreakable string, a long email, empty tag and skill lists, missing images). Fixed: empty lists no longer render an empty `<ul>`; a missing image file renders a labelled "Image coming soon" box at the slot's size instead of failing the build. Held up: wrapping of long titles, roles and emails; no overflow at 320, 360, 1440 px and 200% zoom.
+
+**Performance.** The first mission image is now `eager` + `fetchpriority="high"` (its 1.1 s load delay was the main LCP cost). Mobile Lighthouse, local: About 97–98, LCP 2.0–2.3 s; Work 93–97, LCP 2.46–2.63 s, which sits on the 2.5 s line with the p14 motion on or off (tested both). Open item for p17.

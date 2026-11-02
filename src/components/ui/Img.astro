@@ -15,26 +15,48 @@ interface Props {
 }
 
 const { asset, widths, sizes, eager = false, class: className } = Astro.props;
-const meta = getSlot(asset);
-const alt = Astro.props.alt ?? meta.alt;
+
+// A slot whose file was deleted (or an unknown slot) renders a labelled box at the same size instead
+// of failing the build, and warns, so a missing screenshot never takes the page down.
+let meta: ReturnType<typeof getSlot> | undefined;
+let image: ReturnType<typeof getImageFor> | undefined;
+try {
+  meta = getSlot(asset);
+  image = getImageFor(asset);
+} catch (error) {
+  console.warn(`[Img] ${(error as Error).message}; rendering a fallback box.`);
+}
+const alt = Astro.props.alt ?? meta?.alt ?? "";
+const ratio = meta ? `${meta.width} / ${meta.height}` : "4 / 5";
 // The badge renders in dev only and never ships in a production build.
-const showBadge = import.meta.env.DEV && isPlaceholder(asset);
+const showBadge = import.meta.env.DEV && image !== undefined && isPlaceholder(asset);
 ---
 
 <div class:list={["img-slot", className]}>
-  <Picture
-    src={getImageFor(asset)}
-    formats={["avif", "webp"]}
-    fallbackFormat="webp"
-    widths={widths}
-    sizes={sizes}
-    width={meta.width}
-    height={meta.height}
-    alt={alt}
-    loading={eager ? "eager" : "lazy"}
-    fetchpriority={eager ? "high" : "auto"}
-    decoding={eager ? "sync" : "async"}
-  />
+  {image && meta ? (
+    <Picture
+      src={image}
+      formats={["avif", "webp"]}
+      fallbackFormat="webp"
+      widths={widths}
+      sizes={sizes}
+      width={meta.width}
+      height={meta.height}
+      alt={alt}
+      loading={eager ? "eager" : "lazy"}
+      fetchpriority={eager ? "high" : "auto"}
+      decoding={eager ? "sync" : "async"}
+    />
+  ) : (
+    <div
+      class="img-missing"
+      style={`aspect-ratio: ${ratio}`}
+      role={alt ? "img" : undefined}
+      aria-label={alt || undefined}
+    >
+      <span aria-hidden="true">Image coming soon</span>
+    </div>
+  )}
   {showBadge && <span class="placeholder-badge">placeholder</span>}
 </div>
 
@@ -47,6 +69,16 @@ const showBadge = import.meta.env.DEV && isPlaceholder(asset);
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  .img-missing {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    background-color: var(--color-bg-raised);
+    color: var(--color-text-subtle);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
   }
 
   .placeholder-badge {

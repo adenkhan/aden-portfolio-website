@@ -7,6 +7,7 @@ import SEO from "@/components/layout/SEO.astro";
 import SkipLink from "@/components/layout/SkipLink.astro";
 import MotionGate from "@/components/motion/MotionGate.astro";
 import CvDialog from "@/components/ui/CvDialog.astro";
+import DataToggle from "@/components/ui/DataToggle.astro";
 import LottieSlots from "@/components/motion/LottieSlots.astro";
 import { seo } from "@/data/seo";
 import type { PageId } from "@/data/types";
@@ -48,6 +49,7 @@ const meta = seo[page];
     </main>
     <Footer />
     <CvDialog />
+    <DataToggle />
     <script>
       import { initMotion } from "@/lib/motion";
       import type { PageId } from "@/data/types";

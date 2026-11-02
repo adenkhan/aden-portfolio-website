@@ -1,14 +1,17 @@
 ---
-import { missions } from "@/data/missions";
+import { worstMissions } from "@/data/fixtures/worst";
+import { missions as demoMissions } from "@/data/missions";
+import { isWorstCase } from "@/lib/fixtures";
 import { work } from "@/data/timeline";
 import MissionCard from "./MissionCard.astro";
+const missions = isWorstCase() ? worstMissions : demoMissions;
 ---
 
 <section class="container-site block" id="missions" aria-labelledby="missions-title">
   <h2 id="missions-title">{work.missionsHeading}</h2>
   <ul class="grid">
-    {missions.map((mission) => (
-      <MissionCard mission={mission} />
+    {missions.map((mission, index) => (
+      <MissionCard mission={mission} eager={index === 0} />
     ))}
   </ul>
 </section>

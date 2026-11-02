@@ -5,30 +5,37 @@ import type { Mission } from "@/data/types";
 
 interface Props {
   mission: Mission;
+  /** The first card's image is above the fold on phones and is the LCP image there. */
+  eager?: boolean;
 }
 
-const { mission } = Astro.props;
+const { mission, eager = false } = Astro.props;
 ---
 
-<li class="card" id={`mission-${mission.id}`} data-lane={mission.lane}>
+<li class="card" id={`mission-${mission.id}`} data-lane={mission.lane} data-mission>
   {mission.evidence && (
     <Img
       asset={mission.evidence}
       widths={[400, 600, 800]}
       sizes="(min-width: 64rem) 360px, (min-width: 48rem) 45vw, 92vw"
       class="thumb"
+      eager={eager}
     />
   )}
-  <div class="body">
+  <div class="body" data-mission-body>
     <LaneTag lane={mission.lane} />
     <h3>{mission.title}</h3>
     <p class="where">{mission.role ? `${mission.org}, ${mission.role}` : mission.org}</p>
-    <p class="result">{mission.result}</p>
-    <ul class="tags" aria-label="Skills used">
-      {mission.tags.map((tag) => (
-        <li>{tag}</li>
-      ))}
-    </ul>
+    <p class="result" data-mission-result>
+      {mission.result}
+    </p>
+    {mission.tags.length > 0 && (
+      <ul class="tags" aria-label="Skills used">
+        {mission.tags.map((tag) => (
+          <li>{tag}</li>
+        ))}
+      </ul>
+    )}
     <a class="related" href={mission.related.href}>
       {mission.related.label}
     </a>

@@ -1,12 +1,15 @@
 ---
+import { worstArcs } from "@/data/fixtures/worst";
 import { about } from "@/data/timeline";
+import { isWorstCase } from "@/lib/fixtures";
 import ArcPanel from "./ArcPanel.astro";
+const arcs = isWorstCase() ? worstArcs : about.arcs;
 ---
 
 <section class="container-site block" aria-labelledby="arcs-title">
   <h2 id="arcs-title">{about.arcsHeading}</h2>
   <ol class="panels">
-    {about.arcs.map((arc) => (
+    {arcs.map((arc) => (
       <ArcPanel arc={arc} />
     ))}
   </ol>

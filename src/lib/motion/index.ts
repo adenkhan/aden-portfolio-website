@@ -65,13 +65,21 @@ export function initMotion(page: PageId): MotionHandle {
       }
 
       // Page-specific moments load only on their page.
-      const pageMoments =
-        page === "home"
-          ? import("./moments/home").then(async (m) => {
-              const cleanup = await m.home(ctx);
-              if (cleanup) cleanups.push(cleanup);
-            })
-          : Promise.resolve();
+      const loaders: Partial<Record<PageId, () => Promise<(() => void) | void>>> = {
+        home: () => import("./moments/home").then((m) => m.home(ctx)),
+        about: () => import("./moments/about").then((m) => ctx.add(() => m.about(ctx))),
+        work: () => import("./moments/work").then((m) => ctx.add(() => m.work(ctx))),
+      };
+      // Start page moments after the first frame, so their setup never delays the first paint
+      // (the LCP image on Work). Their hidden start states come from html.motion-pending meanwhile.
+      const afterFirstFrame = new Promise<void>((resolve) =>
+        requestAnimationFrame(() => setTimeout(resolve)),
+      );
+      const pageMoments = afterFirstFrame
+        .then(() => loaders[page]?.())
+        .then((cleanup) => {
+          if (typeof cleanup === "function") cleanups.push(cleanup);
+        });
 
       // Every hidden start state is set before html.motion-pending is removed.
       Promise.allSettled([

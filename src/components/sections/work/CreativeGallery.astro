@@ -3,17 +3,28 @@ import Img from "@/components/ui/Img.astro";
 import { assetSlots } from "@/data/assets";
 import { work } from "@/data/timeline";
 
-const slots = assetSlots.filter((s) => s.id.startsWith("gallery-"));
+import { worstGallery } from "@/data/fixtures/worst";
+import { isWorstCase } from "@/lib/fixtures";
+
+const ids = isWorstCase()
+  ? worstGallery
+  : assetSlots.filter((s) => s.id.startsWith("gallery-")).map((s) => s.id);
 ---
 
-<section class="container-site block" id="gallery" aria-labelledby="gallery-title">
+<section class="container-site block" id="gallery" aria-labelledby="gallery-title" data-gallery>
   <h2 id="gallery-title">{work.galleryHeading}</h2>
   <p class="note">{work.galleryNote}</p>
-  <ul class="strip" tabindex="0" aria-label="Creative gallery, scrolls sideways" data-lenis-prevent>
-    {slots.map((slot) => (
+  <ul
+    class="strip"
+    tabindex="0"
+    aria-label="Creative gallery, scrolls sideways"
+    data-lenis-prevent
+    data-gallery-track
+  >
+    {ids.map((id) => (
       <li>
         <figure>
-          <Img asset={slot.id} widths={[300, 450, 600]} sizes="(min-width: 48rem) 300px, 70vw" />
+          <Img asset={id} widths={[300, 450, 600]} sizes="(min-width: 48rem) 300px, 70vw" />
         </figure>
       </li>
     ))}
@@ -52,6 +63,16 @@ const slots = assetSlots.filter((s) => s.id.startsWith("gallery-"));
     overscroll-behavior-x: contain;
     scroll-snap-type: x proximity;
     scroll-padding-inline: 1rem;
+  }
+
+  /* Desktop pin (MOTION.md §11): GSAP moves the strip sideways; the section clips it. */
+  .block:global(.pinned) {
+    overflow-x: clip;
+  }
+
+  .block:global(.pinned) .strip {
+    overflow: visible;
+    scroll-snap-type: none;
   }
 
   .strip li {

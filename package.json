@@ -17,7 +17,8 @@
     "budget": "node scripts/check-budget.mjs",
     "assets:check": "node scripts/assets-check.mjs",
     "assets:generate": "node scripts/generate-placeholders.mjs",
-    "verify": "npm run check && npm run build && npm run budget && npm test"
+    "verify": "npm run check && npm run build && npm run budget && npm test",
+    "dev:worst": "astro dev --mode worst"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.2",

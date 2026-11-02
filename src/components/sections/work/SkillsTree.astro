@@ -1,22 +1,27 @@
 ---
-import { skillLanes } from "@/data/skills";
+import { worstSkillLanes } from "@/data/fixtures/worst";
+import { skillLanes as demoLanes } from "@/data/skills";
+import { isWorstCase } from "@/lib/fixtures";
 import { work } from "@/data/timeline";
+const skillLanes = isWorstCase() ? worstSkillLanes : demoLanes;
 ---
 
 <section class="container-site block" id="skills" aria-labelledby="skills-title">
   <h2 id="skills-title">{work.skillsHeading}</h2>
-  <div class="tree">
+  <div class="tree" data-tree>
     <span class="trunk" aria-hidden="true"></span>
     <ul class="lanes">
       {skillLanes.map((lane) => (
-        <li class="lane" id={`skills-${lane.id}`} data-lane={lane.lane}>
+        <li class="lane" id={`skills-${lane.id}`} data-lane={lane.lane} data-tree-lane>
           <span class="connector" aria-hidden="true" />
           <h3>{lane.label}</h3>
-          <ul class="chips">
-            {lane.skills.map((skill) => (
-              <li>{skill}</li>
-            ))}
-          </ul>
+          {lane.skills.length > 0 && (
+            <ul class="chips">
+              {lane.skills.map((skill) => (
+                <li data-tree-chip>{skill}</li>
+              ))}
+            </ul>
+          )}
         </li>
       ))}
     </ul>
@@ -43,6 +48,21 @@ import { work } from "@/data/timeline";
 
   .tree {
     position: relative;
+  }
+
+  /* With motion, an SVG drawn from the live layout replaces the CSS connectors (MOTION.md §11). */
+  .tree :global(.tree-svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .tree:global(.svg-ready) .trunk,
+  .tree:global(.svg-ready) .connector {
+    display: none;
   }
 
   /* Trunk: vertical on mobile, horizontal from 64rem. Connectors are scaled in by the motion layer later. */

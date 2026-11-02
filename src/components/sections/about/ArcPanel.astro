@@ -8,8 +8,8 @@ interface Props {
 const { arc } = Astro.props;
 ---
 
-<li class="panel" id={arc.id} data-lane={arc.lane}>
-  <span class="edge" aria-hidden="true"></span>
+<li class="panel" id={arc.id} data-lane={arc.lane} data-arc-panel>
+  <span class="edge" aria-hidden="true" data-arc-edge></span>
   <p class="arc-label">Arc {arc.order}</p>
   <h3>
     {arc.title} ({arc.period})

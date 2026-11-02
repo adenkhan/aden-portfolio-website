@@ -275,3 +275,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Animations created after an `await` now register with the `gsap.matchMedia()` context through `ctx.add`, so they revert if reduced motion is switched on mid-session (this also fixes the p10 headline split). A count-up interrupted that way restores the real numbers.
 - Result: Home mobile Lighthouse before Performance 98, LCP 2.1 s; after Performance 97, LCP 2.3 s, CLS 0, TBT 0 ms. Within budget.
 - Source: p13, `docs/MOTION.md` §10.
+
+## 2026-11-02 — p14 About and Work motion
+- Decision: Mission-card entrances (cut in p04), DrawSVG (cut in p07) and a pinned gallery (rejected in p04) are reinstated because the owner asked for them; pinning is desktop-only and never for reduced motion. MOTION.md §11 records the specs.
+- Decision: The DrawSVG branches are drawn from the live layout and redrawn on resize, which removes the p07 objection (paths breaking on reflow). The SVG is built only when the tree nears the viewport.
+- Decision: About panels do not pin (the prompt allowed it on desktop); the "manga panel" assembly uses transform and opacity instead of a clip-path wipe, which would have overridden the panels' cut corner.
+- Decision: No Bklit chart. Bklit is React (a Work island would break the budget), and the only chartable number, −72% CAC, is relative; showing a before/after would need invented values.
+- Decision: break-ui worst-case data lives in `src/data/fixtures/worst.ts` and renders with `npm run dev:worst` (a Vite mode; static pages cannot read `?data=worst`). Fixes applied: no empty `<ul>` for empty tags or skills; a missing image renders a labelled box instead of failing the build.
+- Decision: The first mission image is eager and high priority (it is the LCP image on phones).
+- Decision: Page moments start after the first frame. Tried and reverted: deferring the whole motion bundle, and inlining CSS; neither improved LCP.
+- Risk (open, p17): Work's mobile LCP measures 2.46–2.63 s locally with or without the p14 motion; the thumbnail paints about 600 ms after FCP (1.8 s). Needs a real-device check and a fix in p17.
+- Source: p14, `docs/MOTION.md` §11.
