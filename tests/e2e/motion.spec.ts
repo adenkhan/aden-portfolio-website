@@ -37,7 +37,8 @@ test.describe("reduced motion", () => {
   test("home: no particles and no pointer glow", async ({ page }) => {
     await page.goto("/");
     await page.waitForTimeout(800);
-    await expect(page.locator("[data-ambient-particles] canvas")).toHaveCount(0);
+    // Reduced motion: the world (if any) is a still frame, never a running loop.
+    expect(await page.evaluate(() => window.__akWorld?.debug.running ?? false)).toBe(false);
     await page.locator("[data-pointer-glow-host]").hover();
     await expect(page.locator("[data-pointer-glow]")).toHaveCSS("opacity", "0");
   });
@@ -70,9 +71,8 @@ test.describe("full motion (desktop)", () => {
     });
   }
 
-  test("home: particles load at idle and the pointer glow follows the cursor", async ({ page }) => {
+  test("home: the pointer glow follows the cursor", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("[data-ambient-particles] canvas")).toHaveCount(1, { timeout: 5000 });
     const card = page.locator("[data-pointer-glow-host]");
     await card.hover({ position: { x: 60, y: 80 } });
     await expect

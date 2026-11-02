@@ -39,15 +39,19 @@ import { site } from "@/data/site";
 </dialog>
 
 <script>
+  import { onPage } from "@/lib/page";
+
   type BurstModule = typeof import("@/lib/motion/cv-burst");
 
-  const dialog = document.querySelector<HTMLDialogElement>("[data-cv-dialog]");
-  const triggers = [...document.querySelectorAll<HTMLAnchorElement>("[data-cv-trigger]")];
   const BURST_WAIT_MS = 150;
   const DIALOG_DELAY_MS = 380;
+  let burst: Promise<BurstModule> | null = null;
 
-  if (dialog && typeof dialog.showModal === "function") {
-    let burst: Promise<BurstModule> | null = null;
+  // Bound per page: each page the client router swaps in brings its own dialog and CV buttons.
+  onPage(() => {
+    const dialog = document.querySelector<HTMLDialogElement>("[data-cv-dialog]");
+    const triggers = [...document.querySelectorAll<HTMLAnchorElement>("[data-cv-trigger]")];
+    if (!dialog || typeof dialog.showModal !== "function") return;
     let opener: HTMLElement | null = null;
     let opening = false;
     const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -112,7 +116,11 @@ import { site } from "@/data/site";
         setTimeout(open, DIALOG_DELAY_MS);
       });
     }
-  }
+    // Leaving the page with the dialog open: release the scroll lock with it.
+    return () => {
+      if (dialog.open) dialog.close();
+    };
+  });
 </script>
 
 <style>

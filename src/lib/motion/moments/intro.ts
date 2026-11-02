@@ -1,11 +1,13 @@
-import { canUseWebGL, isLowPower, isMobileViewport } from "@/components/three/capability";
+import { isLowPower, isMobileViewport } from "@/components/three/capability";
 import { create2dStage } from "@/components/three/orbs-2d";
 import type { IntroStage, IntroState, StageGeometry } from "@/components/three/stage";
+import { worldReady } from "@/components/world/ready";
 import { gsap, registerCore } from "../eases";
 
 export const INTRO_REVEAL = "ak:intro-reveal";
 export const INTRO_END = "ak:intro-end";
-const THREE_TIMEOUT_MS = 600;
+/** How long the intro waits for the persistent world before playing the 2D version. */
+const WORLD_TIMEOUT_MS = 600;
 
 /** Collision point: the avatar card's centre, kept inside the first screen on phones. */
 function geometry(host: HTMLElement): StageGeometry {
@@ -18,12 +20,9 @@ function geometry(host: HTMLElement): StageGeometry {
   return { x, y, width, height, mobile: isMobileViewport() };
 }
 
-function chooseMode(): "3d" | "2d" {
-  const forced = new URLSearchParams(location.search).get("intro");
-  if (forced === "2d") return "2d";
-  if (forced === "3d") return "3d";
-  if (document.documentElement.dataset.motion !== "full") return "2d";
-  return !isLowPower() && canUseWebGL() ? "3d" : "2d";
+/** Round 2 (r3): every tier gets the 3D intro through the world; ?intro=2d forces the 2D version. */
+function wants3d(): boolean {
+  return new URLSearchParams(location.search).get("intro") !== "2d";
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
@@ -44,6 +43,9 @@ export async function runIntro(): Promise<void> {
 
   let stage: IntroStage | null = null;
   let timeline: gsap.core.Timeline | null = null;
+  // The persistent world's host: in 3D mode the intro plays on its canvas, raised above the page.
+  const worldHost = document.querySelector<HTMLElement>("[data-world]");
+  let worldMode = false;
   let revealed = false;
   let finished = false;
 
@@ -59,7 +61,19 @@ export async function runIntro(): Promise<void> {
     stage = null;
     const focusInside = overlay.contains(document.activeElement);
     overlay.remove();
-    root.classList.remove("intro", "intro-running", "intro-skipped");
+    root.classList.remove("intro", "intro-running", "intro-skipped", "intro-world");
+    if (worldMode && worldHost) {
+      // The world drops back behind the page and fades in there, now as the ambient scene.
+      done?.dispose();
+      gsap.fromTo(
+        worldHost,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.6, ease: "ui-out", clearProps: "opacity" },
+      );
+      if (focusInside) document.getElementById("main")?.focus({ preventScroll: true });
+      window.dispatchEvent(new Event(INTRO_END));
+      return;
+    }
     if (focusInside) document.getElementById("main")?.focus({ preventScroll: true });
     window.dispatchEvent(new Event(INTRO_END));
 
@@ -79,6 +93,7 @@ export async function runIntro(): Promise<void> {
     reveal(skipped);
     if (skipped) {
       overlay.style.pointerEvents = "none";
+      if (worldMode && worldHost) gsap.to(worldHost, { opacity: 0, duration: 0.15, ease: "ui-out" });
       gsap.to(overlay, { opacity: 0, duration: 0.15, ease: "ui-out", onComplete: cleanUp });
     } else {
       cleanUp();
@@ -115,16 +130,18 @@ export async function runIntro(): Promise<void> {
   try {
     registerCore();
     const g = geometry(stageHost);
-    const mode = chooseMode();
-    if (mode === "3d") {
-      const scene = await withTimeout(
-        import("@/components/three/intro-scene").then((m) => m.createIntroScene(stageHost, g)),
-        THREE_TIMEOUT_MS,
-      ).catch(() => null);
-      if (scene && finished) scene.dispose();
-      else stage = scene;
+    if (wants3d()) {
+      const world = await withTimeout(worldReady, WORLD_TIMEOUT_MS).catch(() => null);
+      if (world && !finished && worldHost) {
+        stage = world.introStage(g);
+        worldMode = true;
+        root.classList.add("intro-world");
+      }
     }
-    if (finished) return;
+    if (finished) {
+      stage?.dispose();
+      return;
+    }
     stage ??= create2dStage(stageHost, g);
     root.dataset.introMode = stage.mode;
 
@@ -192,9 +209,13 @@ export async function runIntro(): Promise<void> {
         { aberration: 0, duration: 0.4 * s, immediateRender: false },
         1.0 * s,
       )
-      // Reveal: the overlay fades, the hero underneath assembles.
+      // Reveal: the overlay (2D) or the raised world canvas (3D) fades, the hero underneath assembles.
       .call(() => (overlay.style.pointerEvents = "none"), [], 1.15 * s)
-      .to(overlay, { opacity: 0, duration: 0.45 * s }, 1.15 * s)
+      .to(
+        worldMode && worldHost ? [overlay, worldHost] : overlay,
+        { opacity: 0, duration: 0.45 * s },
+        1.15 * s,
+      )
       .call(() => reveal(false), [], 1.3 * s);
   } catch (error) {
     console.warn("[intro] skipped", error);

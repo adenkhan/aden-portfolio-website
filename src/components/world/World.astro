@@ -1,0 +1,157 @@
+---
+/**
+ * The persistent 3D world (docs/MOTION.md §13). One host, kept across navigations by
+ * transition:persist, so the WebGL scene survives Astro view transitions without reloading.
+ * Until the canvas has drawn (and always without WebGL or JavaScript) the CSS orbs below stand in,
+ * so the background is never blank. Decorative: real content is the HTML above it.
+ */
+---
+
+<div
+  class="world"
+  data-world
+  transition:persist="world"
+  transition:name="world"
+  transition:animate="none"
+  aria-hidden="true"
+>
+  <span class="fb fb-red"></span>
+  <span class="fb fb-blue"></span>
+  <span class="fb fb-purple"></span>
+</div>
+
+<script>
+  import { canUseWebGL, isSoftwareRenderer } from "@/components/three/capability";
+  import { resolveWorld } from "@/components/world/ready";
+
+  const host = document.querySelector<HTMLElement>("[data-world]");
+  const root = document.documentElement;
+
+  // ?world=force runs even on software WebGL (tests, review); ?world=off keeps the CSS orbs. Kept per session.
+  function flag(): string | null {
+    const param = new URLSearchParams(location.search).get("world");
+    try {
+      if (param) sessionStorage.setItem("ak.world", param);
+      return param ?? sessionStorage.getItem("ak.world");
+    } catch {
+      return param;
+    }
+  }
+
+  function boot() {
+    if (!host || host.dataset.state) return;
+    const mode = flag();
+    if (mode === "off" || (mode !== "force" && (!canUseWebGL() || isSoftwareRenderer()))) {
+      host.dataset.state = "fallback";
+      resolveWorld(null);
+      return;
+    }
+    host.dataset.state = "loading";
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    import("@/components/world/controller")
+      .then((m) => m.startWorld(host, reduced))
+      .catch((error) => {
+        console.warn("[world] fallback to the CSS orbs", error);
+        host.dataset.state = "fallback";
+        resolveWorld(null);
+      });
+  }
+
+  // Never before the first paint. The intro needs the world at once; otherwise it waits for idle.
+  const afterPaint = (fn: () => void) => requestAnimationFrame(() => setTimeout(fn, 0));
+  const idle = (fn: () => void) =>
+    window.requestIdleCallback ? window.requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300);
+  if (root.classList.contains("intro")) afterPaint(boot);
+  else afterPaint(() => idle(boot));
+</script>
+
+<style>
+  .world {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+  }
+
+  /* While the Home intro plays through the world, the canvas covers the page under the Skip button. */
+  :global(html.intro-world) .world {
+    z-index: calc(var(--z-intro) - 1);
+  }
+
+  .world :global(.world-canvas) {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 700ms var(--ease-out);
+  }
+
+  .world:global(.world-live) :global(.world-canvas) {
+    opacity: 1;
+  }
+
+  /* CSS stand-in: soft radial orbs in the lane colours, placed per page. */
+  .fb {
+    position: absolute;
+    width: 42vmax;
+    height: 42vmax;
+    margin: -21vmax 0 0 -21vmax;
+    border-radius: 50%;
+    opacity: 0.32;
+    transition:
+      opacity 700ms var(--ease-out),
+      transform 900ms var(--ease-in-out);
+  }
+
+  .world:global(.world-live) .fb {
+    opacity: 0;
+  }
+
+  .fb-red {
+    top: 34%;
+    left: 66%;
+    background: radial-gradient(circle, #ff4d6a66 0%, #ff4d6a22 35%, transparent 65%);
+  }
+
+  .fb-blue {
+    top: 44%;
+    left: 82%;
+    background: radial-gradient(circle, #3db0ff66 0%, #3db0ff22 35%, transparent 65%);
+  }
+
+  .fb-purple {
+    top: 40%;
+    left: 74%;
+    width: 24vmax;
+    height: 24vmax;
+    margin: -12vmax 0 0 -12vmax;
+    background: radial-gradient(circle, #a77cff55 0%, transparent 65%);
+  }
+
+  :global(body[data-page="about"]) .fb-red,
+  :global(body[data-page="about"]) .fb-blue {
+    transform: translate(-8vmax, 10vmax) scale(0.6);
+  }
+
+  :global(body[data-page="work"]) .fb-red {
+    transform: translate(-50vw, 20vh);
+  }
+
+  :global(body[data-page="contact"]) .fb-red {
+    transform: translate(-30vw, 6vh);
+  }
+
+  :global(body[data-page="contact"]) .fb-blue {
+    transform: translate(-20vw, 14vh);
+  }
+
+  @media (width < 48rem) {
+    .fb {
+      opacity: 0.22;
+    }
+  }
+</style>

@@ -26,7 +26,6 @@ import StatsStrip from "./StatsStrip.astro";
     <StatsStrip />
   </div>
   <div class="visual">
-    <div class="particles" data-ambient-particles aria-hidden="true"></div>
     <CharacterCard />
   </div>
 </section>
@@ -83,14 +82,6 @@ import StatsStrip from "./StatsStrip.astro";
     position: relative;
     width: 100%;
     max-width: 420px;
-  }
-
-  /* Ambient particles host (docs/MOTION.md 7a). Decorative; tsParticles draws a canvas here on the full tier. */
-  .particles {
-    position: absolute;
-    inset: -2rem 0;
-    z-index: 0;
-    pointer-events: none;
   }
 
   .visual > :global(.card) {

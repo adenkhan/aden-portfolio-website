@@ -1,5 +1,6 @@
 ---
 import "@/styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import displayFont from "@fontsource-variable/big-shoulders-display/files/big-shoulders-display-latin-wght-normal.woff2?url";
 import Footer from "@/components/layout/Footer.astro";
 import Nav from "@/components/layout/Nav.astro";
@@ -9,6 +10,7 @@ import MotionGate from "@/components/motion/MotionGate.astro";
 import CvDialog from "@/components/ui/CvDialog.astro";
 import DataToggle from "@/components/ui/DataToggle.astro";
 import LottieSlots from "@/components/motion/LottieSlots.astro";
+import World from "@/components/world/World.astro";
 import { seo } from "@/data/seo";
 import type { PageId } from "@/data/types";
 
@@ -29,6 +31,8 @@ const meta = seo[page];
       content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
     />
     <MotionGate />
+    <!-- Client-side navigation, so the 3D world (World.astro) persists across pages (r3). -->
+    <ClientRouter />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -44,6 +48,7 @@ const meta = seo[page];
     <slot name="head" />
   </head>
   <body data-page={page}>
+    <World />
     <slot name="before-nav" />
     <SkipLink />
     <Nav />
@@ -54,10 +59,36 @@ const meta = seo[page];
     <CvDialog />
     <DataToggle />
     <script>
-      import { initMotion } from "@/lib/motion";
+      import { initMotion, type MotionHandle } from "@/lib/motion";
       import type { PageId } from "@/data/types";
+      import { onPage } from "@/lib/page";
 
-      initMotion((document.body.dataset.page ?? "home") as PageId);
+      // Motion boots per page. With the client router a page can arrive without a reload, so it
+      // re-runs on astro:page-load and tears down on astro:before-swap (docs/ENGINEERING-PLAN.md §5).
+      let handle: MotionHandle | null = null;
+      onPage(() => {
+        handle = initMotion((document.body.dataset.page ?? "home") as PageId);
+        return () => {
+          handle?.destroy();
+          handle = null;
+        };
+      });
+
+      // The swap replaces <html>'s attributes, so restore what the inline MotionGate set on first load.
+      document.addEventListener("astro:after-swap", () => {
+        const root = document.documentElement;
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          root.dataset.motion = "reduced";
+          return;
+        }
+        root.classList.add("motion-pending");
+        setTimeout(() => root.classList.remove("motion-pending"), 2500);
+      });
+
+      // A real unload tears down; a bfcache restore keeps the running state.
+      window.addEventListener("pagehide", (event) => {
+        if (!event.persisted) handle?.destroy();
+      });
     </script>
   </body>
 </html>

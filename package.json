@@ -30,8 +30,6 @@
     "@pixiv/three-vrm": "^3.5.5",
     "@rive-app/canvas": "^2.49.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@tsparticles/engine": "^4.5.0",
-    "@tsparticles/slim": "^4.5.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "astro": "^7.4.4",

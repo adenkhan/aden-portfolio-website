@@ -352,3 +352,55 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Result: visible words in `<main>` are Home 40/80, About 109/160, Contact 31/40, and 23–34 per Work case study (limit 60). `tests/e2e/copy.spec.ts` enforces these, BBA/IBA once, and one line per case-study line. `smoke.spec.ts` now checks each indexed page's title, description and keyword H1 against `seo.ts`.
 - Check: no-ai-slop in detect mode found no banned words, em dashes or slop patterns. The three-fragment bio is kept as the owner's voice.
 - Source: r2.
+
+## 2026-11-03 — r3: 3D world
+- Decision: **Plain Three.js + custom GLSL + `postprocessing`, not React Three Fiber.**
+  - Three.js and `postprocessing` were already installed and used by the intro.
+  - R3F would add a React runtime to every page for a single canvas.
+  - A plain DOM host persists cleanly across view transitions.
+  - The skill "labels as HTML overlays" requirement is met DOM-first: each 3D cluster is anchored behind its real HTML lane (heading and chips), which keeps the text readable without JavaScript and to search engines (the effect of drei's `Html`, without React).
+  - Cost if wrong: a later rewrite of `src/components/world/` into R3F components.
+- Decision: **`<ClientRouter />` adopted (ADR-001 superseded)** so the world's host persists (`transition:persist`). Consequences:
+  - Component scripts re-initialise through `src/lib/page.ts`.
+  - BaseLayout restores the motion gate on `astro:after-swap`.
+  - The Netlify form opts out with `data-astro-reload` and posts natively.
+  - Our cross-document view-transition CSS was replaced by the router's default fade.
+- Decision: one world, stations per route, as specified in `docs/MOTION.md` §13:
+  - Home: the orbs orbit the avatar card and lean toward the cursor; the 3D intro plays; a scroll-scrubbed collision runs over CREATIVE · DATA · GROWTH.
+  - About: the merged orb travels a glowing path and lights one node per arc.
+  - Work: the orbs open into a point field, each case study pulls the camera to its formation, and a skills constellation sits behind the HTML lanes.
+  - Contact: the orbs orbit the terminal, and a valid send fires a burst.
+- Decision: the intro draws through the world when it is ready within 600 ms, otherwise the 2D version runs. `intro-scene.ts` and `dispose.ts` are deleted; one WebGL context per visit.
+- Decision: the tsParticles hero layer is replaced by GPU particles in the world (orb trails, field, dust), so the effect is kept on every page and tier. `@tsparticles/*` were uninstalled.
+- Decision: quality tiers high, medium and low (pixel ratio, particle counts, noise octaves, bloom resolution, aberration, a 30 fps idle cap on low), detected from the GPU and device. A frame governor steps down and never up. The world pauses when the tab is hidden or the canvas is off screen. Reduced motion renders one still per page.
+- Ruling: **software WebGL (SwiftShader, llvmpipe) counts as no usable WebGL**, so those visitors get the CSS orbs and the 2D intro; `?world=force` overrides it. Under software rendering the full world starved the page (Skip unclickable for 30 s in tests). This is the R1 capability exception, not a budget cut. Cost if wrong: a few visitors on GPU-less machines see the CSS orbs.
+- Ruling: on phones the cast is half size and sits beside the text (right of the H1, right edge on About), and the path and lit nodes are dimmed, so text over the canvas keeps its contrast.
+- Fixes found while verifying:
+  - The aberration pass was disabled on the low tier while it was the composer's last pass, so nothing reached the screen; it is now removed instead.
+  - `setClearColor` stored the background as sRGB inside the linear buffer, so it came out grey; it now uses `scene.background`.
+  - An `anchor()` scratch vector aliased the caller's output vector.
+  - About and Work pieces are built on first visit, and three.js shader checks are off outside dev (both cut first-load work).
+  - A metric-matched JetBrains Mono fallback fixed a font-swap CLS on Contact.
+- Budget: `scripts/check-budget.mjs` now limits first-load JS only (68–70 KB gzip per page, three.js never in a first load) and reports lazy chunks (161 KB, the world included).
+- Verification:
+  - **Desktop, 1440:** the walk across all four routes, twice, shows one canvas, the same instance and stable GPU memory (`tests/e2e/world.spec.ts`), with no console errors.
+  - **Phone, 375 with 4× CPU throttling:**
+    - one canvas throughout, with no console errors;
+    - station switches of 0.37–0.8 s;
+    - geometries stable at 22;
+    - 13–19 fps. That figure is with the 3D drawn by SwiftShader on the CPU, since this machine gives headless Chrome no GPU; a real-phone measurement is still needed.
+  - **Tests:** `npm run verify` passes, 102 tests.
+- Lighthouse 12.8.2 (local preview), Performance / Accessibility / SEO. Run two ways:
+  - "Default" is what Lighthouse's own Chrome (software WebGL) receives: the CSS orbs and the 2D intro.
+  - "Forced 3D" is `?world=force`: the full world drawn on the CPU, a worst case real visitors never get.
+
+  | | Home | About | Work | Contact |
+  |---|---|---|---|---|
+  | Default, desktop (budget ≥ 75) | 87 / 96 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 |
+  | Default, mobile (budget ≥ 65) | 95 / 100 / 100 | 96 / 100 / 100 | 95 / 100 / 100 | 97 / 100 / 100 |
+  | Forced 3D, desktop | 80 / 96 / 100 | 95 / 100 / 100 | 100 / 100 / 100 | 98 / 100 / 100 |
+  | Forced 3D, mobile | **55** / 100 / 100 | 74 / 100 / 100 | 87 / 100 / 100 | 81 / 100 / 100 |
+
+  Every default run meets the R1 budgets; SEO and Accessibility are ≥ 95 everywhere.
+- Risk (open): **forced 3D on mobile Home scores 55** (budget 65). The cause is TBT of about 2 s at 4× throttling, from building the world and the 3D intro during load. Real phones with a GPU take this path, so a real-device Lighthouse run is needed. If it confirms the shortfall, the candidate fix is on the low tier: play the 2D intro and boot the world after it ends (still a 3D world, with a lighter intro). The owner decides, because it changes the R1 "lighter, never removed" reading.
+- Source: r3, `docs/MOTION.md` §13.

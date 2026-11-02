@@ -92,16 +92,18 @@ test("2D version: plays, clears and leaves no canvas", async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.dataset.introMode)).toBe("2d");
 });
 
-test("three and postprocessing are not in the About, Work or Contact bundles", async ({ page }) => {
-  for (const route of ["/about/", "/work/", "/contact/"]) {
+test("three.js is never in a page's first load (the 3D world loads after first paint)", async ({ page }) => {
+  for (const route of ["/", "/about/", "/work/", "/contact/"]) {
     const scripts: string[] = [];
     page.on("response", (response) => {
       if (response.url().endsWith(".js")) scripts.push(response.url());
     });
-    await page.goto(route);
+    // world=off: nothing imports the lazy 3D chunk, so every script fetched belongs to the first load
+    // or a page moment.
+    await page.goto(`${route}?world=off`);
     await page.waitForLoadState("networkidle");
-    for (const url of scripts) expect(url, route).not.toMatch(/intro-scene/);
     const bodies = await Promise.all(scripts.map((url) => page.request.get(url).then((r) => r.text())));
     for (const body of bodies) expect(body.includes("WebGLRenderer"), route).toBe(false);
+    scripts.length = 0;
   }
 });

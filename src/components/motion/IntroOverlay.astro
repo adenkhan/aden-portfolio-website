@@ -29,6 +29,11 @@
     display: block;
   }
 
+  /* 3D mode: the world canvas is raised just below this layer and draws the intro; keep only Skip. */
+  :global(html.intro-world) .intro-overlay {
+    background-color: transparent;
+  }
+
   /* Esc before the intro bundle loads: hide at once and stop blocking the page. */
   :global(html.intro-skipped) .intro-overlay {
     opacity: 0;

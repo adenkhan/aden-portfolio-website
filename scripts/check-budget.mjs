@@ -1,9 +1,9 @@
-// Fails the build when any page's JavaScript exceeds the budget (docs/ENGINEERING-PLAN.md §9).
+// Fails the build when any page's entry JavaScript exceeds the budget (docs/ENGINEERING-PLAN.md §9).
 // first load = module scripts and modulepreloads in the page's HTML, plus their static imports.
-// + lazy    = chunks those files can import() later (for example the idle-loaded particles).
-// The budget applies to first load + lazy. Excluded: three.js/postprocessing (lazy 3D) and the optional
-// Lottie and Rive runtimes, which load only on user intent (hover or focus) and only when their asset
-// files exist (docs/DECISIONS.md, p13). Idle-loaded code such as tsParticles still counts (p07).
+// lazy       = chunks those files can import() later (the 3D world, page moments), reported only.
+// Round 2 (r1, built in r3): the 150 KB limit applies to first load only. Lazily loaded 3D and visual
+// chunks have no size limit; Lighthouse judges them instead. The 3D chunk must stay lazy: a page
+// whose first load contains three.js fails.
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
@@ -44,14 +44,8 @@ function closure(entries, seen, lazy) {
   }
 }
 
-const is3d = (code) => /three\.module|postprocessing|WebGLRenderer/.test(code);
-const INTENT_ONLY = [/(^|\/)lottie_light\./, /(^|\/)rive\./];
-const excluded = (file, code) => is3d(code) || INTENT_ONLY.some((re) => re.test(file));
-const gz = (files) =>
-  [...files].reduce((sum, file) => {
-    const code = readFileSync(join(DIST, file));
-    return excluded(file, code.toString("utf8")) ? sum : sum + gzipSync(code).length;
-  }, 0);
+const is3d = (file) => /WebGLRenderer/.test(readFileSync(join(DIST, file), "utf8"));
+const gz = (files) => [...files].reduce((sum, file) => sum + gzipSync(readFileSync(join(DIST, file))).length, 0);
 
 let failed = false;
 for (const html of htmlFiles(DIST)) {
@@ -80,8 +74,8 @@ for (const html of htmlFiles(DIST)) {
 
   const firstKb = (gz(first) + inline) / 1024;
   const lazyKb = gz(lazy) / 1024;
-  const total = firstKb + lazyKb;
-  const ok = total <= BUDGET_KB;
+  const threeInFirst = [...first].some(is3d);
+  const ok = firstKb <= BUDGET_KB && !threeInFirst;
   if (!ok) failed = true;
   const page = html
     .split("\\")
@@ -90,14 +84,12 @@ for (const html of htmlFiles(DIST)) {
     .replace(/index\.html$/, "");
   const fmt = (n) => n.toFixed(1).padStart(6);
   console.log(
-    `${ok ? "ok  " : "FAIL"} first ${fmt(firstKb)} KB + lazy ${fmt(lazyKb)} KB = ${fmt(total)} KB  ${page}`,
+    `${ok ? "ok  " : "FAIL"} first ${fmt(firstKb)} KB (limit ${BUDGET_KB}) · lazy ${fmt(lazyKb)} KB (reported)${threeInFirst ? " · three.js in first load" : ""}  ${page}`,
   );
 }
 
 if (failed) {
-  console.error(
-    `\nJavaScript over ${BUDGET_KB} KB gzip (first load + lazy, excluding 3D) on at least one page.`,
-  );
+  console.error(`\nFirst-load JavaScript over ${BUDGET_KB} KB gzip, or three.js in a first load, on a page.`);
   process.exit(1);
 }
-console.log(`\nAll pages under ${BUDGET_KB} KB gzip (first load + lazy, excluding 3D).`);
+console.log(`\nAll pages: first load under ${BUDGET_KB} KB gzip, 3D lazy. Lazy chunks are reported, not limited.`);

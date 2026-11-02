@@ -257,7 +257,7 @@ The nav is a text row from `md` up. Below `md` it collapses to the logo, CV butt
 
 Declare depth once: border or shadow, never both. This site uses borders (1px `line`) plus a lightness step between surfaces. There are no drop shadows on cards.
 
-Glow is a light source, not decoration. It is allowed in exactly four places: the orb collision behind the avatar, the CV-download burst, the focus ring, and the pointer light inside the character-select card (desktop, fine pointer). Nowhere else.
+Glow is a light source, not decoration. It belongs to the 3D world (r3: the orbs, their trails, the About path, the Work field and constellation, the shockwave), the CV-download burst, the focus ring and the pointer light inside the character-select card. HTML elements never get decorative glow; the world sits behind them. Over text the world stays dim enough to keep WCAG AA contrast (smaller cast on phones, nodes never blown to white).
 
 Z-index scale (tokens in `@theme`): base 0, content 1, nav 40, intro overlay 80, dialog 90, toast 100, skip link 110.
 
@@ -273,12 +273,12 @@ Each motif has a place and an upper limit, so the page does not get noisy.
 
 | Motif | Allowed | Not allowed |
 |---|---|---|
-| Orb collision (red + blue → purple) | behind the avatar in the hero; the intro; the CV burst | page backgrounds, section dividers |
+| Orb collision (red + blue → purple) | the persistent 3D world behind every page (r3): orbit on Home, merged on About, scattered into points on Work, orbiting the terminal on Contact; the intro; the scroll collision; the CV and send bursts | inside HTML components or section dividers |
 | Halftone dots | About panels (corner fade, 90px max) and the creative gallery frame | behind body text, hero, nav |
 | Manga panel borders | About panels only; 1px `line-strong` with one 3px `creative`/`data`/`growth` top edge on the panel's own lane | mission cards, buttons |
 | HUD corner brackets | the character-select avatar card and the terminal panel | every card |
 | Grid lines | inside the character-select card only, as a measuring grid behind the readout | full-page grid or scanline overlays |
-| Ambient particles (`docs/MOTION.md` 7a, built in p10) | behind the character-select card in the hero, desktop only | any other section or page |
+| Ambient particles | GPU particles in the 3D world (orb trails, the Work field, dust), every page and tier at tier-scaled counts (r3 replaced the tsParticles hero layer) | DOM particle layers |
 | HUD labels (mono) | role/date lines; the single "// PLAYER 01" tag inside the avatar card | above every heading |
 
 ## Components

@@ -20,6 +20,7 @@ const { form } = contact;
     action="/thanks/"
     data-netlify="true"
     netlify-honeypot="bot-field"
+    data-astro-reload
     data-contact-form
     data-error-name={form.errors.name}
     data-error-email={form.errors.email}
@@ -79,9 +80,12 @@ const { form } = contact;
 </section>
 
 <script>
-  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  import { onPage } from "@/lib/page";
 
-  if (form) {
+  // Bound per page, since the client router can bring Contact in without a reload.
+  onPage(() => {
+    const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+    if (!form) return;
     const copy = form.dataset;
     const status = form.querySelector<HTMLElement>("[data-form-status]")!;
     const fields = ["contact-name", "contact-email", "contact-message"].map((id) =>
@@ -118,11 +122,18 @@ const { form } = contact;
       const invalid = fields.filter((field) => !check(field));
       if (!invalid.length) {
         status.textContent = "";
-        // Valid: the browser posts the form to Netlify, which redirects to /thanks/. Show progress and
-        // stop a second press while the request is in flight.
+        // Valid: the world fires its burst at the button, then the form posts natively to Netlify,
+        // which redirects to /thanks/ (data-astro-reload keeps the client router out of it).
+        // Show progress and stop a second press while the request is in flight.
+        event.preventDefault();
         const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
         button.textContent = copy.sending!;
-        queueMicrotask(() => (button.disabled = true));
+        button.disabled = true;
+        const rect = button.getBoundingClientRect();
+        const detail = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        window.dispatchEvent(new CustomEvent("ak:burst", { detail }));
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        setTimeout(() => form.submit(), reduced ? 0 : 450);
         return;
       }
       event.preventDefault();
@@ -140,7 +151,7 @@ const { form } = contact;
       field.addEventListener("input", () => attempted && check(field));
       field.addEventListener("blur", () => attempted && check(field));
     }
-  }
+  });
 </script>
 
 <style>

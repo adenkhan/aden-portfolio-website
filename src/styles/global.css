@@ -41,7 +41,7 @@
   /* type */
   --font-display: "Big Shoulders Display Variable", "Arial Narrow", sans-serif;
   --font-sans: "Instrument Sans Variable", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, monospace;
   --text-display-xl: 6rem;
   --text-display-xl--line-height: 0.92;
   --text-display-page: 4.5rem;
@@ -163,7 +163,8 @@
 
   body {
     min-height: 100dvh;
-    background-color: var(--color-bg-base);
+    /* Transparent: <html> carries the background, so the fixed 3D world (z-index -1) shows through. */
+    background-color: transparent;
     color: var(--color-text);
     font-family: var(--font-sans);
     font-size: 1rem;
@@ -274,32 +275,8 @@
   }
 }
 
-/* Page-to-page crossfade with native cross-document view transitions (docs/MOTION.md moment 8).
-   Exit is faster than enter; browsers without support navigate instantly. */
-@view-transition {
-  navigation: auto;
-}
-
-::view-transition-old(root) {
-  animation: 100ms var(--ease-out) both vt-fade-out;
-}
-
-::view-transition-new(root) {
-  animation: 180ms var(--ease-out) both vt-fade-in;
-}
-
-@keyframes vt-fade-out {
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes vt-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-
+/* Page-to-page transitions come from Astro's client router since r3 (its default fade), so the
+   persistent 3D world can stay alive across pages. The world itself opts out (transition:animate="none"). */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),

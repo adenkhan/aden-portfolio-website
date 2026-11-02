@@ -2,7 +2,6 @@ import type { PageId } from "@/data/types";
 import { gsap, registerCore } from "./eases";
 import { startLenis } from "./lenis";
 import { headlines } from "./moments/headline";
-import { particles } from "./moments/particles";
 import { pointerGlow } from "./moments/pointer-glow";
 import { getTier, type MotionTier } from "./tier";
 import type { MomentContext } from "./types";
@@ -13,8 +12,8 @@ export interface MotionHandle {
 }
 
 /**
- * Boots motion for one page (docs/ENGINEERING-PLAN.md §5). Pages are separate documents
- * (no client router, ADR-001), so this runs once per load and needs no swap handling.
+ * Boots motion for one page (docs/ENGINEERING-PLAN.md §5). Since r3 the client router can swap pages
+ * in without a reload, so BaseLayout calls this per page and calls destroy() before each swap.
  * All hidden start states are set here, after the inline gate in <head> added html.motion-pending.
  */
 export function initMotion(page: PageId): MotionHandle {
@@ -88,21 +87,16 @@ export function initMotion(page: PageId): MotionHandle {
         pageMoments.catch((error) => console.warn("[motion] page moments skipped", error)),
       ]).finally(() => root.classList.remove("motion-pending"));
 
-      for (const moment of [pointerGlow, particles]) {
-        const cleanup = moment(ctx);
-        if (cleanup) cleanups.push(cleanup);
-      }
+      // Ambient particles now live on the GPU in the persistent world (r3), not in tsParticles.
+      const glow = pointerGlow(ctx);
+      if (glow) cleanups.push(glow);
 
       return () => cleanups.forEach((fn) => fn());
     },
   );
 
-  if (import.meta.env.DEV) import("./dev-hud").then((m) => m.startDevHud(tier));
+  if (import.meta.env.DEV && !document.querySelector("[data-dev-hud]"))
+    import("./dev-hud").then((m) => m.startDevHud(tier));
 
-  const destroy = () => mm.revert();
-  // A normal unload tears everything down; a bfcache restore keeps the running state.
-  window.addEventListener("pagehide", (event) => {
-    if (!event.persisted) destroy();
-  });
-  return { tier, destroy };
+  return { tier, destroy: () => mm.revert() };
 }

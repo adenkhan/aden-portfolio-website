@@ -106,6 +106,12 @@ const lanes = ["creative", "data", "both"] as const;
     background: radial-gradient(circle, #a77cff 0%, #a77cffaa 25%, #a77cff33 50%, transparent 70%);
   }
 
+  /* Once the 3D world is running it draws this collision itself (scroll-scrubbed); the DOM orbs
+     remain the version for reduced motion, no WebGL and no JavaScript. */
+  :global([data-world][data-state="ready"] ~ main) .orb {
+    visibility: hidden;
+  }
+
   @media (width >= 48rem) {
     .words {
       font-size: var(--text-display-xl);

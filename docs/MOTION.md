@@ -86,7 +86,7 @@ gsap.ticker.lagSmoothing(0);
 | Motion (`motion/react`) | small interactions inside React islands (Kokonut components) via `LazyMotion` + `domAnimation` | page-level timelines |
 | CSS | hover, focus, press, scroll-snap, view transitions, cursor blink | anything needing sequencing |
 | Three.js + postprocessing (+ custom GLSL; R3F, drei and `@react-three/postprocessing` allowed from r1) | the persistent site scene behind every page (R3), the intro, the CV burst and each page's 3D visuals, on every tier except `reduced` (Round 2 §0) | DOM layout, and any text: text stays HTML |
-| tsParticles slim | hero ambient particles (moment 7a). Round 2 may replace them with GPU particles inside the scene | DOM-heavy effects outside the hero |
+| ~~tsParticles slim~~ | removed in r3; ambient particles are GPU points in the world (§13) | — |
 | lottie-web | not used (cut in p07: no burst asset exists, and the 2D ring already covers the fallback) | — |
 | Rive | not used. There is no `.riv` file in `src/assets`; revisit only if one is added | — |
 
@@ -407,3 +407,72 @@ All in `src/lib/motion/moments/home.ts`, loaded only on Home (dynamic import fro
 **Copy-email toast.** A "Copy email" button beside the address (shown only when JavaScript and the Clipboard API are available) writes the address to the clipboard and confirms in a toast with `role="status"`. The toast rises from below in 220 ms and leaves in 150 ms (`--ease-out`, CSS transition, interruptible: a second click restarts the timer rather than queueing). It stays 2.4 s. Reduced motion: no movement. If copying fails, the toast shows the address instead. Sonner was not used: it is React.
 
 **Form.** No animation; errors appear immediately. Documented here because they are part of the Contact experience: native `required`/`type="email"` validation without JavaScript; with JavaScript, inline messages linked by `aria-describedby`, `aria-invalid` on each field, a `role="status"` summary ("Check 3 fields: Name, Email, Message."), focus on the first invalid field, and live re-checking after the first attempt. A valid form posts natively to Netlify, which redirects to `/thanks/`.
+
+## 13. The persistent 3D world (r3)
+
+One WebGL scene lives behind every page and changes with the route and scroll. It replaces the one-off intro scene (`intro-scene.ts`, deleted) and the tsParticles hero layer (removed). Code: `src/components/world/` (`World.astro` host and boot, `controller.ts` page wiring, `scene.ts` the world, `shaders.ts` GLSL, `quality.ts` tiers, `ready.ts` readiness handle).
+
+**Architecture.**
+- **Tooling:** plain Three.js 0.187, custom GLSL and `postprocessing`. React Three Fiber and drei were allowed but not used (`docs/DECISIONS.md`, r3).
+- **Host:** `World.astro` is the first child of `<body>`, a fixed full-screen layer at `z-index: -1`. It has `transition:persist="world"` and `transition:animate="none"`, so the client router (`<ClientRouter />` in BaseLayout, adopted in r3) carries the same canvas, context and scene across navigations.
+- **Readability:** `<body>` is transparent and `<html>` paints the page colour. Text is always HTML above the canvas; the canvas holds no text.
+- **Loading:** the chunk loads after the first paint: at once when the Home intro needs it, otherwise at idle (1.5 s timeout). Until the canvas has drawn, and permanently without usable WebGL, CSS radial-gradient orbs (`.fb-*`, placed per page) stand in, so the background is never blank.
+- **Controller:** on every `astro:page-load` it picks the station from `body[data-page]`, creates the page's ScrollTriggers and binds DOM anchors and listeners. It tears them down on `astro:before-swap`. The world itself is never rebuilt.
+- **Software WebGL:** SwiftShader, llvmpipe and similar count as no usable WebGL (they draw on the CPU and starve the page). `?world=force` overrides that for tests and review.
+
+**Cast.** All of it is original; no franchise names or shapes.
+- **Red orb (creative) and blue orb (data):** noise-displaced spheres (simplex noise, 1–3 octaves by tier) with a fresnel rim and an additive halo. Each has a GPU trail: 600–1,200 points that sample the orb's last 40 positions from a uniform ring buffer and drift outward with the trail.
+- **Purple orb (growth):** appears as they merge. Scale follows the merge amount; red and blue shrink as it grows.
+- **Shockwave:** a soft ring quad plus 120–220 burst points flying out on `uBurst`, used by the intro, the scroll collision and the contact send.
+- **About path:** a Catmull-Rom tube that glows up to the scroll position, with four nodes, one per origin arc.
+- **Work field:** 3,000–6,000 points that open out of the orbs (`uMorph`). It holds six formations, one per case study: ring, lattice, helix, sphere, wave and spiral (R4 refines them).
+- **Skills constellation:** four clusters of nodes and lines.
+- **Dust:** sparse points across the world, so flights between stations have depth.
+- **Post:** bloom (mipmap blur), film grain (noise, overlay, 0.22), a vignette and subtle chromatic aberration in its own pass. No scanline or halftone pass, because `DESIGN.md` rules out full-page scanlines and keeps halftone to the About panels.
+
+**Stations and choreography.** The camera and cast ease toward their targets with exponential damping. Rates: camera 1.8/s (2.2/s on Work), orbs 4/s, scale 3/s, the field morph 1.4/s. Navigation is therefore an interruptible flight of about 1–1.5 s. Nothing snaps except the first frame of a visit and reduced-motion stills.
+
+| Station | Camera | Cast |
+|---|---|---|
+| Home | Fixed at the origin | Red and blue orbit each other on a tilted ellipse around the avatar card's edges (desktop; the card is opaque) and lean toward a fine pointer (±0.9 / 0.6 units, damped 2/s). On phones they orbit at half size to the right of the H1's short lines. Scrolling the CREATIVE · DATA · GROWTH section scrubs a collision: the orbit centre moves to the teaser stage (progress 0.05–0.6), the orbit closes (0.35–0.8), they merge into purple (0.7–0.85) and the ring and burst track scroll (0.78–1). Scrolling back un-collides. |
+| About | Follows the path point, offset right on desktop and on the right edge on phones | The merged purple orb rides the path to the arcs' scroll progress (path t 0.04 → 0.9). Each arc panel lights its node as its top passes 70% of the viewport; unlit nodes stay dim. |
+| Work | Overview of the field. Each case study, while it crosses the middle of the viewport, pulls the camera to its formation (offset so the formation sits right of the text on desktop, behind it on phones). | The orbs fly to the field and shrink to nothing while the field opens out of them; the active formation brightens and spins faster. In the skills section the formations dim and the four clusters appear behind their HTML lanes, anchored to each lane's rect, so the labels are the real headings and chips. Hovering or focusing a lane brightens its cluster. |
+| Contact | Faces open space | The orbs orbit slowly (0.35 rad/s) around the terminal panel, sized to its rect. A valid form send fires a purple shockwave and burst at the Send button; the form posts natively 450 ms later (at once for reduced motion). |
+| Thanks, 404 | As Home | A slow orbit right of centre |
+
+**Intro (moment 1, now through the world).**
+- **Timing:** the timeline, its timing and Skip/Esc are unchanged.
+- **3D mode:** if the world is ready within 600 ms, `html.intro-world` raises its canvas just under the overlay, which turns transparent and keeps only Skip, and the timeline drives the world's orbs, core, ring, burst, bloom and aberration. At the reveal the canvas fades out over the hero (0.45 s), drops back behind the page and fades in again (0.6 s) as the ambient Home scene.
+- **2D fallback:** otherwise the 2D intro plays as before.
+- **No second context:** the intro creates no WebGL context of its own.
+
+**Quality tiers (lower quality, never remove).** `quality.ts` guesses from the GPU string and device:
+- desktop with a strong GPU: high;
+- laptops and tablets: medium;
+- phones (coarse pointer, small screen) and software rendering: low.
+
+A frame governor then steps down after two seconds below 50 fps (high) or 38 fps (medium). It never steps back up.
+
+| | high | medium | low |
+|---|---|---|---|
+| Pixel ratio cap | 2 | 1.5 | 1 |
+| Trail points per orb | 1,200 | 800 | 600 |
+| Field points | 6,000 | 4,000 | 3,000 |
+| Formation points | 480 | 320 | 240 |
+| Noise octaves | 3 | 2 | 1 |
+| Bloom resolution | 1 | 0.75 | 0.5 |
+| Chromatic aberration | yes | yes | no |
+| Idle cap | — | — | 30 fps after 2.5 s without input |
+
+Stepping down changes draw ranges, pixel ratio, bloom resolution and the aberration pass in place; nothing is rebuilt. Rendering pauses when the tab is hidden or the host leaves the screen.
+
+**Reduced motion.** The world renders one still frame per page: snapped to the station, About framed on the early path with every node lit, Work on the field overview. It re-renders on navigation and resize. There's no loop, no intro, no pointer drift, no scroll scrub and no flights; the DOM teaser shows its static orbs.
+
+**Legibility.**
+- The world sits behind text, so it is kept dim where text sits over it: lit nodes stop short of white, the path is 30% dimmer than first built and 45% dimmer again on phones, and the cast is half size on phones.
+- The canvas is a single layer beneath the HTML, so text contrast is checked against it in the a11y spec.
+
+**Cost, measured (r3).**
+- Entry JS is 68–70 KB gzip per page, up 4–6 KB for the client router.
+- The lazy 3D world chunk (three, postprocessing, the scene) is part of the 161 KB lazy total and loads after first paint.
+- Lighthouse results are in `docs/DECISIONS.md` (r3).

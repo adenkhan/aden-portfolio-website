@@ -46,19 +46,19 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
 
 <script>
   // Progressive enhancement: the <details> menu works without JS. This adds Esc and outside-click closing.
-  const menu = document.querySelector<HTMLDetailsElement>("[data-menu]");
-  if (menu) {
-    const summary = menu.querySelector("summary");
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && menu.open) {
-        menu.open = false;
-        summary?.focus();
-      }
-    });
-    document.addEventListener("click", (event) => {
-      if (menu.open && !menu.contains(event.target as Node)) menu.open = false;
-    });
-  }
+  // The menu element is looked up per event, so it works for every page the client router swaps in.
+  const menu = () => document.querySelector<HTMLDetailsElement>("[data-menu]");
+  document.addEventListener("keydown", (event) => {
+    const m = menu();
+    if (event.key === "Escape" && m?.open) {
+      m.open = false;
+      m.querySelector("summary")?.focus();
+    }
+  });
+  document.addEventListener("click", (event) => {
+    const m = menu();
+    if (m?.open && !m.contains(event.target as Node)) m.open = false;
+  });
 </script>
 
 <style>

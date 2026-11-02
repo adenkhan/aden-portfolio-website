@@ -27,10 +27,9 @@ shadcn registries: `@kokonutui`, `@bklit` (see `components.json`). shadcn MCP is
 | motion | 14.9.0 |
 | lottie-web | 5.13.0 (installed, unused: cut in p07) |
 | @rive-app/canvas | 2.49.0 |
-| @tsparticles/engine, @tsparticles/slim | 4.5.0 (hero particles; Round 2 may replace them with GPU particles in the WebGL scene) |
-| three / @types/three | 0.187.0 (core: intro now, persistent site scene from R3) |
+| three / @types/three | 0.187.0 (core: the persistent 3D world behind every page, r3; plain Three.js + custom GLSL) |
 | postprocessing | 6.39.6 |
-| @react-three/fiber, @react-three/drei, @react-three/postprocessing | allowed from r1; not installed until a plan uses them |
+| @react-three/fiber, @react-three/drei, @react-three/postprocessing | allowed from r1; not installed (r3 chose plain Three.js, see `docs/DECISIONS.md`) |
 | @pixiv/three-vrm | 3.5.5 |
 | shadcn (CLI, dev) | 4.23.0 |
 
@@ -42,6 +41,7 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - Build: `npm run build` · Preview: `npm run preview`
 - Type check: `npm run check` · Format: `npm run format` · Tests: `npm test` (Playwright, builds and previews first)
 - Budget: `npm run budget` (first-load JS per page) · All gates: `npm run verify`
+- 3D world switches (per session): `?world=force` runs it even on software WebGL (tests, review), `?world=off` keeps the CSS orbs, `?quality=high|medium|low` pins a tier. Debug handle: `window.__akWorld.debug`.
 - Assets: `npm run assets:check` (which slots are still placeholders), `npm run assets:generate` (recreate missing placeholders). See `docs/ASSETS.md`.
 - Add components: `npx shadcn@latest add @kokonutui/<name>` or `@bklit/<name>`
 

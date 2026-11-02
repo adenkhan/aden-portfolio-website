@@ -54,32 +54,38 @@ const rows = [
 </section>
 
 <script>
+  import { onPage } from "@/lib/page";
+
   // Copy-email button (shown only with JavaScript) and a small toast. No library: Sonner is React.
-  const button = document.querySelector<HTMLButtonElement>("[data-copy-email]");
-  const toast = document.querySelector<HTMLElement>("[data-toast]");
-  const strings = document.querySelector<HTMLElement>("[data-copy-strings]")?.dataset;
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  // Bound per page, since the client router can bring Contact in without a reload.
+  onPage(() => {
+    const button = document.querySelector<HTMLButtonElement>("[data-copy-email]");
+    const toast = document.querySelector<HTMLElement>("[data-toast]");
+    const strings = document.querySelector<HTMLElement>("[data-copy-strings]")?.dataset;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-  const show = (message: string) => {
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add("visible");
-    clearTimeout(timer);
-    timer = setTimeout(() => toast.classList.remove("visible"), 2400);
-  };
+    const show = (message: string) => {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("visible");
+      clearTimeout(timer);
+      timer = setTimeout(() => toast.classList.remove("visible"), 2400);
+    };
 
-  if (button && toast && navigator.clipboard) {
-    button.hidden = false;
-    button.addEventListener("click", async () => {
-      const email = button.dataset.copyEmail ?? "";
-      try {
-        await navigator.clipboard.writeText(email);
-        show(strings?.done ?? "Email copied");
-      } catch {
-        show(`${strings?.failed ?? "Could not copy. The address is"} ${email}`);
-      }
-    });
-  }
+    if (button && toast && navigator.clipboard) {
+      button.hidden = false;
+      button.addEventListener("click", async () => {
+        const email = button.dataset.copyEmail ?? "";
+        try {
+          await navigator.clipboard.writeText(email);
+          show(strings?.done ?? "Email copied");
+        } catch {
+          show(`${strings?.failed ?? "Could not copy. The address is"} ${email}`);
+        }
+      });
+    }
+    return () => clearTimeout(timer);
+  });
 </script>
 
 <span hidden data-copy-strings data-done={contact.copy.done} data-failed={contact.copy.failed}></span>
@@ -175,6 +181,12 @@ const rows = [
       color var(--duration-hover) ease,
       box-shadow var(--duration-hover) ease,
       transform var(--duration-press) ease-out;
+  }
+
+  /* Keeps its space while hidden, so showing it (once its script runs) never shifts the form below. */
+  .copy[hidden] {
+    display: inline-block;
+    visibility: hidden;
   }
 
   .copy:active {
