@@ -47,14 +47,14 @@ test("keyboard only: open from the nav, focus trapped, Esc closes, focus returns
 
 test("keyboard only: open from the Home hero, Close button closes, focus returns", async ({ page }) => {
   await page.goto("/");
-  await tabTo(page, /^Download CV$/);
+  await tabTo(page, /^Get my CV$/);
   await page.keyboard.press("Enter");
   await expect(dialog(page)).toBeVisible();
 
   await page.getByRole("button", { name: "Close" }).focus();
   await page.keyboard.press("Enter");
   await expect(dialog(page)).toBeHidden();
-  expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe("Download CV");
+  expect(await page.evaluate(() => document.activeElement?.textContent?.trim())).toBe("Get my CV");
 });
 
 test("dialog offers the PDF download and a new-tab link", async ({ page }) => {

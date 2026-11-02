@@ -1,44 +1,50 @@
 ---
 import { about } from "@/data/timeline";
-
-const { education } = about;
 ---
 
+<!-- Education chips (r2): the only visible place BBA/IBA appears on the site (CLAUDE.md §4a). -->
 <section class="container-site block" id="education" aria-labelledby="education-title" data-reveal="section">
-  <h2 id="education-title">{about.educationHeading}</h2>
-  <p class="school">{education.school}</p>
-  <p class="meta">
-    {education.degree} · {education.years}
-  </p>
-  <p class="measure">Relevant courses: {education.courses.join(", ")}.</p>
-  <p class="measure">Certified: {education.certification}.</p>
+  <h2 id="education-title" class="sr-only">
+    {about.chipsHeading}
+  </h2>
+  <ul class="chips">
+    {about.chips.map((chip, i) => (
+      <li data-lane={i === 0 ? "both" : "data"}>{chip}</li>
+    ))}
+  </ul>
 </section>
 
 <style>
   .block {
-    padding-block: 4rem 0;
+    padding-block: 3rem 0;
   }
 
-  h2 {
-    margin: 0 0 1.5rem;
-    font-size: var(--text-display-lg);
-    line-height: var(--text-display-lg--line-height);
-    font-weight: 900;
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  p {
-    margin: 0 0 0.75rem;
-    color: var(--color-text-muted);
-  }
-
-  .school {
-    color: var(--color-text);
-    font-size: var(--text-body-lg);
-    font-weight: 600;
-  }
-
-  .meta {
+  li {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-line-strong);
+    border-left: 3px solid var(--lane-colour);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-surface);
     font-family: var(--font-mono);
     font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
   }
 </style>

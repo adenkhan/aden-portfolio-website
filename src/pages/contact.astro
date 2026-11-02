@@ -9,9 +9,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 <BaseLayout page="contact">
   <header class="container-site page-head">
     <PageTitle page="contact" reveal />
-    <p class="measure intro">
-      {contact.line} <a href={contact.workLink.href}>{contact.workLink.label}</a>
-    </p>
+    <p class="measure intro">{contact.line}</p>
   </header>
   <TerminalPanel />
   <ContactForm />
@@ -27,9 +25,5 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
     color: var(--color-text-muted);
-  }
-
-  .intro a {
-    color: var(--color-text);
   }
 </style>

@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
+import { seo } from "../../src/data/seo";
 
 const routes = ["/", "/about/", "/work/", "/contact/", "/thanks/"];
 
@@ -22,6 +23,20 @@ for (const route of routes) {
 
     await page.waitForLoadState("networkidle");
     expect(errors).toEqual([]);
+  });
+}
+
+// SEO (docs/SEO.md §3): titles and descriptions are fixed values; every indexed H1 holds a target keyword.
+const KEYWORDS = /product market(er|ing)|aden khan/i;
+for (const meta of Object.values(seo).filter((s) => !s.noindex)) {
+  test(`${meta.path} has its SEO.md title, description and a keyword H1`, async ({ page }) => {
+    await page.goto(meta.path);
+    await expect(page).toHaveTitle(meta.title);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", meta.description);
+    const h1 = page.locator("h1");
+    await expect(h1).toContainText(meta.h1);
+    // textContent, not innerText: on a first visit the Home H1 sits under the intro overlay.
+    await expect(h1).toContainText(KEYWORDS);
   });
 }
 

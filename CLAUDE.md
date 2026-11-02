@@ -68,7 +68,7 @@ The p16 site was too text heavy, repetitive and flat. Evidence: `docs/audits/rou
   | Work | ≤ 60 per case study |
   | Contact | ≤ 40 |
 
-- **Say each fact once on the whole site.** A metric, employer, date, place or credential is shown on one page, in one place. BBA/IBA appears only in the About education chip, plus meta tags and JSON-LD. The CV dialog previews the PDF on request and is exempt, like meta.
+- **Say each fact once on the whole site.** A metric, employer, date, place or credential is shown on one page, in one place. BBA/IBA appears only in the About education chip, plus meta tags and JSON-LD. The CV dialog previews the PDF on request and is exempt, like meta. Exception (owner, r2): the three headline metrics (−72% CAC, +40% reach, $7K+/$7,000+ sponsorships) may appear as a Home counter, an About arc chip and a Work case-study result, because the owner's copy places them there.
 - **3D is a core feature on every page.** A persistent WebGL scene runs behind the site (built in R3). It is not progressive enhancement and is never cut for budget.
 - **Performance work may lower quality but may not remove an effect.** Allowed levers: pixel ratio, particle counts, shader detail, postprocessing resolution, and frame rate when idle or off-screen. Mobile and low-power devices get a lighter version of every effect. Only `prefers-reduced-motion` gets static versions. A device with no usable WebGL gets the 2D or static version, because the effect can't run there; that is a capability limit, not a budget cut.
 - **Budgets:**

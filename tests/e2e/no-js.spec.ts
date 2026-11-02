@@ -3,13 +3,33 @@ import { expect, test } from "@playwright/test";
 test.use({ javaScriptEnabled: false });
 
 const pages = [
-  { route: "/", texts: ["Aden Khan, Product Marketer", "BBA Marketing student at IBA Karachi", "−72%"] },
+  {
+    route: "/",
+    texts: [
+      "Aden Khan, Product Marketer",
+      "I find where users drop off, then build the fix.",
+      "−72%",
+      "GROWTH",
+    ],
+  },
   {
     route: "/about/",
-    texts: ["The origin arc", "Storyteller (2025)", "Google Data Analytics Specialization"],
+    texts: [
+      "Origin arc of a product marketer",
+      "Started making memes that sold.",
+      "−72% CAC",
+      "IBA Karachi · BBA Marketing · Class of 2027",
+      "Next quest",
+    ],
   },
-  { route: "/work/", texts: ["Lower the cost of growth", "Fund a society", "Data and automation"] },
-  { route: "/contact/", texts: ["Open a channel", "aden.khan613@gmail.com", "Send message"] },
+  {
+    route: "/work/",
+    texts: ["Cut the cost of growth", "Fund the club", "Data & automation", "Creative drops"],
+  },
+  {
+    route: "/contact/",
+    texts: ["Open a channel", "Hiring a product marketer? Say hi.", "aden.khan613@gmail.com", "Send message"],
+  },
 ];
 
 for (const { route, texts } of pages) {

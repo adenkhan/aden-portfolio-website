@@ -18,9 +18,6 @@ const rows = [
     the motion layer "types" in (MOTION.md §12). Without JavaScript the copy simply shows.
   -->
   <div class="terminal">
-    <p class="prompt" aria-hidden="true" data-type>
-      {contact.prompt}
-    </p>
     <dl>
       {rows.map((row) => (
         <div class="row">
@@ -123,12 +120,6 @@ const rows = [
     bottom: -1px;
     border-right: 2px solid var(--color-data);
     border-bottom: 2px solid var(--color-data);
-  }
-
-  .prompt {
-    margin: 0 0 1rem;
-    color: var(--color-text-subtle);
-    font-size: var(--text-mono-label);
   }
 
   dl {

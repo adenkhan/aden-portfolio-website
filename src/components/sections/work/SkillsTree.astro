@@ -7,7 +7,9 @@ const skillLanes = isWorstCase() ? worstSkillLanes : demoLanes;
 ---
 
 <section class="container-site block" id="skills" aria-labelledby="skills-title">
-  <h2 id="skills-title">{work.skillsHeading}</h2>
+  <h2 id="skills-title" class="sr-only">
+    {work.skillsHeading}
+  </h2>
   <div class="tree" data-tree>
     <span class="trunk" aria-hidden="true"></span>
     <ul class="lanes">
@@ -31,13 +33,6 @@ const skillLanes = isWorstCase() ? worstSkillLanes : demoLanes;
 <style>
   .block {
     padding-block: 4rem 0;
-  }
-
-  h2 {
-    margin: 0 0 2rem;
-    font-size: var(--text-display-lg);
-    line-height: var(--text-display-lg--line-height);
-    font-weight: 900;
   }
 
   ul {

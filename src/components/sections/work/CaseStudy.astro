@@ -1,0 +1,229 @@
+---
+import Img from "@/components/ui/Img.astro";
+import { work } from "@/data/timeline";
+import type { CaseStudy } from "@/data/types";
+
+interface Props {
+  study: CaseStudy;
+  /** The first case study's image is above the fold on phones and is the LCP image there. */
+  eager?: boolean;
+}
+
+const { study, eager = false } = Astro.props;
+const labels = work.caseLabels;
+---
+
+<!--
+  One case study (r2): title / company / problem / move / result. Each field is one line on desktop;
+  icons mark problem, move and result visually, and sr-only terms name them for screen readers.
+-->
+<li class="card" id={`mission-${study.id}`} data-lane={study.lane} data-mission data-case-study>
+  {study.evidence && (
+    <Img
+      asset={study.evidence}
+      widths={[400, 600, 800]}
+      sizes="(min-width: 48rem) 240px, 92vw"
+      class="thumb"
+      eager={eager}
+    />
+  )}
+  <div class="body" data-mission-body>
+    <h3>{study.title}</h3>
+    <dl>
+      <div class="row company">
+        <dt class="sr-only">{labels.company}</dt>
+        <dd>
+          <span class="dot" aria-hidden="true"></span>
+          {study.company}
+        </dd>
+      </div>
+      <div class="row">
+        <dt>
+          <span class="sr-only">{labels.problem}</span>
+          <span class="icon problem" aria-hidden="true">
+            !
+          </span>
+        </dt>
+        <dd>{study.problem}</dd>
+      </div>
+      <div class="row">
+        <dt>
+          <span class="sr-only">{labels.move}</span>
+          <span class="icon move" aria-hidden="true">
+            →
+          </span>
+        </dt>
+        <dd>{study.move}</dd>
+      </div>
+      <div class="row result" data-mission-result>
+        <dt>
+          <span class="sr-only">{labels.result}</span>
+          <span class="icon" aria-hidden="true">
+            ▲
+          </span>
+        </dt>
+        <dd>{study.result}</dd>
+      </div>
+    </dl>
+  </div>
+</li>
+
+<style>
+  .card {
+    display: grid;
+    overflow: hidden;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    transition: border-color var(--duration-hover) ease;
+  }
+
+  .thumb :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+    transition: color var(--duration-hover) ease;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .row.company {
+    display: block;
+  }
+
+  dt {
+    margin: 0;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .company dd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+  }
+
+  .dot {
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--lane-colour);
+  }
+
+  .icon {
+    display: inline-grid;
+    place-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-bg-base);
+    background-color: var(--lane-colour);
+  }
+
+  .icon.problem {
+    color: var(--color-text);
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--color-line-strong);
+  }
+
+  .icon.move {
+    color: var(--lane-colour);
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--lane-colour);
+  }
+
+  .result {
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+
+  .result dd {
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--lane-colour);
+  }
+
+  [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
+  }
+
+  /* Tablet and up: image beside the text, so each line has the width to stay on one line on desktop. */
+  @media (width >= 48rem) {
+    .card {
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .card > :global(.thumb) {
+      height: 100%;
+    }
+
+    .thumb :global(img) {
+      aspect-ratio: auto;
+    }
+
+    .body {
+      padding: 1.5rem 2rem;
+      align-content: center;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover {
+      border-color: var(--color-line-strong);
+    }
+
+    .card:hover h3 {
+      color: var(--lane-colour);
+    }
+  }
+</style>

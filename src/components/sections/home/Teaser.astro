@@ -1,50 +1,75 @@
 ---
 import { home } from "@/data/home";
+
+const lanes = ["creative", "data", "both"] as const;
 ---
 
-<section class="container-site teaser" aria-labelledby="teaser-title">
-  <div class="copy">
-    <h2 id="teaser-title">{home.teaserHeading}</h2>
-    <p class="measure">
-      {home.teaser} <a href={home.teaserLink.href}>{home.teaserLink.label}</a>
-    </p>
-  </div>
-  <!--
-    Decorative. At rest (no JS, reduced motion) it reads as the equation: red, purple, blue.
-    With motion, scrolling draws red and blue together into purple (docs/MOTION.md §10).
-  -->
+<!--
+  Scroll moment (r2): three words only. At rest (no JS, reduced motion) the orbs sit apart and all
+  three words show. With motion, red and blue converge into purple as the section scrolls, and the
+  words arrive with it: CREATIVE and DATA as the orbs close in, GROWTH on impact (docs/MOTION.md §10).
+-->
+<section class="container-site teaser" aria-labelledby="teaser-title" data-teaser>
   <div class="collide" data-collide aria-hidden="true">
     <span class="orb red" data-orb="red"></span>
     <span class="orb purple" data-orb="purple"></span>
     <span class="orb blue" data-orb="blue"></span>
   </div>
+  <h2 id="teaser-title" class="words">
+    {home.scrollWords.map((word, i) => (
+      <>
+        {i > 0 && (
+          <span class="sep" aria-hidden="true">
+            {" "}
+            ·{" "}
+          </span>
+        )}
+        <span class="word" data-lane={lanes[i]} data-word>
+          {word}
+        </span>
+      </>
+    ))}
+  </h2>
 </section>
 
 <style>
   .teaser {
     display: grid;
-    gap: 2.5rem;
-    align-items: center;
-    padding-block: 4rem 0;
+    gap: 1.5rem;
+    padding-block: 4rem 2rem;
   }
 
-  h2 {
-    margin: 0 0 1rem;
+  .words {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.5rem;
+    margin: 0;
     font-size: var(--text-display-lg);
     line-height: var(--text-display-lg--line-height);
     font-weight: 900;
+    letter-spacing: 0.02em;
   }
 
-  p {
-    margin: 0;
-    font-size: var(--text-body-lg);
-    line-height: var(--text-body-lg--line-height);
-    color: var(--color-text-muted);
+  .word {
+    display: inline-block;
+    color: var(--lane-colour);
   }
 
-  a {
-    color: var(--color-text);
-    font-weight: 600;
+  .sep {
+    color: var(--color-text-subtle);
+  }
+
+  [data-lane="creative"] {
+    --lane-colour: var(--color-creative);
+  }
+
+  [data-lane="data"] {
+    --lane-colour: var(--color-data);
+  }
+
+  [data-lane="both"] {
+    --lane-colour: var(--color-growth);
   }
 
   .collide {
@@ -82,9 +107,10 @@ import { home } from "@/data/home";
   }
 
   @media (width >= 48rem) {
-    .teaser {
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 3rem;
+    .words {
+      font-size: var(--text-display-xl);
+      line-height: var(--text-display-xl--line-height);
+      gap: 0 1rem;
     }
 
     .collide {

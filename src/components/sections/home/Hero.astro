@@ -13,17 +13,12 @@ import StatsStrip from "./StatsStrip.astro";
       <PageTitle page="home" reveal />
     </div>
     <p class="sub" data-reveal="rise">
-      {home.subhead}
-    </p>
-    <p class="availability" data-reveal="rise">
-      {home.availability}
+      {home.line}
     </p>
     <div class="cta" data-reveal="rise">
-      <Button href={site.cvPath} download data-cv-trigger>
-        {home.ctaPrimary}
-      </Button>
-      <Button href="/work/" variant="secondary">
-        {home.ctaSecondary}
+      <Button href={home.missionsCta.href}>{home.missionsCta.label}</Button>
+      <Button href={site.cvPath} variant="secondary" download data-cv-trigger>
+        {home.cvCta}
       </Button>
     </div>
   </div>
@@ -67,12 +62,6 @@ import StatsStrip from "./StatsStrip.astro";
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
     color: var(--color-text-muted);
-  }
-
-  .availability {
-    margin: 0.75rem 0 0;
-    max-width: 48ch;
-    color: var(--color-text);
   }
 
   .cta {
@@ -127,10 +116,6 @@ import StatsStrip from "./StatsStrip.astro";
     /* Desktop has room: restore the looser rhythm. */
     .sub {
       margin-top: 1.5rem;
-    }
-
-    .availability {
-      margin-top: 1rem;
     }
 
     .cta {

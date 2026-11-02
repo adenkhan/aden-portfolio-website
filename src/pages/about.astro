@@ -11,7 +11,11 @@ import { aboutJsonLd } from "@/lib/jsonld";
 <BaseLayout page="about" jsonLd={aboutJsonLd()}>
   <header class="container-site page-head">
     <PageTitle page="about" reveal />
-    <p class="measure intro">{about.bio}</p>
+    <p class="intro">
+      {about.bio.map((line) => (
+        <span class="bio-line">{line}</span>
+      ))}
+    </p>
   </header>
   <OriginArc />
   <Education />
@@ -24,6 +28,8 @@ import { aboutJsonLd } from "@/lib/jsonld";
   }
 
   .intro {
+    display: grid;
+    gap: 0.25rem;
     margin: 1.5rem 0 0;
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);

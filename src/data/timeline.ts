@@ -1,83 +1,73 @@
 import type { AboutCopy, ContactCopy, WorkCopy } from "./types";
 
+// Round 2 copy (r2), word for word from the owner. H1s live in seo.ts.
 export const about: AboutCopy = {
-  h1: "The origin arc: from campaigns to products",
-  bio: "I’m a BBA Marketing student at IBA Karachi who fell for the product side of marketing. I started with social campaigns and memes that converted, then moved into analytics, automation and go-to-market work for tech startups. Today I care about one question: why do people adopt a product, and how do we help more of them get there?",
-  arcsHeading: "From storytelling to product analytics",
+  bio: [
+    "Started making memes that sold.",
+    "Got curious about why they worked.",
+    "Now I work where product, data and marketing meet.",
+  ],
+  arcsHeading: "Origin arc, 2025 to 2026",
   arcs: [
     {
       order: 1,
-      id: "arc-storyteller",
-      title: "Storyteller",
+      id: "arc-invest2innovate",
       period: "2025",
-      text: "Ran LinkedIn and Instagram campaigns for the i2iScale accelerator program, raising awareness 40%.",
+      org: "Invest2Innovate",
+      line: "Campaigns that got founders to notice an accelerator.",
+      chip: "+40% reach",
       lane: "creative",
     },
     {
       order: 2,
-      id: "arc-growth",
-      title: "Growth",
+      id: "arc-sadiq",
       period: "2025",
-      text: "At Sadiq.ai, used Amplitude to improve onboarding, retention and feature adoption, and ran Meta campaigns that cut acquisition cost 72%.",
+      org: "Sadiq.ai",
+      line: "Onboarding, adoption and paid growth for a social commerce app.",
+      chip: "−72% CAC",
       lane: "both",
     },
     {
       order: 3,
-      id: "arc-go-to-market",
-      title: "Go-to-market",
+      id: "arc-leasap",
       period: "2025–26",
-      text: "Researched partners and investors for Leasap, a U.S. proptech startup, and built its outreach pipelines.",
+      org: "Leasap",
+      line: "Go-to-market research and outreach for a U.S. proptech startup.",
+      chip: "Pipeline built",
       lane: "data",
     },
     {
       order: 4,
-      id: "arc-builder",
-      title: "Builder",
+      id: "arc-10pearls",
       period: "2026",
-      text: "At 10Pearls, shipped an SEO content app and automated marketing workflows in HubSpot and n8n.",
+      org: "10Pearls",
+      line: "Shipped an SEO app and automated the marketing funnel.",
+      chip: "2 tools shipped",
       lane: "both",
     },
   ],
-  educationHeading: "Education: BBA Marketing at IBA Karachi",
-  education: {
-    school: "Institute of Business Administration (IBA), Karachi",
-    degree: "BBA, Marketing",
-    years: "2023–2027",
-    courses: [
-      "Tech Product Marketing",
-      "Tech Product Development",
-      "Marketing Analytics",
-      "Product Analytics",
-      "Machine Learning",
-    ],
-    certification: "Google Data Analytics Specialization",
-  },
-  goalsHeading: "Career goals in tech product marketing",
-  goals:
-    "Join a tech or SaaS company as a product marketer, owning positioning, launches and adoption. Open to internships now and full-time roles from mid-2027.",
-  goalsLinks: [
+  chipsHeading: "Education and certification",
+  chips: ["IBA Karachi · BBA Marketing · Class of 2027", "Google Data Analytics certified"],
+  questLabel: "Next quest",
+  quest: "Product marketing at a tech company. Internships now, full-time from mid-2027.",
+  questLinks: [
     { label: "See the missions", href: "/work/" },
     { label: "Open a channel", href: "/contact/" },
   ],
 };
 
 export const work: WorkCopy = {
-  missionsHeading: "Case studies from SaaS and tech startups",
-  skillsHeading: "Skills: go-to-market, product analytics and marketing automation",
-  galleryHeading: "Creative gallery: campaigns and ad creatives",
-  galleryNote: "Ad creatives and campaign results.",
-  closing: { label: "Open a channel", href: "/contact/" },
+  missionsHeading: "Case studies",
+  skillsHeading: "Skills",
+  galleryHeading: "Creative drops",
+  caseLabels: { company: "Company", problem: "Problem", move: "Move", result: "Result" },
 };
 
 export const contact: ContactCopy = {
-  h1: "Open a channel",
-  line: "Hiring a product marketer, or need help with a launch? My inbox is open.",
-  workLink: { label: "See the missions behind this", href: "/work/" },
-  prompt: "$ open --channel",
-  channelsHeading: "Email, LinkedIn and GitHub",
+  line: "Hiring a product marketer? Say hi.",
+  channelsHeading: "Email, LinkedIn, GitHub and CV",
   messageHeading: "Send a message",
   form: {
-    lead: "Prefer email? Write to",
     name: "Name",
     email: "Email",
     message: "Message",
@@ -92,5 +82,9 @@ export const contact: ContactCopy = {
     sending: "Sending…",
   },
   copy: { button: "Copy email", done: "Email copied", failed: "Could not copy. The address is" },
-  thanks: { status: "// message sent", line: "Thanks for getting in touch. I will reply by email." },
+  thanks: {
+    status: "// message sent",
+    line: "Thanks for getting in touch. I will reply by email.",
+    fallback: "Prefer email? Write to",
+  },
 };

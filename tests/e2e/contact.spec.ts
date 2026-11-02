@@ -74,7 +74,7 @@ test("terminal: links are real and named from the start; the typed copy ends on 
   await expect(terminal.getByRole("link", { name: "linkedin.com/in/adenkhank" })).toBeAttached();
   await expect(terminal.getByRole("link", { name: "Download CV (PDF)" })).toBeAttached();
   const copies = page.locator(".terminal [data-type]");
-  await expect(copies.nth(1)).toHaveText(EMAIL, { timeout: 3000 });
+  await expect(copies.first()).toHaveText(EMAIL, { timeout: 3000 });
   await expect(copies.last()).toHaveText("Download CV (PDF)", { timeout: 3000 });
 });
 
@@ -101,8 +101,8 @@ test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("no typing: the terminal shows its final text at once", async ({ page }) => {
     await page.goto("/contact/");
-    await expect(page.locator(".terminal [data-type]").nth(1)).toHaveText(EMAIL, { timeout: 200 });
-    await expect(page.locator(".terminal [data-type]").first()).toHaveText("$ open --channel");
+    await expect(page.locator(".terminal [data-type]").first()).toHaveText(EMAIL, { timeout: 200 });
+    await expect(page.locator(".terminal [data-type]").last()).toHaveText("Download CV (PDF)");
   });
 });
 
@@ -115,7 +115,7 @@ test.describe("without JavaScript", () => {
     for (const label of ["Name", "Email", "Message"])
       await expect(page.getByRole("textbox", { name: label })).toHaveAttribute("required", "");
     await expect(page.getByRole("button", { name: "Copy email" })).toBeHidden();
-    await expect(page.locator(".terminal [data-type]").nth(1)).toHaveText(EMAIL);
+    await expect(page.locator(".terminal [data-type]").first()).toHaveText(EMAIL);
     await expect(page.locator(".terminal").getByRole("link", { name: EMAIL })).toBeVisible();
   });
 });

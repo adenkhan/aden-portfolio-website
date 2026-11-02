@@ -105,13 +105,17 @@ function cardTilt(ctx: MomentContext): (() => void) | void {
   };
 }
 
-/** Creative × Data teaser: red and blue converge into purple as the section scrolls through. */
+/**
+ * Scroll moment: red and blue converge into purple as the section scrolls through, and the three
+ * words arrive with them (CREATIVE and DATA as the orbs close in, GROWTH on impact).
+ */
 function teaserCollision(): void {
   const stage = document.querySelector<HTMLElement>("[data-collide]");
   if (!stage) return;
   const red = stage.querySelector("[data-orb='red']");
   const blue = stage.querySelector("[data-orb='blue']");
   const purple = stage.querySelector("[data-orb='purple']");
+  const [creative, data, growth] = gsap.utils.toArray<HTMLElement>("[data-teaser] [data-word]");
   // Red sits at 22% and blue at 78% of the stage; both travel to the centre (50%).
   const toCentre = () => stage.clientWidth * 0.28;
   const apart = () => stage.clientWidth * 0.12;
@@ -130,7 +134,10 @@ function teaserCollision(): void {
     .fromTo(red, { x: () => -apart() }, { x: toCentre }, 0)
     .fromTo(blue, { x: apart }, { x: () => -toCentre() }, 0)
     .fromTo(purple, { scale: 0.4, opacity: 0 }, { scale: 1.15, opacity: 1, ease: "power2.in" }, 0.35)
-    .to([red, blue], { opacity: 0.3, scale: 0.85 }, 0.6);
+    .to([red, blue], { opacity: 0.3, scale: 0.85 }, 0.6)
+    .fromTo(creative, { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, 0.05)
+    .fromTo(data, { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, 0.2)
+    .fromTo(growth, { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1 }, 0.5);
 }
 
 /** Home-only motion. Sets every hidden start state synchronously after the intro gate resolves. */

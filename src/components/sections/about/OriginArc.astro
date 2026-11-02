@@ -7,7 +7,9 @@ const arcs = isWorstCase() ? worstArcs : about.arcs;
 ---
 
 <section class="container-site block" aria-labelledby="arcs-title">
-  <h2 id="arcs-title">{about.arcsHeading}</h2>
+  <h2 id="arcs-title" class="sr-only">
+    {about.arcsHeading}
+  </h2>
   <ol class="panels">
     {arcs.map((arc) => (
       <ArcPanel arc={arc} />
@@ -18,13 +20,6 @@ const arcs = isWorstCase() ? worstArcs : about.arcs;
 <style>
   .block {
     padding-block: 4rem 0;
-  }
-
-  h2 {
-    margin: 0 0 2rem;
-    font-size: var(--text-display-lg);
-    line-height: var(--text-display-lg--line-height);
-    font-weight: 900;
   }
 
   .panels {

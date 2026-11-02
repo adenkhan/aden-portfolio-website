@@ -36,7 +36,7 @@ Copied from the spec; every milestone includes them.
 The p08–p16 build passed its gates but failed the owner's vision. The evidence and the rule behind every cut are in `docs/audits/round2-baseline.md`. From r1 on, the rules below override the rest of this plan where they conflict. Their canonical text is in `CLAUDE.md` §4a and `docs/MOTION.md` §0.
 
 1. **Visual first, with word budgets.** Each section leads with a visual or motion moment. Add a test, owned by the first Round 2 page prompt, that counts visible words in `<main>` per page and per `[data-case-study]`, and fails over budget.
-2. **Each fact once.** Add a test that reads the built HTML's visible text and fails when a registered fact appears more than once: "BBA", "IBA" outside the education chip, "72%", "40%", "7,000", the availability line and employer names. Meta, JSON-LD and the CV dialog are excluded.
+2. **Each fact once.** Add a test that reads the built HTML's visible text and fails when a registered fact appears more than once: "BBA", "IBA Karachi" outside the education chip and the availability line ("mid-2027"). Meta, JSON-LD and the CV dialog are excluded. The headline metrics are exempt by the owner's r2 copy (`CLAUDE.md` §4a). **Built in r2:** `tests/e2e/copy.spec.ts` (word budgets, these facts once, case-study lines one line at 1440 px).
 3. **3D core and persistent.** A single WebGL scene sits behind every page. It mounts once per page load, is fixed and full-viewport at `z-index` below content, and ignores pointer events except for the regions R3 defines. R3 decides between:
    - (a) adopting Astro `<ClientRouter />` with `transition:persist` on the canvas, so the scene survives navigation;
    - (b) keeping MPA navigation and restoring the scene's state per page.

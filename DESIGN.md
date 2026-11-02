@@ -244,7 +244,7 @@ Container: 1200px max, with 16px side padding at 360px, 24px at `md`, 40px at `l
 
 | Page | 360–479px | 480–767px | 768–1023px | 1024–1439px | 1440px |
 |---|---|---|---|---|---|
-| Home | one column: H1, subhead, buttons, stats 2×2, then the avatar card (proof sits in the first screen, p16) | same, avatar card max 420px | hero two columns (text left, avatar right), stats 4 across below both; from `lg` the stats sit in the left column under the CTAs, card top-aligned beside them | same, larger display type | container capped at 1200px, extra space is empty navy |
+| Home | one column: H1, one line, buttons, stats 2×2, then the avatar card (proof sits in the first screen, p16); the scroll moment's three words below the orbs (r2) | same, avatar card max 420px | hero two columns (text left, avatar right), stats 4 across below both; from `lg` the stats sit in the left column under the CTAs, card top-aligned beside them | same, larger display type | container capped at 1200px, extra space is empty navy |
 | About | bio, then the four panels stacked | same | panels 2×2 | same | same |
 | Work | mission cards one column, skills tree stacked by lane | one column | two columns | three columns | three columns |
 | Contact | terminal panel full width | same | terminal panel max 720px, left aligned | same | same |

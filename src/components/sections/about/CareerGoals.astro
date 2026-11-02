@@ -3,14 +3,19 @@ import Button from "@/components/ui/Button.astro";
 import { about } from "@/data/timeline";
 ---
 
+<!-- Next quest (r2): the career goal, framed as the next level on the arc. -->
 <section class="container-site block" id="goals" aria-labelledby="goals-title" data-reveal="section">
-  <h2 id="goals-title">{about.goalsHeading}</h2>
-  <p class="measure">{about.goals}</p>
+  <div class="quest">
+    <h2 id="goals-title" class="label">
+      {about.questLabel}
+    </h2>
+    <p class="line">{about.quest}</p>
+  </div>
   <div class="links">
-    <Button href={about.goalsLinks[0].href} variant="secondary">
-      {about.goalsLinks[0].label}
+    <Button href={about.questLinks[0].href} variant="secondary">
+      {about.questLinks[0].label}
     </Button>
-    <Button href={about.goalsLinks[1].href}>{about.goalsLinks[1].label}</Button>
+    <Button href={about.questLinks[1].href}>{about.questLinks[1].label}</Button>
   </div>
 </section>
 
@@ -19,18 +24,25 @@ import { about } from "@/data/timeline";
     padding-block: 4rem 0;
   }
 
-  h2 {
-    margin: 0 0 1.5rem;
-    font-size: var(--text-display-lg);
-    line-height: var(--text-display-lg--line-height);
-    font-weight: 900;
+  .quest {
+    max-width: 40rem;
+    padding: 1.5rem;
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-md);
   }
 
-  p {
+  .label {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    font-weight: 500;
+    color: var(--color-growth);
+  }
+
+  .line {
     margin: 0;
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
-    color: var(--color-text-muted);
   }
 
   .links {

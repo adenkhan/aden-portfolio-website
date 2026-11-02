@@ -1,0 +1,33 @@
+---
+import { worstCaseStudies } from "@/data/fixtures/worst";
+import { caseStudies as demoCaseStudies } from "@/data/missions";
+import { isWorstCase } from "@/lib/fixtures";
+import { work } from "@/data/timeline";
+import CaseStudy from "./CaseStudy.astro";
+const caseStudies = isWorstCase() ? worstCaseStudies : demoCaseStudies;
+---
+
+<section class="container-site block" id="missions" aria-labelledby="missions-title">
+  <h2 id="missions-title" class="sr-only">
+    {work.missionsHeading}
+  </h2>
+  <ol class="list">
+    {caseStudies.map((study, index) => (
+      <CaseStudy study={study} eager={index === 0} />
+    ))}
+  </ol>
+</section>
+
+<style>
+  .block {
+    padding-block: 2.5rem 0;
+  }
+
+  .list {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+</style>

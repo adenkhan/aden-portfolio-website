@@ -40,7 +40,7 @@ test("stats count up once when scrolled into view and end on the real values", a
   // The visual copy starts at zero before the strip is in view.
   await expect(tickers(page).first()).toHaveText("−0%");
   await page.locator("[data-stat]").first().scrollIntoViewIfNeeded();
-  await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7,000+", "4"], { timeout: 3000 });
+  await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7K+", "4"], { timeout: 3000 });
 
   // Same session, second view: real values at once, no count.
   await page.reload();
@@ -106,7 +106,7 @@ test.describe("reduced motion", () => {
         .first()
         .evaluate((b) => getComputedStyle(b).transform),
     ).toBe("none");
-    await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7,000+", "4"]);
+    await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7K+", "4"]);
     await page.locator("[data-collide]").scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
     expect(await page.locator("[data-orb='red']").evaluate((el) => getComputedStyle(el).transform)).toBe(
@@ -123,7 +123,7 @@ test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
   test("numbers and hero copy are final and visible", async ({ page }) => {
     await page.goto("/");
-    await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7,000+", "4"]);
+    await expect(tickers(page)).toHaveText(["−72%", "+40%", "$7K+", "4"]);
     await expect(page.locator('[data-reveal="rise"]').first()).toBeVisible();
     await expect(page.locator("[data-orb='purple']")).toBeAttached();
   });

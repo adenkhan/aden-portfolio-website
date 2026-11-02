@@ -11,8 +11,8 @@ test.beforeEach(async ({ page }) => {
 
 const pages = [
   { route: "/", h1: "Aden Khan, Product Marketer" },
-  { route: "/about/", h1: "The origin arc: from campaigns to products" },
-  { route: "/work/", h1: "Product marketing missions, completed" },
+  { route: "/about/", h1: "Origin arc of a product marketer" },
+  { route: "/work/", h1: "Product marketing missions" },
   { route: "/contact/", h1: "Open a channel" },
 ];
 

@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import { getSlot } from "@/data/assets";
-import { home } from "@/data/home";
 import { site } from "@/data/site";
 import { getImageFor, isPlaceholder } from "@/lib/images";
 import RiveAvatar from "@/components/motion/RiveAvatar.astro";
@@ -47,14 +46,12 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     {riveSrc && <RiveAvatar src={riveSrc} width={avatar.width} height={avatar.height} />}
     {showBadge && <span class="placeholder-badge">placeholder</span>}
   </div>
-  <ul class="bars" aria-label="Focus areas">
-    {home.statBars.map((label, i) => (
-      <li data-lane={barLanes[i]}>
-        <span>{label}</span>
-        <i aria-hidden="true" data-bar />
-      </li>
+  <!-- Decorative HUD bars, one per lane colour; no labels since r2 (text is a caption only). -->
+  <div class="bars" aria-hidden="true">
+    {barLanes.map((lane) => (
+      <i data-lane={lane} data-bar />
     ))}
-  </ul>
+  </div>
 </figure>
 
 <style>
@@ -163,19 +160,8 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
 
   .bars {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.625rem;
     margin: 1rem 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .bars li {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: var(--text-mono-label);
-    color: var(--color-text-muted);
   }
 
   .bars [data-lane="creative"] {
@@ -190,13 +176,9 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     --lane-colour: var(--color-growth);
   }
 
-  .bars span {
-    min-width: 6.5rem;
-  }
-
   /* Equal-length decoration, not a rating (brief decision 10). */
   .bars i {
-    flex: 1;
+    display: block;
     height: 2px;
     background-color: var(--lane-colour);
   }

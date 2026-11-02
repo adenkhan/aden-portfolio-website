@@ -333,3 +333,22 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
   - The p12 ruling that the burst is 2D on every tier.
   - The cut order in `docs/audits/docs-review.md`.
 - Source: r1, `docs/audits/round2-baseline.md`, `CLAUDE.md` §4a, `docs/MOTION.md` §0, `docs/ENGINEERING-PLAN.md` "Round 2 rules".
+
+## 2026-11-02 — r2: new copy
+- Decision: All visible copy on the four pages is the owner's r2 copy, word for word (`docs/SEO.md` appendix). The rest was removed except nav, buttons, form labels, alt text and the footer.
+- Decision: The data was restructured to match. Missions became 6 `CaseStudy` records (title, company, problem, move, result) in `src/data/missions.ts`; the timeline became 4 one-line `Arc`s with stat chips; About gained two chips and "Next quest"; skills are four clusters.
+- Decision: Mission image slots went from 9 to 6 (`mission-01`–`06`, one per case study), with new alt text carrying company and tool names. The three unused generated placeholders were deleted; all slots were still placeholders.
+- Decision: SEO titles and meta descriptions are unchanged. New H1s: About "Origin arc of a product marketer" and Work "Product marketing missions". Home is unchanged.
+- Decision (owner, via question): Contact keeps its visible H1 subline "Contact Aden Khan, product marketer", because "Open a channel" has no keyword and the H1 non-negotiable stands.
+- Decision (owner, via question): The copy wins over r1's "each fact once" for the three headline metrics. −72%, +40% and $7K+ appear as a Home counter, an About chip and a Work result. Every other fact appears once, and BBA/IBA only in the About chip. CLAUDE.md §4a and MOTION.md §0 now say so.
+- Decision: The teaser is the scroll moment, with three words only revealed as the orbs collide (MOTION.md §10, r2 note). The card's stat bars lost their labels and are decorative.
+- Decision: Work case studies are full-width rows: image (240 px) beside a `<dl>`. Problem, move and result are marked by icons with visually hidden terms. Every line is one line at 1280 and 1440 px (tested). `LaneTag` and the featured card (p16) were removed.
+- Ruling: "Next quest" is shown as a visible label, read as part of the owner's copy, like "PLAYER 01". Cost if wrong: two words.
+- Ruling: Home buttons follow the owner's order. "See the missions" is primary; "Get my CV" is secondary but still opens the CV dialog and burst.
+- Ruling: About keeps its two closing buttons (buttons are exempt). Home's teaser link, Work's gallery closing link and Contact's intro link and terminal prompt are removed; they were links or text, not buttons.
+- Ruling: Section H2s are visually hidden where the owner's copy has no heading (SEO.md §4), so the outline stays intact without visible text.
+- Ruling: `/thanks/` and `/404` keep their copy (system pages, not in the owner's list). Thanks keeps its email fallback, and its button now says "See the missions".
+- Ruling: "An SEO writer's cockpit" uses a curly apostrophe, matching the p16 typography fix.
+- Result: visible words in `<main>` are Home 40/80, About 109/160, Contact 31/40, and 23–34 per Work case study (limit 60). `tests/e2e/copy.spec.ts` enforces these, BBA/IBA once, and one line per case-study line. `smoke.spec.ts` now checks each indexed page's title, description and keyword H1 against `seo.ts`.
+- Check: no-ai-slop in detect mode found no banned words, em dashes or slop patterns. The three-fragment bio is kept as the owner's voice.
+- Source: r2.

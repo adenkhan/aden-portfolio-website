@@ -1,15 +1,13 @@
 ---
-import { site } from "@/data/site";
 import { contact } from "@/data/timeline";
 
 const { form } = contact;
 ---
 
 <section class="container-site block" id="message" aria-labelledby="message-title">
-  <h2 id="message-title">{contact.messageHeading}</h2>
-  <p class="lead">
-    {form.lead} <a href={`mailto:${site.email}`}>{site.email}</a>.
-  </p>
+  <h2 id="message-title" class="sr-only">
+    {contact.messageHeading}
+  </h2>
 
   <!-- Netlify Forms reads this static form at deploy time (docs/ENGINEERING-PLAN.md §10). -->
   <!--
@@ -148,23 +146,6 @@ const { form } = contact;
 <style>
   .block {
     padding-block: 4rem 0;
-  }
-
-  h2 {
-    margin: 0 0 1rem;
-    font-size: var(--text-display-lg);
-    line-height: var(--text-display-lg--line-height);
-    font-weight: 900;
-  }
-
-  .lead {
-    margin: 0 0 2rem;
-    color: var(--color-text-muted);
-  }
-
-  .lead a {
-    color: var(--color-text);
-    overflow-wrap: anywhere;
   }
 
   form {

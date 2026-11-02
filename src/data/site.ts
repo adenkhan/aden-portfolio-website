@@ -17,7 +17,7 @@ export const site: SiteConfig = {
     { label: "Work", href: "/work/" },
     { label: "Contact", href: "/contact/" },
   ],
-  hudTag: "// PLAYER 01 · PRODUCT MARKETER · KARACHI",
+  hudTag: "PLAYER 01 · PRODUCT MARKETING",
   cvLabel: "Download CV",
   // The file always exists: a generated stand-in until the real CV replaces it (docs/ASSETS.md).
   cvPath: "/cv/aden-khan-cv.pdf",

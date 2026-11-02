@@ -27,7 +27,7 @@ export const SITE_URL = "https://aden-khan-portfolio.netlify.app"; // prompt 21 
 - **Primary:** Aden Khan; product marketer; product marketing portfolio; tech product marketing
 - **Secondary:** product marketer Karachi; SaaS product marketing; go-to-market; product analytics (Amplitude); marketing automation (HubSpot, n8n); IBA marketing student
 
-Placement rule: a primary keyword appears in each page's title, H1 and first paragraph. Secondary keywords go where the content already talks about them (H2s, mission cards, skills). Never repeat a keyword in the same sentence, never add hidden keyword text, never list keywords in a footer block.
+Placement rule (r2): the copy is visual first (`CLAUDE.md` §4a), so keywords live in the titles, meta descriptions, **H1s**, the **case-study company names** (Sadiq.ai, 10Pearls, Leasap, Invest2Innovate), the **About chips** (IBA Karachi · BBA Marketing; Google Data Analytics certified) and **image alt text**. Section H2s are short structural labels, mostly visually hidden. (Before r2: title, H1 and first paragraph, plus descriptive visible H2s.) Never repeat a keyword in the same sentence, never add hidden keyword text, never list keywords in a footer block.
 
 ## 3. Pages
 
@@ -36,23 +36,21 @@ Limits: title ≤ 60 characters, description ≤ 155 characters, exactly one H1.
 | Path | Title (chars) | Description (chars) | H1 |
 |---|---|---|---|
 | `/` | Aden Khan, Product Marketer \| Portfolio (39) | Aden Khan is a product marketer in Karachi blending storytelling, analytics and automation to drive adoption and growth for tech products. (138) | Aden Khan, Product Marketer |
-| `/about/` | About Aden Khan, Product Marketing \| IBA Karachi (48) | IBA Karachi BBA Marketing student focused on tech product marketing, product analytics and go-to-market. Background, education and goals. (137) | The origin arc: from campaigns to products |
-| `/work/` | Product Marketing Projects & Skills \| Aden Khan (47) | Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more. (131) | Product marketing missions, completed |
+| `/about/` | About Aden Khan, Product Marketing \| IBA Karachi (48) | IBA Karachi BBA Marketing student focused on tech product marketing, product analytics and go-to-market. Background, education and goals. (137) | Origin arc of a product marketer |
+| `/work/` | Product Marketing Projects & Skills \| Aden Khan (47) | Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more. (131) | Product marketing missions |
 | `/contact/` | Contact Aden Khan, Product Marketer (35) | Hiring for product marketing? Reach Aden Khan by email or LinkedIn. Open to internships and full-time roles from mid-2027. (122) | Open a channel |
 | `/thanks/` | Message received \| Aden Khan | Thanks for getting in touch. Aden Khan will reply by email. | Message received |
 | `/404` | Page not found \| Aden Khan | This page does not exist. Go to Aden Khan's product marketing work or contact page. | Page not found |
 
 `/thanks/` and `/404` are `noindex, nofollow` and excluded from the sitemap.
 
-**H1 subline (added by the review, §10 change 1):** the About and Contact H1s do not contain a target keyword, which breaks the non-negotiable in `CLAUDE.md`. Each H1 keeps its phrase exactly and adds a visible second line inside the same `<h1>`, styled smaller:
+**H1 subline (r2):** the Contact H1 "Open a channel" has no target keyword, which would break the non-negotiable in `CLAUDE.md`. It keeps a visible second line inside the same `<h1>`, styled smaller (the owner chose this in r2):
 
 ```html
-<h1>The origin arc: from campaigns to products
-  <span class="h1-sub">About Aden Khan, product marketer</span></h1>
 <h1>Open a channel
   <span class="h1-sub">Contact Aden Khan, product marketer</span></h1>
 ```
-The subline is real, visible text, not hidden keywords. Home and Work H1s already contain keywords and stay as they are.
+The subline is real, visible text, not hidden keywords. Home ("Aden Khan, Product Marketer"), About ("Origin arc of a product marketer") and Work ("Product marketing missions") contain a keyword in the H1 itself; the About subline was dropped in r2.
 
 ## 4. Heading structure
 
@@ -60,28 +58,30 @@ No skipped levels. A heading marked *(visually hidden)* is real text with the `s
 
 **Home `/`**
 - H1 Aden Khan, Product Marketer
-- H2 Product marketing results in numbers *(visually hidden; stats strip)*
-- H2 Creative × Data = Growth *(teaser)*
+- H2 Product marketing results in numbers *(visually hidden; stat counters)*
+- H2 CREATIVE · DATA · GROWTH *(the scroll moment; the three words are the heading)*
 
 **About `/about/`**
-- H1 The origin arc: from campaigns to products / About Aden Khan, product marketer
-- H2 From storytelling to product analytics
-  - H3 Storyteller (2025) · H3 Growth (2025) · H3 Go-to-market (2025–26) · H3 Builder (2026)
-- H2 Education: BBA Marketing at IBA Karachi
-- H2 Career goals in tech product marketing
+- H1 Origin arc of a product marketer
+- H2 Origin arc, 2025 to 2026 *(visually hidden)*
+  - H3 2025 · Invest2Innovate · H3 2025 · Sadiq.ai · H3 2025–26 · Leasap · H3 2026 · 10Pearls
+- H2 Education and certification *(visually hidden; the two chips)*
+- H2 Next quest *(visible label)*
 
 **Work `/work/`**
-- H1 Product marketing missions, completed
-- H2 Case studies from SaaS and tech startups
-  - H3 one per mission card (nine; titles from the appendix)
-- H2 Skills: go-to-market, product analytics and marketing automation
-  - H3 Product marketing · H3 Growth · H3 Data and automation · H3 Creative
-- H2 Creative gallery: campaigns and ad creatives
+- H1 Product marketing missions
+- H2 Case studies *(visually hidden)*
+  - H3 one per case study (six; titles from the appendix). Company, problem, move and result form a `<dl>` with visually hidden terms.
+- H2 Skills *(visually hidden)*
+  - H3 Product marketing · H3 Growth · H3 Data & automation · H3 Creative
+- H2 Creative drops
 
 **Contact `/contact/`**
 - H1 Open a channel / Contact Aden Khan, product marketer
-- H2 Email, LinkedIn and GitHub *(visually hidden; terminal panel)*
-- H2 Send a message *(form)*
+- H2 Email, LinkedIn, GitHub and CV *(visually hidden; terminal panel)*
+- H2 Send a message *(visually hidden; form)*
+
+Visually hidden headings are short, plain labels for screen-reader navigation, never keyword lists.
 
 The footer and nav have no headings.
 
@@ -107,7 +107,7 @@ Patterns for images that arrive later:
 - Dashboard or screenshot: `<Tool> <what it shows> for <company>`
 - Campaign result: `<Channel> <metric> chart for <program or company>, <period>`
 
-Alt strings live in `src/data/assets.ts`, one per asset slot.
+Alt strings live in `src/data/assets.ts`, one per asset slot. Since r2 the six case-study images carry the company and tool names (Sadiq.ai, Meta, Amplitude, 10Pearls, HubSpot, n8n, Ahrefs, Leasap, Sales Navigator, Invest2Innovate), which the visible copy now keeps short.
 
 ## 6. Social cards
 
@@ -198,21 +198,12 @@ Sitemap: https://aden-khan-portfolio.netlify.app/sitemap-index.xml
 ## 9. Internal linking and readability
 
 **Internal linking**
-- Every page links to Work and Contact twice: once in the nav, once in the body.
-  - Home: "See my missions" button → `/work/`; teaser ends with a link to `/contact/`.
-  - About: career goals paragraph links to `/work/` ("see the missions") and `/contact/`.
-  - Work: closing line links to `/contact/`; the page itself is Work.
-  - Contact: the intro line links to `/work/` ("the missions behind this").
+- Every page links to Work and Contact in the nav; Home and About also link to them in the body.
+  - Home: "See the missions" button → `/work/`. (r2 removed the teaser's contact link; Contact is in the nav.)
+  - About: "Next quest" buttons → `/work/` ("See the missions") and `/contact/` ("Open a channel").
+  - Work and Contact: r2 removed the closing and intro links to keep to the word budgets; the nav carries them.
 - Link text describes the destination. No "click here".
-- Mission cards link to the section that tells the longer story (§10 change 5). Anchors are stable ids:
-
-| Mission | Links to |
-|---|---|
-| 1–3 (Sadiq.ai) | `/about/#arc-growth` |
-| 4–6 (10Pearls) | `/about/#arc-builder` |
-| 7 (Leasap.com) | `/about/#arc-go-to-market` |
-| 8 (Invest2Innovate) | `/about/#arc-storyteller` |
-| 9 (IBA Animation and Pop Culture Society) | `/work/#skills-creative` |
+- Case studies no longer link to About arcs (r2: each arc is one line, so there is no longer story to link to). Stable ids: case studies `/work/#mission-<id>`; arcs `/about/#arc-invest2innovate`, `#arc-sadiq`, `#arc-leasap`, `#arc-10pearls`.
 
 Other anchors: `/work/#missions`, `/work/#skills`, `/work/#gallery`, `/about/#education`, `/about/#goals`, `/contact/#message`.
 
@@ -246,7 +237,7 @@ Reviewed and left unchanged:
 - [ ] `SITE_URL` is the live production origin (prompt 21).
 - [ ] Each page has exactly one `<title>`, one meta description, one canonical and one robots tag, all from `<SEO>`.
 - [ ] Titles and descriptions match §3 character for character.
-- [ ] Each page has one H1 that contains a target keyword (including the About and Contact sublines).
+- [ ] Each page has one H1 that contains a target keyword (Contact through its subline). Checked by `tests/e2e/smoke.spec.ts`.
 - [ ] Heading levels follow §4 with no skips.
 - [ ] Every image has alt text per §5 or is marked decorative.
 - [ ] Canonical, `og:url` and the served URL agree, with trailing slashes.
@@ -257,7 +248,7 @@ Reviewed and left unchanged:
 - [ ] Deploy previews carry `noindex`; production does not.
 - [ ] `/thanks/` and `/404` are `noindex` and absent from the sitemap.
 - [ ] Favicon, SVG favicon and apple-touch-icon load; theme-color is `#0B0D1A`.
-- [ ] Every page links to `/work/` and `/contact/` in the body as well as the nav; mission card links resolve to existing ids.
+- [ ] Home and About link to `/work/` and `/contact/` in the body as well as the nav (r2 dropped the Work and Contact body links for the word budgets).
 - [ ] Mobile: viewport meta present, body text ≥ 16px, tap targets ≥ 44px, no horizontal scroll at 360px.
 - [ ] Lighthouse mobile SEO ≥ 95 (aim 100) and Accessibility ≥ 95 on every route.
 - [ ] The phone number from `docs/cv-source.md` appears nowhere in the built site.
@@ -265,53 +256,47 @@ Reviewed and left unchanged:
 
 ---
 
-## Appendix: site copy (from `docs/00-design-plan.md` §6, word for word)
+## Appendix: site copy (r2, word for word from the owner)
+
+Replaces the design-plan copy (p06). Visible text on the four pages is only this, plus nav, buttons, form labels, alt text and the footer. The CV dialog previews the PDF and is exempt.
 
 ### Home
-- HUD label: // PLAYER 01 · PRODUCT MARKETER · KARACHI
+- HUD label: PLAYER 01 · PRODUCT MARKETING
 - H1: Aden Khan, Product Marketer
-- Subhead: I connect what customers feel with what the data shows, then build the systems that scale it.
-- Buttons: Download CV (triggers the purple burst) · See my missions
-- Hero image: high-resolution illustrated avatar in a "character select" frame with stat bars: Positioning · Analytics · Automation · Paid growth
-- Stats strip: −72% customer acquisition cost · +40% program awareness · $7,000+ sponsorships secured · 4 marketing roles since 2025
-- Teaser: Creative × Data = Growth. Red is storytelling. Blue is analytics and automation. Purple is what happens when they collide.
-### About
-- H1: The origin arc: from campaigns to products
-- Bio: I'm a BBA Marketing student at IBA Karachi who fell for the product side of marketing. I started with social campaigns and memes that converted, then moved into analytics, automation and go-to-market work for tech startups. Today I care about one question: why do people adopt a product, and how do we help more of them get there?
-- Arc 1, Storyteller (2025): Ran LinkedIn and Instagram campaigns for the i2iScale accelerator program, raising awareness 40%.
-- Arc 2, Growth (2025): At Sadiq.ai, used Amplitude to improve onboarding, retention and feature adoption, and ran Meta campaigns that cut acquisition cost 72%.
-- Arc 3, Go-to-market (2025–26): Researched partners and investors for Leasap, a U.S. proptech startup, and built its outreach pipelines.
-- Arc 4, Builder (2026): At 10Pearls, shipped an SEO content app and automated marketing workflows in HubSpot and n8n.
-- Education: Institute of Business Administration (IBA), Karachi · BBA, Marketing · 2023–2027. Relevant courses: Tech Product Marketing, Tech Product Development, Marketing Analytics, Product Analytics, Machine Learning. Certified: Google Data Analytics Specialization.
-- Career goals: Join a tech or SaaS company as a product marketer, owning positioning, launches and adoption. Open to internships now and full-time roles from mid-2027.
-### Work
-- H1: Product marketing missions, completed
-- Mission cards (mission | where | result):
-  1. Lower the cost of growth | Sadiq.ai, Product Marketing Associate | Performance-driven Meta campaigns cut customer acquisition cost by 72%
-  2. Drive feature adoption | Sadiq.ai | Amplitude analysis guided onboarding, retention and adoption fixes across web and mobile
-  3. Arm the sales team | Sadiq.ai | Pitch decks, sales enablement assets, whitepapers and case studies for online sellers
-  4. Ship an SEO writing tool | 10Pearls, Marketing Automation Associate | Internal app combining Ahrefs keyword data and competitor research in one drafting flow
-  5. Stop keyword cannibalization | 10Pearls | Checker that flags overlapping search intent before publishing
-  6. Automate the funnel | 10Pearls | HubSpot and n8n workflows for lead capture, enrichment, lifecycle email and CRM handoff
-  7. Build a GTM pipeline | Leasap.com, Business Development Intern | Outreach pipelines in LinkedIn Sales Navigator; a funding tracker targeting 1–2 applications a week
-  8. Grow a program's reach | Invest2Innovate, Marketing Associate | +40% awareness for i2iScale across 3 concurrent initiatives
-  9. Fund a society | IBA Animation and Pop Culture Society | $7,000+ in sponsorships from 15+ proposals; 1,500+ new followers in six months
-- Skills tree:
-  - Product marketing: positioning, go-to-market, sales enablement, pitch decks, whitepapers, case studies, user research
-  - Growth: Meta, Google, LinkedIn and TikTok Ads, B2B and B2C lead generation, CRO, social strategy
-  - Data and automation: Amplitude, Google Analytics 4, Google Tag Manager, Looker Studio, SQL, R, Tableau, HubSpot, n8n, Zapier, Apollo.io
-  - Creative: Canva, Photoshop, CapCut, Premiere Pro, Figma
-- Creative gallery: horizontal strip of ad creatives and campaign results (real screenshots added later by the owner).
-### Contact
-- H1: Open a channel
-- Line: Hiring a product marketer, or need help with a launch? My inbox is open.
-- Email: aden.khan613@gmail.com · LinkedIn: https://www.linkedin.com/in/adenkhank/ · GitHub: https://github.com/adenkhan · Download CV
-- Footer: © 2026 Aden Khan · Product Marketer · Karachi, Pakistan
+- Line: I find where users drop off, then build the fix.
+- Buttons: See the missions · Get my CV
+- Stat counters (number large, label small): −72% | acquisition cost · +40% | program reach · $7K+ | sponsorships raised · 4 | companies shipped for
+- Scroll moment: three words only, revealed as the orbs collide: CREATIVE · DATA · GROWTH
 
-### Copy added by this spec (not in the design plan)
-- Home availability line, under the subhead (added in p07 so the brief's 30-second recruiter test can pass on Home; both sentences are reused from the About education and career-goals copy): BBA Marketing student at IBA Karachi. Open to internships now and full-time roles from mid-2027.
-- About H1 subline: About Aden Khan, product marketer
-- Contact H1 subline: Contact Aden Khan, product marketer
-- H2s listed in §4
-- `/thanks/` and `/404` titles, descriptions and H1s in §3
-- OG image alt text in §6
+### About
+- H1: Origin arc of a product marketer
+- Bio (3 short lines): Started making memes that sold. Got curious about why they worked. Now I work where product, data and marketing meet.
+- Arcs (one line each, plus a stat chip):
+  - 2025 · Invest2Innovate: Campaigns that got founders to notice an accelerator. [+40% reach]
+  - 2025 · Sadiq.ai: Onboarding, adoption and paid growth for a social commerce app. [−72% CAC]
+  - 2025–26 · Leasap: Go-to-market research and outreach for a U.S. proptech startup. [Pipeline built]
+  - 2026 · 10Pearls: Shipped an SEO app and automated the marketing funnel. [2 tools shipped]
+- Chips: IBA Karachi · BBA Marketing · Class of 2027 | Google Data Analytics certified
+- Next quest: Product marketing at a tech company. Internships now, full-time from mid-2027.
+
+### Work
+- H1: Product marketing missions
+- Case studies (title / company / problem / move / result), each line one line on desktop:
+  1. Cut the cost of growth / Sadiq.ai / Paid acquisition was eating the budget. / Performance-led Meta campaigns, with Amplitude tracking onboarding and feature adoption. / −72% customer acquisition cost
+  2. Let the robots do the busywork / 10Pearls / Leads moved between tools by hand. / HubSpot + n8n workflows: capture → enrich → lifecycle email → CRM handoff. / Manual handoffs automated
+  3. An SEO writer’s cockpit / 10Pearls / Writers juggled keyword tools, competitor tabs and drafts. / One app combining Ahrefs keyword ideas, competitor research and drafting, plus a cannibalization checker. / Overlaps caught before publishing
+  4. Open doors in U.S. proptech / Leasap / An early startup needed partners, customers and funding. / Sales Navigator pipelines and a funding tracker. / 1–2 funding applications a week
+  5. Make founders notice / Invest2Innovate / An accelerator program needed founders and LPs to pay attention. / Reels, carousels and story-led LinkedIn and Instagram campaigns across 3 initiatives. / +40% program awareness
+  6. Fund the club / IBA Animation & Pop Culture Society / A student society needed money and an audience. / 15+ tailored sponsor proposals and $300/month campaigns. / $7,000+ raised · +1,500 followers in 6 months
+- Skills (a visual, no paragraphs), four clusters: Product marketing (positioning, GTM, sales enablement, user research) · Growth (Meta, Google, LinkedIn, TikTok Ads, CRO) · Data & automation (Amplitude, GA4, GTM, Looker Studio, SQL, HubSpot, n8n, Zapier) · Creative (Canva, Photoshop, CapCut, Figma)
+- Gallery heading: Creative drops
+
+### Contact
+- H1: Open a channel (with the visible subline "Contact Aden Khan, product marketer", see §3)
+- Line: Hiring a product marketer? Say hi.
+- Links: email, LinkedIn, GitHub, CV
+
+### Kept outside the owner's list
+- Footer: © 2026 Aden Khan · Product Marketer · Karachi, Pakistan
+- `/thanks/` and `/404` copy (system pages), titles, descriptions and OG alt text in §3 and §6
+- Visually hidden H2s listed in §4

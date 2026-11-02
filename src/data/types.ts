@@ -37,28 +37,23 @@ export interface Stat {
 }
 
 export interface HomeCopy {
-  h1: string;
-  subhead: string;
-  availability: string;
-  ctaPrimary: string;
-  ctaSecondary: string;
-  statBars: [string, string, string, string];
-  teaserHeading: string;
-  teaser: string;
-  teaserLink: Link;
+  line: string;
+  missionsCta: Link;
+  cvCta: string;
+  /** Revealed one by one as the teaser orbs collide. */
+  scrollWords: [string, string, string];
 }
 
-export interface Mission {
+/** One Work case study: each field renders as a single line on desktop. */
+export interface CaseStudy {
   id: string;
   order: number;
   title: string;
-  org: string;
-  role?: string;
+  company: string;
+  problem: string;
+  move: string;
   result: string;
   lane: Lane;
-  related: Link;
-  /** Short labels from the mission copy and skills list; not new claims. */
-  tags: string[];
   evidence?: AssetKey;
 }
 
@@ -69,50 +64,48 @@ export interface SkillLane {
   skills: string[];
 }
 
+/** One About arc: a period, a company, one line and a stat chip. */
 export interface Arc {
   order: 1 | 2 | 3 | 4;
   id: string;
-  title: string;
   period: string;
-  text: string;
+  org: string;
+  line: string;
+  chip: string;
   lane: Lane;
 }
 
 export interface AboutCopy {
-  h1: string;
-  bio: string;
+  /** Three short lines, shown as separate lines. */
+  bio: [string, string, string];
+  /** Visually hidden headings: the structure needs them, the design shows none (docs/SEO.md §4). */
   arcsHeading: string;
   arcs: [Arc, Arc, Arc, Arc];
-  educationHeading: string;
-  education: {
-    school: string;
-    degree: string;
-    years: string;
-    courses: string[];
-    certification: string;
-  };
-  goalsHeading: string;
-  goals: string;
-  goalsLinks: [Link, Link];
+  chipsHeading: string;
+  /** The only visible place BBA/IBA appears (CLAUDE.md §4a). */
+  chips: [string, string];
+  questLabel: string;
+  quest: string;
+  questLinks: [Link, Link];
 }
 
 export interface WorkCopy {
+  /** Visually hidden. */
   missionsHeading: string;
+  /** Visually hidden. */
   skillsHeading: string;
   galleryHeading: string;
-  galleryNote: string;
-  closing: Link;
+  /** Screen-reader labels for each case-study line; the design marks them with icons. */
+  caseLabels: { company: string; problem: string; move: string; result: string };
 }
 
 export interface ContactCopy {
-  h1: string;
   line: string;
-  workLink: Link;
-  prompt: string;
+  /** Visually hidden. */
   channelsHeading: string;
+  /** Visually hidden. */
   messageHeading: string;
   form: {
-    lead: string;
     name: string;
     email: string;
     message: string;
@@ -123,7 +116,7 @@ export interface ContactCopy {
     sending: string;
   };
   copy: { button: string; done: string; failed: string };
-  thanks: { status: string; line: string };
+  thanks: { status: string; line: string; fallback: string };
 }
 
 export interface PageSeo {

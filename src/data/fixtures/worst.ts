@@ -4,53 +4,39 @@
  * missing images. Shaped exactly like the real data so it enters through the same boundary.
  */
 import { about } from "../timeline";
-import { missions } from "../missions";
+import { caseStudies } from "../missions";
 import { skillLanes } from "../skills";
-import type { Arc, AssetKey, Mission, SkillLane } from "../types";
+import type { Arc, AssetKey, CaseStudy, SkillLane } from "../types";
 
-export const worstMissions: Mission[] = [
+export const worstCaseStudies: CaseStudy[] = [
   {
-    ...missions[0],
+    ...caseStudies[0],
     title: "Rebuild the partner onboarding and activation funnel for enterprise sellers",
-    org: "Invest2Innovate (i2i) Accelerator for Emerging Markets",
-    role: "Senior Product Marketing and Lifecycle Automation Associate (Contract)",
-    result:
-      "Cut cost per activated seller from $1,284.50 to $359.66 across 12 markets in 6 weeks; 3,847 sellers onboarded",
-    tags: [
-      "LinkedIn Sales Navigator Advanced Plus",
-      "Google Analytics 4",
-      "HubSpot Operations Hub Enterprise",
-    ],
+    company: "Invest2Innovate (i2i) Accelerator for Emerging Markets",
+    move: "Lifecycle automation across HubSpot Operations Hub Enterprise, Google Analytics 4 and LinkedIn Sales Navigator Advanced Plus, with weekly cohort reviews.",
+    result: "Cut cost per activated seller from $1,284.50 to $359.66 across 12 markets in 6 weeks",
     evidence: "mission-missing",
   },
+  { ...caseStudies[1], title: "Grow", company: "i2i", result: "+1%", evidence: undefined },
   {
-    ...missions[1],
-    title: "Grow",
-    org: "i2i",
-    role: undefined,
-    result: "+1%",
-    tags: [],
-    evidence: undefined,
-  },
-  {
-    ...missions[2],
+    ...caseStudies[2],
     title: "Internationalisation-and-localisation-readiness audit",
-    org: "northwind-industries-holdings.example.com",
+    company: "northwind-industries-holdings.example.com",
     result: "Owner: bartholomew.fitzgerald@northwind-industries-holdings.example.com",
   },
-  ...missions.slice(3),
+  ...caseStudies.slice(3),
 ];
 
 export const worstArcs: [Arc, Arc, Arc, Arc] = [
   {
     ...about.arcs[0],
-    title: "Go-to-market and partnerships",
+    org: "Invest2Innovate (i2i) Accelerator for Emerging Markets",
     period: "Feb 2025 – present (part-time, remote)",
   },
-  { ...about.arcs[1], title: "Q" },
+  { ...about.arcs[1], org: "Q", chip: "−72% customer acquisition cost across web and mobile" },
   {
     ...about.arcs[2],
-    text: "Researched 140+ partners and investors across U.S. MLS organisations, proptech founders, real estate operators and data vendors, built outreach pipelines in LinkedIn Sales Navigator, and tracked 60+ accelerator, incubator and investor programmes in one funding sheet.",
+    line: "Researched 140+ partners and investors across U.S. MLS organisations, proptech founders, real estate operators and data vendors.",
   },
   about.arcs[3],
 ];

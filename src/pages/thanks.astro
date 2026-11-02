@@ -13,10 +13,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
       <PageTitle page="thanks" />
       <p class="line">{contact.thanks.line}</p>
       <p class="line">
-        {contact.form.lead} <a href={`mailto:${site.email}`}>{site.email}</a>.
+        {contact.thanks.fallback} <a href={`mailto:${site.email}`}>{site.email}</a>.
       </p>
       <div class="links">
-        <Button href="/work/">See my missions</Button>
+        <Button href="/work/">See the missions</Button>
         <Button href="/" variant="secondary">
           Back to home
         </Button>

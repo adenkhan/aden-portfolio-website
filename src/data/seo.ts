@@ -16,8 +16,7 @@ export const seo: Record<PageId, PageSeo> = {
     title: "About Aden Khan, Product Marketing | IBA Karachi",
     description:
       "IBA Karachi BBA Marketing student focused on tech product marketing, product analytics and go-to-market. Background, education and goals.",
-    h1: "The origin arc: from campaigns to products",
-    h1Sub: "About Aden Khan, product marketer",
+    h1: "Origin arc of a product marketer",
     ogImageAlt: "The origin arc: Aden Khan's path from campaigns to products",
   },
   work: {
@@ -26,7 +25,7 @@ export const seo: Record<PageId, PageSeo> = {
     title: "Product Marketing Projects & Skills | Aden Khan",
     description:
       "Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more.",
-    h1: "Product marketing missions, completed",
+    h1: "Product marketing missions",
     ogImageAlt: "Product marketing missions completed by Aden Khan",
   },
   contact: {

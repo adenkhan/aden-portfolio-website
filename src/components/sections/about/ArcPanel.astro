@@ -10,11 +10,16 @@ const { arc } = Astro.props;
 
 <li class="panel" id={arc.id} data-lane={arc.lane} data-arc-panel>
   <span class="edge" aria-hidden="true" data-arc-edge></span>
-  <p class="arc-label">Arc {arc.order}</p>
   <h3>
-    {arc.title} ({arc.period})
+    <span class="period">{arc.period}</span>
+    <span class="sep" aria-hidden="true">
+      {" "}
+      ·{" "}
+    </span>
+    <span class="org">{arc.org}</span>
   </h3>
-  <p class="text">{arc.text}</p>
+  <p class="text">{arc.line}</p>
+  <p class="chip">{arc.chip}</p>
 </li>
 
 <style>
@@ -49,23 +54,42 @@ const { arc } = Astro.props;
     pointer-events: none;
   }
 
-  .arc-label {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: var(--text-mono-label);
-    color: var(--lane-colour);
-  }
-
   h3 {
-    margin: 0.5rem 0 0.75rem;
+    margin: 0 0 0.75rem;
     font-size: var(--text-title);
     line-height: var(--text-title--line-height);
     font-weight: 800;
   }
 
+  .period {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    font-weight: 500;
+    color: var(--lane-colour);
+  }
+
+  .sep {
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+  }
+
   .text {
     margin: 0;
     color: var(--color-text-muted);
+  }
+
+  /* Stat chip: the arc's one number, in its lane colour. */
+  .chip {
+    display: inline-block;
+    margin: 1rem 0 0;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--lane-colour);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-size: var(--text-body-lg);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--lane-colour);
   }
 
   [data-lane="creative"] {

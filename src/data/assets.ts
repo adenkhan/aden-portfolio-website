@@ -6,16 +6,14 @@ import type { AssetKey, AssetSlot } from "./types";
  * `path` with one of the same name, format and aspect ratio. Nothing else needs to change.
  * `npm run assets:check` lists the slots that still hold the generated placeholder.
  */
+// One per Work case study (r2), in case-study order. Alt text carries the company and tool names.
 const missionAlt = [
-  "Meta ads results for Sadiq.ai showing lower customer acquisition cost",
-  "Amplitude feature adoption chart for Sadiq.ai web and mobile",
-  "Sales enablement deck and case study pages made for Sadiq.ai",
-  "Internal SEO writing app built at 10Pearls with Ahrefs keyword data",
-  "Keyword cannibalization checker flagging overlapping search intent at 10Pearls",
-  "HubSpot and n8n workflow for lead capture and CRM handoff at 10Pearls",
-  "LinkedIn Sales Navigator outreach pipeline built for Leasap.com",
-  "LinkedIn and Instagram campaign creative for the i2iScale accelerator",
-  "Sponsorship proposal and event post for the IBA Animation and Pop Culture Society",
+  "Meta ads and Amplitude results for Sadiq.ai showing lower customer acquisition cost",
+  "HubSpot and n8n workflow automating lead capture and CRM handoff at 10Pearls",
+  "SEO writing app with Ahrefs keyword ideas and a cannibalization checker, built at 10Pearls",
+  "LinkedIn Sales Navigator pipeline and funding tracker built for Leasap",
+  "LinkedIn and Instagram campaign creative for the Invest2Innovate i2iScale accelerator",
+  "Sponsorship proposal and social post for the IBA Animation & Pop Culture Society",
 ];
 
 const galleryAlt = [
@@ -57,7 +55,7 @@ export const assetSlots: AssetSlot[] = [
     height: 800,
     format: "webp",
     alt,
-    usedOn: [`/work/ (mission card ${i + 1})`],
+    usedOn: [`/work/ (case study ${i + 1})`],
   })),
   ...galleryAlt.map((alt, i): AssetSlot => ({
     id: `gallery-${pad(i + 1)}`,

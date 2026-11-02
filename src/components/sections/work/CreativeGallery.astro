@@ -13,7 +13,6 @@ const ids = isWorstCase()
 
 <section class="container-site block" id="gallery" aria-labelledby="gallery-title" data-gallery>
   <h2 id="gallery-title">{work.galleryHeading}</h2>
-  <p class="note">{work.galleryNote}</p>
   <ul
     class="strip"
     tabindex="0"
@@ -29,9 +28,6 @@ const ids = isWorstCase()
       </li>
     ))}
   </ul>
-  <p class="closing">
-    <a href={work.closing.href}>{work.closing.label}</a>
-  </p>
 </section>
 
 <style>
@@ -40,15 +36,10 @@ const ids = isWorstCase()
   }
 
   h2 {
-    margin: 0 0 0.75rem;
+    margin: 0 0 1.5rem;
     font-size: var(--text-display-lg);
     line-height: var(--text-display-lg--line-height);
     font-weight: 900;
-  }
-
-  .note {
-    margin: 0 0 1.5rem;
-    color: var(--color-text-muted);
   }
 
   .strip {
@@ -94,15 +85,5 @@ const ids = isWorstCase()
     font-size: var(--text-caption);
     line-height: var(--text-caption--line-height);
     color: var(--color-text-muted);
-  }
-
-  .closing {
-    margin: 1.5rem 0 0;
-    font-size: var(--text-body-lg);
-  }
-
-  .closing a {
-    color: var(--color-text);
-    font-weight: 600;
   }
 </style>
