@@ -436,3 +436,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Fix: programmatic scroll jumps go through Lenis (`window.__akLenis`). Under load, a native `scrollTo` could be pulled back by smooth scroll.
 - Verification: `npm run verify` passes, 104 tests; the world spec passed three repeats in a row.
 - Source: r5.
+
+## 2026-11-03 — r7: Convergence
+- Decision: the orb collision is rebuilt inside the persistent world as **Convergence**. Layered 3D orbs (core, plasma shell, halo) with trails spiral on a decaying, precessing double helix; procedural lightning arcs between them; space bends around them; they collapse into purple with a 3D shockwave ring, a ripple and an aberration spike; then the purple sphere surges and tears the screen open to reveal the hero. One GSAP timeline is autoplayed by the intro and scrubbed on Home. Spec: `docs/MOTION.md` §16. No franchise names.
+- Decision: the intro is now 3.5 s (the owner's beats), up from the earlier 3 s ceiling. Skip, Esc, once per session and the 2D fallback are unchanged.
+- Decision: CREATIVE · DATA · GROWTH pins and scrubs Convergence (`scrub: 1`), with Lenis velocity spinning the vortex and adding lightning.
+- Ruling: **snap through Lenis, not `lenis/snap`.** `lenis/snap`'s "mandatory" mode snaps the whole page to the pin's ends, and its "proximity" mode can leave the section resting half-collided. A 180 ms idle check that calls `lenis.scrollTo` to the nearer end of the pin does exactly what the brief asks. Cost if wrong: swap in `lenis/snap` with a custom threshold later.
+- Ruling: the hero-border glow on strikes (the optional item) is not built. The strike already flashes the whole frame, and a second glow on HTML would compete with the hero.
+- Ruling: lightning is drawn with `LineSegments2` (fat lines) into buffers rewritten in place; per-bolt allocation would leak GPU buffers at 10–20 regenerations per second.
+- Ruling: the pinned teaser is at least a full screen tall while pinned. As the last section, its pin end was otherwise unreachable and the collision never completed.
+- Verification: `npm run verify` passes, 105 tests (new: the pinned scrub collides; resting mid-pin snaps to an end). Recordings are in `docs/screens/round3/`.
+- Source: r7.

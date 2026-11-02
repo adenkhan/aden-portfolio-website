@@ -38,6 +38,7 @@ export function startWorld(host: HTMLElement, reduced: boolean): World | null {
     return null;
   }
   host.dataset.state = reduced ? "static" : "ready";
+  world.stillMode = reduced;
   host.dataset.quality = world.debug.tier;
   window.__akWorld = {
     world,
@@ -121,19 +122,11 @@ function wirePage(world: World, reduced: boolean): () => void {
   if (station === "home") {
     input.hero = document.querySelector("[data-pointer-glow-host]");
     input.teaser = document.querySelector("[data-teaser] [data-collide]");
-    const teaser = document.querySelector("[data-teaser]");
-    if (teaser && !reduced)
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: teaser,
-          start: "top bottom",
-          end: "bottom bottom",
-          onUpdate: (self) => {
-            input.teaserProgress = self.progress;
-            world.notifyInput();
-          },
-        }),
-      );
+    // Convergence scrub (r7): the Home motion pins CREATIVE · DATA · GROWTH and reports its progress.
+    on(window, "ak:convergence-progress", (event) => {
+      input.teaserProgress = (event as CustomEvent<{ progress: number }>).detail.progress;
+      world.notifyInput();
+    });
   }
 
   if (station === "about") {

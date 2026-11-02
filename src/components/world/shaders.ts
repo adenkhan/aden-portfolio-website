@@ -51,11 +51,14 @@ float snoise(vec3 v) {
 export const ORB_VERTEX = /* glsl */ `
 uniform float uTime;
 uniform float uAmp;
+uniform float uDisplace;
 varying vec3 vNormal;
 varying vec3 vView;
 varying float vNoise;
+varying vec3 vObj;
 ${NOISE}
 void main() {
+  vObj = position;
   vec3 q = normal * 1.6 + vec3(uTime * 0.35);
   float n = snoise(q);
   #if OCTAVES > 1
@@ -65,7 +68,7 @@ void main() {
   n += 0.25 * snoise(q * 4.0 - vec3(uTime * 0.3));
   #endif
   vNoise = n;
-  vec4 mv = modelViewMatrix * vec4(position + normal * n * uAmp, 1.0);
+  vec4 mv = modelViewMatrix * vec4(position + normal * n * uAmp * (1.0 + uDisplace * 3.0), 1.0);
   vView = normalize(-mv.xyz);
   vNormal = normalize(normalMatrix * normal);
   gl_Position = projectionMatrix * mv;
@@ -76,15 +79,28 @@ export const ORB_FRAGMENT = /* glsl */ `
 uniform vec3 uColor;
 uniform float uIntensity;
 uniform float uOpacity;
+uniform float uPlasma;
+uniform float uTime;
 varying vec3 vNormal;
 varying vec3 vView;
 varying float vNoise;
+varying vec3 vObj;
+${NOISE}
 void main() {
   float facing = max(dot(normalize(vNormal), normalize(vView)), 0.0);
   float rim = pow(1.0 - facing, 2.4);
-  vec3 core = uColor * (0.28 + 0.22 * vNoise) * facing;
-  vec3 colour = core + uColor * rim * 2.2 + vec3(1.0) * pow(rim, 7.0) * 0.6;
-  gl_FragColor = vec4(colour * uIntensity * uOpacity, uOpacity);
+  // Plasma: 3D noise sampled in a slowly rotating frame, so bands swirl across the surface.
+  float a = uTime * 0.9;
+  mat2 r = mat2(cos(a), -sin(a), sin(a), cos(a));
+  vec3 q = vObj * 2.6;
+  q.xz = r * q.xz;
+  float swirl = snoise(q + vec3(0.0, uTime * 0.6, 0.0));
+  float bands = smoothstep(0.1, 0.8, swirl) * uPlasma;
+  vec3 shell = uColor * (0.22 + 0.2 * vNoise) * facing;
+  vec3 colour = shell + uColor * rim * 2.2 + vec3(1.0) * pow(rim, 7.0) * 0.6 + mix(uColor, vec3(1.0), 0.45) * bands;
+  // Translucent toward the centre, so the bright inner core shows through the shell.
+  float alpha = uOpacity * (0.55 + 0.45 * rim + 0.3 * bands);
+  gl_FragColor = vec4(colour * uIntensity * alpha, alpha);
 }
 `;
 
@@ -267,5 +283,25 @@ void main() {
   float d = length(vUv - 0.5) * 2.0;
   float band = smoothstep(0.86, 0.95, d) * smoothstep(1.0, 0.95, d);
   gl_FragColor = vec4(uColor * band * 2.0 * uOpacity, 1.0);
+}
+`;
+
+/** Convergence (r7): ambient particles drawn into the vortex. aPolar = (radius, angle, depth). */
+export const SWIRL_VERTEX = /* glsl */ `
+uniform float uPhase;
+uniform float uSuck;
+uniform float uSize;
+attribute vec3 aPolar;
+attribute float aSeed;
+varying float vAlpha;
+void main() {
+  float inner = 0.08 + 0.25 * fract(aSeed * 7.13);
+  float r = aPolar.x * mix(1.0, inner, uSuck);
+  float a = aPolar.y + uPhase * (0.4 + 1.6 / (r + 0.35));
+  vec3 p = vec3(cos(a) * r, sin(a) * r * 0.62, aPolar.z * (1.0 - uSuck * 0.85));
+  vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  gl_PointSize = uSize * (0.5 + aSeed) / -mv.z;
+  vAlpha = 0.25 + 0.75 * uSuck;
+  gl_Position = projectionMatrix * mv;
 }
 `;

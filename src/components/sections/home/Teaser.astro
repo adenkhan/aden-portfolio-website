@@ -33,6 +33,12 @@ const lanes = ["creative", "data", "both"] as const;
 </section>
 
 <style>
+  /* While Convergence pins this section (r7) it fills the screen, so the pin end is reachable. */
+  .teaser:global(.is-converging) {
+    min-height: 100svh;
+    align-content: center;
+  }
+
   .teaser {
     display: grid;
     gap: 1.5rem;

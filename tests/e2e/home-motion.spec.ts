@@ -63,15 +63,62 @@ test("counting never shifts layout", async ({ page }) => {
   expect(await page.evaluate(() => (window as unknown as { __cls: number }).__cls)).toBeLessThan(0.01);
 });
 
-test("teaser: scrolling draws red and blue together into purple", async ({ page }) => {
+// Convergence scrub (r7): the section pins for 1.5 screens; the collision lands near the end.
+const pinTop = (page: Page) =>
+  page.evaluate(() => {
+    const st = (window as unknown as { ScrollTrigger?: unknown }).ScrollTrigger;
+    void st;
+    const spacer =
+      document.querySelector("[data-teaser]")!.closest(".pin-spacer") ??
+      document.querySelector("[data-teaser]")!;
+    return spacer.getBoundingClientRect().top + window.scrollY;
+  });
+
+test("teaser: the pinned scroll draws red and blue together into purple", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 2000 });
-  await page.locator("[data-collide]").evaluate((el) => el.scrollIntoView({ block: "start" }));
-  await expect.poll(() => opacityOf(page, "[data-orb='purple']"), { timeout: 3000 }).toBeGreaterThan(0.9);
+  await expect(page.locator(".pin-spacer [data-teaser]")).toHaveCount(1);
+  const top = await pinTop(page);
+  await page.evaluate(
+    (y) => window.__akLenis?.scrollTo(y, { immediate: true }) ?? window.scrollTo(0, y),
+    top + 1.5 * 900,
+  );
+  await expect.poll(() => opacityOf(page, "[data-orb='purple']"), { timeout: 4000 }).toBeGreaterThan(0.9);
   const redX = await page
     .locator("[data-orb='red']")
     .evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
   expect(redX).toBeGreaterThan(0);
+});
+
+test("teaser: resting mid-collision snaps to the start or the end", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 2000 });
+  await expect(page.locator(".pin-spacer [data-teaser]")).toHaveCount(1);
+  // Let fonts and the hero settle first: they move the pin's position.
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(500);
+  const middle = (await pinTop(page)) + 0.4 * 1.5 * 900;
+  await page.evaluate((y) => {
+    if (window.__akLenis) window.__akLenis.scrollTo(y, { immediate: true });
+    else window.scrollTo(0, y);
+  }, middle);
+  await page.evaluate(() => window.dispatchEvent(new Event("scroll")));
+  // Distance from the nearest end of the pin, measured live.
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() => {
+          const spacer = document.querySelector("[data-teaser]")!.closest(".pin-spacer")!;
+          const start = spacer.getBoundingClientRect().top + window.scrollY;
+          return Math.round(
+            Math.min(Math.abs(window.scrollY - start), Math.abs(window.scrollY - (start + 1350))),
+          );
+        }),
+      { timeout: 5000 },
+    )
+    .toBeLessThan(4);
 });
 
 test("character card tilts on hover (desktop)", async ({ page }) => {

@@ -554,3 +554,70 @@ The result is the hero: its number (or its whole line, when the result has no nu
   - The 3D camera starts flying to the destination's station on `astro:before-preparation` (the click), so the page and the camera move together.
   - Programmatic scroll jumps (focusing a case) go through Lenis (`window.__akLenis`, immediate), so smooth scroll never pulls the page back.
 - **Reduced motion.** None of this runs: no splits, no meters animating, no slams, wipes, cursor or magnet. The router disables view-transition animations. Every section shows its end state.
+
+## 16. Convergence (r7)
+
+The red and blue orb collision, rebuilt inside the persistent world as a 3D vortex with lightning. It replaces the flat intro collision (orbs sliding toward each other) and the flat scroll collision on Home. Code:
+- `src/components/world/convergence.ts`: the state and its timeline.
+- `lightning.ts`: the bolts.
+- `lens.ts`: the space bend, ripple and flash.
+- `scene.ts`: `applyConvergence`, `playConvergence`.
+
+The name is original; no franchise names anywhere.
+
+**The orbs (real 3D).** Each orb has three layers:
+- A bright inner core (an HDR-coloured sphere).
+- A translucent shell with a custom shader:
+  - fresnel rim glow;
+  - 3D simplex plasma swirling across the surface in a rotating frame;
+  - vertex displacement that grows with proximity (`uDisplace = charge`, up to 4×).
+- The outer additive halo.
+
+Red is creative, blue is data. Each orb drags its GPU trail: points sampling its last 40 positions, about 0.6 s at 60 fps, fading with age. That keeps the spiral visible as light streaks.
+
+**The vortex path.**
+- Orb A sits at centre + R(t)·(cos θ, sin θ·cos φ(t), sin θ·sin φ(t)) in the orbit plane, and the plane wobbles by ψ(t) on a second axis. Orb B is the same at θ + π.
+- θ runs three turns, each faster (`power2.in`), then 1.25 more while charging. R(t) shrinks ease-in from 1 to 0.3, then to 0.07 and 0.
+- The orbs pass in front of and behind each other, so perspective changes their size and brightness.
+- One GSAP timeline drives θ, R, φ and ψ, so it can be played, scrubbed or reversed.
+- **Space bends:** a screen-space lens around the projected midpoint pulls the image inward, scaled by `distortion`. Ambient particles (300, 600 or 900 by tier) are drawn into the spiral: their radius shrinks and their angular speed rises with `distortion` and `charge`.
+
+**The lightning.**
+- Each bolt is built by recursive midpoint displacement: 7 levels high, 6 medium, 4 low. Offsets halve as 0.55× per level, and random forks branch off at about 25% of segments.
+- Bolts are thick additive lines (`LineSegments2`), 1.2 + 3.2 × intensity px, lit by the bloom.
+- They regenerate every 50–90 ms, so they flicker. Buffers are rewritten in place, so no GPU allocation happens per bolt.
+- Bolts arc between the orbs (1–3) and from each orb into the space around it (up to 6). Count, thickness and opacity rise with proximity.
+- A major strike (a strong between-orb bolt at charge above 0.6, 30% of the time) fires a white-hot flash frame: a lens flash plus a bloom spike, decaying at 25/s.
+
+**The beats** (3.5 s autoplay):
+
+| Beat | Time | What happens |
+|---|---|---|
+| 1 Summon | 0–0.5 s | The orbs ignite left and right of the stage point (`summon`, `power2.out`) with a crackle of small sparks (bolts to 0.18 and back). Lenis is stopped for the whole intro (it holds the page). |
+| 2 Spiral | 0.5–2.2 s | The accelerating helix with trails. Lightning rises from sparse (0.45); distortion grows to 0.45; the shells charge. |
+| 3 Charge | 2.2–2.8 s | Nearly touching (R 0.07): lightning everywhere (1.0), distortion peaks (1.0), a slight camera shake and a slow dolly-in (0.9 units over 0.9 s). |
+| 4 Collapse | 2.8–3.1 s | They merge (0.1 s): a white flash (0.03 s up, 0.15 s down), then a purple flash. A 3D shockwave ring lying in the orbit plane, the burst particles, a screen-space ripple ring, and a chromatic aberration spike (0.012) easing out over 0.35 s. |
+| 5 Release | 3.1–3.5 s | The purple sphere pulses once (1.25×), surges toward the camera, and **tears the screen open**: a radial mask on the world canvas grows from the collision point (0.25 s) to reveal the hero underneath (the hero is HTML, the LCP element, rendered under the canvas all along). Lenis starts again when the intro ends. |
+
+**Intro rules kept:**
+- Skip and Esc work from the first frame.
+- It autoplays once per session.
+- It falls back to the 2D intro when the world isn't ready within 600 ms.
+
+The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
+
+**Scroll and Lenis coupling** (Home, CREATIVE · DATA · GROWTH).
+- The section pins (`start: top top`, `end: +=150%`, `scrub: 1`) and scrubs the same timeline from 0 to 3.25 s: up to the collapse and pulse, never the surge and tear. While pinned it's at least a full screen tall, so the end is reachable even though it's the last section.
+- Lenis velocity feeds the world each frame: scrolling faster spins the vortex faster (θ + velocity·dt·0.05) and adds lightning (up to +0.5); scrolling back up unwinds it.
+- The words flip in on the beats: CREATIVE at ignite, DATA mid-spiral, GROWTH on the collapse, with a swell.
+- When scrolling stops inside the pin (180 ms debounce), it settles at the start or the end through `lenis.scrollTo` (0.8 s), so it never rests half-collided.
+- Without a world, the DOM orbs play the same beats in 2D.
+
+**Quality tiers:**
+- High: 1,200 trail points per orb, bolts at 7 levels, the lens on.
+- Medium: 800 trail points, bolts at 6 levels, the lens on.
+- Low (phones): 600 trail points, bolts at 4 levels, **no distortion pass** (the flash comes from the bloom alone), and a 0.6× cast size so text stays readable.
+
+**Reduced motion.** No intro and no scrub. The Home still is a single frame of the merged purple sphere.
+
+**Recordings** (1440 px, software-rendered here, so the frame rate is lower than on a GPU): `docs/screens/round3/convergence-autoplay-1440.webm` and `convergence-scrubbed-1440.webm`.

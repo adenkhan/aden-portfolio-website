@@ -124,51 +124,92 @@ function cardTilt(ctx: MomentContext): (() => void) | void {
   };
 }
 
-/**
- * Scroll moment: red and blue converge into purple as the section scrolls through, and the three
- * words arrive with them (CREATIVE and DATA as the orbs close in, GROWTH on impact).
- */
 const flipFrom = { rotationX: -90, yPercent: 30, opacity: 0, transformOrigin: "50% 100%" };
 const flipTo = { rotationX: 0, yPercent: 0, opacity: 1 };
 
-function teaserCollision(): void {
-  const stage = document.querySelector<HTMLElement>("[data-collide]");
-  if (!stage) return;
+/**
+ * CREATIVE · DATA · GROWTH (r7, docs/MOTION.md §16). The section pins and scrubs Convergence in the
+ * 3D world (scrub 1): its progress goes to the world as ak:convergence-progress. The words flip in on
+ * the beats: CREATIVE as the orbs ignite, DATA mid-spiral, GROWTH on the collapse. Without a world
+ * (no WebGL) the DOM orbs below play the same beats in 2D. When scrolling stops inside the pin, it
+ * snaps to its start or end through Lenis, so it never rests half-collided.
+ */
+function teaserCollision(): (() => void) | void {
+  const section = document.querySelector<HTMLElement>("[data-teaser]");
+  const stage = section?.querySelector<HTMLElement>("[data-collide]");
+  if (!section || !stage) return;
   const red = stage.querySelector("[data-orb='red']");
   const blue = stage.querySelector("[data-orb='blue']");
   const purple = stage.querySelector("[data-orb='purple']");
   const words = gsap.utils.toArray<HTMLElement>("[data-teaser] [data-word]");
   gsap.registerPlugin(SplitText);
-  // Kinetic type (r5): each word's characters flip up in 3D as the orbs close in. The heading keeps
-  // its accessible name from aria-label, so the split characters are never read one by one.
+  // Kinetic type (r5): each word's characters flip up in 3D. The heading keeps its accessible name
+  // from aria-label, so the split characters are never read one by one.
   gsap.set(words, { perspective: 500 });
   const [creative, data, growth] = words.map(
     (word) => SplitText.create(word, { type: "chars", aria: "none" }).chars,
   );
-  // Red sits at 22% and blue at 78% of the stage; both travel to the centre (50%).
+  // A full screen tall while pinned, so the end of the pin is always reachable (it is the last section).
+  section.classList.add("is-converging");
+  const report = (progress: number) =>
+    window.dispatchEvent(new CustomEvent("ak:convergence-progress", { detail: { progress } }));
+
+  // Positions on a 0–1 scale that matches the world's Convergence (merge at 0.86 of the scrub).
   const toCentre = () => stage.clientWidth * 0.28;
   const apart = () => stage.clientWidth * 0.12;
-  gsap
+  const tl = gsap
     .timeline({
       defaults: { ease: "none" },
       scrollTrigger: {
-        trigger: stage,
-        // The teaser is the last section, so the end must be reachable at maximum scroll.
-        start: "top 95%",
-        end: "bottom 85%",
-        scrub: 0.6,
+        trigger: section,
+        start: "top top",
+        end: "+=150%",
+        pin: true,
+        scrub: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => report(self.progress),
+        onLeaveBack: () => report(0),
       },
     })
-    .fromTo(red, { x: () => -apart() }, { x: toCentre }, 0)
-    .fromTo(blue, { x: apart }, { x: () => -toCentre() }, 0)
-    .fromTo(purple, { scale: 0.4, opacity: 0 }, { scale: 1.15, opacity: 1, ease: "power2.in" }, 0.35)
-    .to([red, blue], { opacity: 0.3, scale: 0.85 }, 0.6)
-    .fromTo(creative, flipFrom, { ...flipTo, stagger: 0.03 }, 0.05)
-    .fromTo(data, flipFrom, { ...flipTo, stagger: 0.03 }, 0.2)
-    .fromTo(growth, flipFrom, { ...flipTo, stagger: 0.03 }, 0.5)
+    .fromTo(red, { x: () => -apart() }, { x: toCentre, duration: 0.7 }, 0.15)
+    .fromTo(blue, { x: apart }, { x: () => -toCentre(), duration: 0.7 }, 0.15)
+    .fromTo(
+      purple,
+      { scale: 0.4, opacity: 0 },
+      { scale: 1.15, opacity: 1, duration: 0.1, ease: "power2.in" },
+      0.84,
+    )
+    .to([red, blue], { opacity: 0.3, scale: 0.85, duration: 0.1 }, 0.84)
+    .fromTo(creative, flipFrom, { ...flipTo, duration: 0.12, stagger: 0.01 }, 0.04)
+    .fromTo(data, flipFrom, { ...flipTo, duration: 0.12, stagger: 0.01 }, 0.4)
+    .fromTo(growth, flipFrom, { ...flipTo, duration: 0.1, stagger: 0.008 }, 0.84)
     // Impact: GROWTH swells once as red and blue merge into purple.
-    .to(words[2], { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, transformOrigin: "50% 60%" }, 0.78);
+    .to(words[2], { scale: 1.08, duration: 0.04, yoyo: true, repeat: 1, transformOrigin: "50% 60%" }, 0.92)
+    .to({}, { duration: 0.01 }, 0.99);
+
+  // Snap: when scrolling stops inside the pin, settle at its start or end (never half-collided).
+  // lenis/snap was not used: its "mandatory" mode snaps the whole page and its "proximity" mode can
+  // leave the section resting mid-pin (docs/DECISIONS.md, r7).
+  const st = tl.scrollTrigger!;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const settle = () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const y = window.scrollY;
+      if (y <= st.start + 2 || y >= st.end - 2) return;
+      const target = st.progress < 0.5 ? st.start : st.end;
+      const lenis = window.__akLenis;
+      if (lenis) lenis.scrollTo(target, { duration: 0.8 });
+      else window.scrollTo({ top: target, behavior: "smooth" });
+    }, 180);
+  };
+  window.addEventListener("scroll", settle, { passive: true });
+  return () => {
+    clearTimeout(timer);
+    window.removeEventListener("scroll", settle);
+    section.classList.remove("is-converging");
+    report(0);
+  };
 }
 
 /** Home-only motion. Sets every hidden start state synchronously after the intro gate resolves. */
@@ -188,7 +229,8 @@ export async function home(ctx: MomentContext): Promise<(() => void) | void> {
     }
     const tilt = cardTilt(ctx);
     if (tilt) cleanups.push(tilt);
-    teaserCollision();
+    const convergence = teaserCollision();
+    if (convergence) cleanups.push(convergence);
     return () => cleanups.splice(0).forEach((fn) => fn());
   });
   return () => cleanups.splice(0).forEach((fn) => fn());

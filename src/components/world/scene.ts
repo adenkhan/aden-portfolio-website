@@ -32,7 +32,10 @@ import {
   VignetteEffect,
 } from "postprocessing";
 import { gsap } from "@/lib/motion/eases";
-import type { IntroStage, IntroState, StageGeometry } from "@/components/three/stage";
+import type { StageGeometry } from "@/components/three/stage";
+import { buildTimeline, CONVERGENCE_DURATION, initialState, SCROLL_END } from "./convergence";
+import { LensEffect } from "./lens";
+import { Lightning } from "./lightning";
 import { FrameGovernor, settingsFor, type QualitySettings, type QualityTier } from "./quality";
 import * as S from "./shaders";
 
@@ -81,6 +84,7 @@ class Orb {
   targetScale = 1;
   opacity = 1;
   private readonly sphere: Mesh<IcosahedronGeometry, ShaderMaterial>;
+  private readonly core: Mesh<IcosahedronGeometry, MeshBasicMaterial>;
   private readonly halo: Mesh<PlaneGeometry, ShaderMaterial>;
   private readonly trail: Points<BufferGeometry, ShaderMaterial>;
   private readonly heads: Vector3[];
@@ -96,9 +100,12 @@ class Orb {
         uColor: { value: colour.clone() },
         uIntensity: { value: 1.3 },
         uOpacity: { value: 1 },
+        uDisplace: { value: 0 },
+        uPlasma: { value: 0.35 },
       },
       transparent: true,
       premultipliedAlpha: true,
+      depthWrite: false,
     });
     this.sphere = new Mesh(new IcosahedronGeometry(ORB_RADIUS, Math.round(q.orbDetail / 4)), sphereMaterial);
     this.halo = new Mesh(
@@ -112,7 +119,18 @@ class Orb {
         transparent: true,
       }),
     );
-    this.group.add(this.halo, this.sphere);
+    // Layered (r7): a bright inner core seen through the translucent plasma shell, inside the halo.
+    this.core = new Mesh(
+      new IcosahedronGeometry(ORB_RADIUS * 0.42, 2),
+      new MeshBasicMaterial({
+        color: colour.clone().multiplyScalar(2.6),
+        transparent: true,
+        depthWrite: false,
+      }),
+    );
+    this.core.renderOrder = 0;
+    this.sphere.renderOrder = 1;
+    this.group.add(this.halo, this.core, this.sphere);
 
     this.heads = Array.from({ length: S.TRAIL_LENGTH }, () => new Vector3());
     const count = withTrail ? q.trail : 0;
@@ -153,6 +171,13 @@ class Orb {
     return this.trail;
   }
 
+  /** Convergence: displacement and plasma grow as the orbs close in (0–1). */
+  setCharge(charge: number) {
+    const u = this.sphere.material.uniforms;
+    u.uDisplace.value = charge;
+    u.uPlasma.value = 0.35 + 0.65 * charge;
+  }
+
   setTrailCount(count: number) {
     this.trail.geometry.setDrawRange(0, count);
   }
@@ -169,10 +194,12 @@ class Orb {
     }
     const s = Math.max(this.scale, 0.0001);
     this.sphere.scale.setScalar(s);
+    this.core.scale.setScalar(s);
     this.halo.scale.setScalar(s);
     this.halo.quaternion.copy(camera.quaternion);
     const visible = this.scale > 0.01 && this.opacity > 0.01;
-    this.sphere.visible = this.halo.visible = visible;
+    this.sphere.visible = this.halo.visible = this.core.visible = visible;
+    this.core.material.opacity = this.opacity;
     this.sphere.material.uniforms.uTime.value = time;
     this.sphere.material.uniforms.uOpacity.value = this.opacity;
     this.halo.material.uniforms.uOpacity.value = this.opacity;
@@ -198,6 +225,8 @@ export interface WorldDebug {
   running: boolean;
   geometries: number;
   textures: number;
+  convergence: "off" | "intro" | "scroll";
+  convergenceProgress: number;
 }
 
 /**
@@ -258,8 +287,24 @@ export class World {
   private skillsMix = 0;
   private pathT = 0;
   private readonly pointer = new Vector2();
-  private intro: IntroState | null = null;
-  private introGeometry: StageGeometry | null = null;
+
+  // Convergence (r7): one timeline over one state, autoplayed by the intro or scrubbed by scroll.
+  private readonly conv = initialState();
+  private readonly convTl = buildTimeline(this.conv);
+  private convMode: "off" | "intro" | "scroll" = "off";
+  private convStage: StageGeometry | null = null;
+  private convHandlers: { reveal: () => void; complete: () => void } | null = null;
+  private convRevealed = false;
+  private readonly lightning: Lightning;
+  private readonly swirl: Points<BufferGeometry, ShaderMaterial>;
+  private lens: LensEffect | null = null;
+  private lensPass: EffectPass | null = null;
+  private swirlPhase = 0;
+  private velPhase = 0;
+  private vel = 0;
+  private strike = 0;
+  /** Reduced motion: the Home still shows the merged purple sphere. */
+  stillMode = false;
 
   private time = 0;
   private last = 0;
@@ -341,9 +386,24 @@ export class World {
     this.burst = this.makeBurst(q.tier === "low" ? 120 : 220, dpr);
     this.scene.add(this.burst);
 
+    // Convergence: lightning (subdivision depth by tier) and the ambient particles it draws in.
+    this.lightning = new Lightning(
+      q.tier === "low" ? 4 : q.tier === "medium" ? 6 : 7,
+      new Vector2(innerWidth, innerHeight),
+    );
+    this.scene.add(this.lightning.group);
+    this.swirl = this.makeSwirl(q.tier === "low" ? 300 : q.tier === "medium" ? 600 : 900, dpr);
+    this.scene.add(this.swirl);
+
     // Post: bloom, film grain and a vignette in one pass; chromatic aberration in its own pass.
     this.composer = new EffectComposer(this.renderer, { frameBufferType: HalfFloatType });
     this.composer.addPass(new RenderPass(this.scene, this.camera));
+    // Space bend around the vortex (r7). Phones (low tier) skip it; their flash comes from the bloom.
+    if (q.tier !== "low") {
+      this.lens = new LensEffect();
+      this.lensPass = new EffectPass(this.camera, this.lens);
+      this.composer.addPass(this.lensPass);
+    }
     this.bloom = new BloomEffect({
       intensity: 1.1,
       luminanceThreshold: 0.12,
@@ -377,6 +437,8 @@ export class World {
       running: this.running,
       geometries: info.memory.geometries,
       textures: info.memory.textures,
+      convergence: this.convMode,
+      convergenceProgress: this.convTl.progress(),
     };
   }
 
@@ -717,6 +779,12 @@ export class World {
     for (const f of this.formations) f.geometry.setDrawRange(0, q.formation);
     this.bloom.resolution.scale = q.bloomScale;
     this.applyAberration(q.aberration);
+    this.lightning.setDepth(tier === "low" ? 4 : tier === "medium" ? 6 : 7);
+    if (tier === "low" && this.lensPass) {
+      this.composer.removePass(this.lensPass);
+      this.lensPass = null;
+      this.lens = null;
+    }
     this.resize();
     this.host.dataset.quality = tier;
   }
@@ -739,25 +807,170 @@ export class World {
     this.composer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.lightning.setResolution(w * this.dpr(), h * this.dpr());
     if (!this.running) this.renderStill();
   }
 
-  /** The Home intro draws through the world (docs/MOTION.md §8): a stage the intro timeline drives. */
-  introStage(g: StageGeometry): IntroStage {
-    this.introGeometry = g;
-    const pxPerUnit = 1 / this.unitsPerPixel(DEPTH);
-    return {
-      mode: "3d",
-      orbSize: ORB_RADIUS * 2 * pxPerUnit * 1.4,
-      render: (state) => {
-        this.intro = state;
-      },
-      dispose: () => {
-        this.intro = null;
-        this.introGeometry = null;
-        this.shock.ring = this.shock.ringOpacity = this.shock.burst = 0;
-      },
-    };
+  /**
+   * The Home intro (r7): Convergence autoplays at the stage point. `reveal` fires at the tear
+   * (3.25 s), `complete` at the end (3.5 s). The returned stop() ends it early (Skip, Esc).
+   */
+  playConvergence(g: StageGeometry, on: { reveal: () => void; complete: () => void }) {
+    this.convStage = g;
+    this.convMode = "intro";
+    this.convHandlers = on;
+    this.convRevealed = false;
+    this.convTl.eventCallback("onComplete", () => {
+      const done = this.convHandlers;
+      this.endConvergence();
+      done?.complete();
+    });
+    this.convTl.restart();
+    this.lastInput = performance.now();
+    return { stop: () => this.endConvergence() };
+  }
+
+  private endConvergence() {
+    this.convTl.eventCallback("onComplete", null);
+    this.convTl.pause();
+    this.convMode = "off";
+    this.convHandlers = null;
+    this.convStage = null;
+    this.lightning.hide();
+  }
+
+  /** Ambient particles that the vortex draws in. */
+  private makeSwirl(count: number, dpr: number) {
+    const r = rand(77);
+    const polar = new Float32Array(count * 3);
+    const seeds = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      polar.set([1.2 + r() * 3.4, r() * Math.PI * 2, (r() - 0.5) * 2.4], i * 3);
+      seeds[i] = r();
+    }
+    const geometry = new BufferGeometry();
+    geometry.setAttribute("position", new Float32BufferAttribute(new Float32Array(count * 3), 3));
+    geometry.setAttribute("aPolar", new Float32BufferAttribute(polar, 3));
+    geometry.setAttribute("aSeed", new Float32BufferAttribute(seeds, 1));
+    const points = new Points(
+      geometry,
+      new ShaderMaterial({
+        vertexShader: S.SWIRL_VERTEX,
+        fragmentShader: S.POINT_FRAGMENT,
+        uniforms: {
+          uPhase: { value: 0 },
+          uSuck: { value: 0 },
+          uSize: { value: 46 * dpr },
+          uColor: { value: COLOURS.growth.clone().multiplyScalar(1.3) },
+          uOpacity: { value: 0 },
+        },
+        blending: AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+      }),
+    );
+    points.frustumCulled = false;
+    points.visible = false;
+    return points;
+  }
+
+  /**
+   * Applies the Convergence state: the decaying, precessing double helix, the merge, lightning,
+   * the space bend, camera shake and dolly, and the collapse. Orb A sits at
+   * centre + R·(cos θ, sin θ·cos φ, sin θ·sin φ) in the orbit plane (wobbled by ψ); orb B at θ + π.
+   */
+  private applyConvergence(dt: number, centre: Vector3, r0: number, size: number) {
+    const c = this.conv;
+    const cam = this.camera;
+    const right = new Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
+    const up = new Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
+    const back = new Vector3(0, 0, 1).applyQuaternion(cam.quaternion);
+    const cp = Math.cos(c.psi);
+    const sp = Math.sin(c.psi);
+    const e1 = right.clone().multiplyScalar(cp).addScaledVector(back, sp);
+    const e3 = back.clone().multiplyScalar(cp).addScaledVector(right, -sp);
+    const theta = c.theta + this.velPhase;
+    const radius = c.radius * r0;
+    const at = (angle: number) =>
+      centre
+        .clone()
+        .addScaledVector(e1, Math.cos(angle) * radius)
+        .addScaledVector(up, Math.sin(angle) * Math.cos(c.phi) * radius)
+        .addScaledVector(e3, Math.sin(angle) * Math.sin(c.phi) * radius);
+    this.red.target.copy(at(theta));
+    this.blue.target.copy(at(theta + Math.PI));
+    this.red.targetScale = this.blue.targetScale = c.summon * (1 - c.merge) * size;
+    this.red.opacity = this.blue.opacity = Math.min(1, c.summon * 1.2);
+    this.red.setCharge(c.charge);
+    this.blue.setCharge(c.charge);
+    // Purple: pulses once, then surges toward the camera (the intro's release).
+    this.purple.target.copy(centre).lerp(cam.position, c.surge * 0.8);
+    this.purple.targetScale = c.merge * 1.4 * size * (1 + 0.25 * c.pulse) * (1 + c.surge * 3);
+    this.purple.opacity = c.merge;
+    this.purple.setCharge(c.merge * (1 - c.surge));
+
+    // Camera: a slow dolly-in and a slight shake while charging (the centre stays where it was).
+    const toCentre = this.tmp.copy(centre).sub(cam.position).normalize();
+    cam.position.addScaledVector(toCentre, c.dolly * 0.9);
+    if (c.shake > 0)
+      cam.position.add(
+        new Vector3(Math.random() - 0.5, Math.random() - 0.5, 0).multiplyScalar(c.shake * 0.06),
+      );
+    cam.updateMatrixWorld();
+
+    // Lightning: more and thicker bolts as they close in; scroll speed adds more.
+    const boost = this.convMode === "scroll" ? Math.min(0.5, Math.abs(this.vel) / 60) : 0;
+    this.lightning.update(
+      performance.now(),
+      this.red.group.position,
+      this.blue.group.position,
+      Math.min(1, c.bolts + boost * c.summon),
+      r0 * 1.2,
+    );
+    this.strike = Math.max(this.strike * Math.exp(-dt * 25), this.lightning.strike);
+    this.lightning.strike = 0;
+
+    // The surrounding particles get drawn into the spiral.
+    const sw = this.swirl.material.uniforms;
+    this.swirlPhase += dt * (0.4 + c.bolts * 3 + Math.abs(this.vel) * 0.04);
+    sw.uPhase.value = this.swirlPhase;
+    sw.uSuck.value = Math.min(1, c.distortion * 0.9 + c.charge * 0.2);
+    sw.uOpacity.value = c.summon * (1 - c.merge);
+    this.swirl.visible = sw.uOpacity.value > 0.01;
+    this.swirl.position.copy(centre);
+    this.swirl.quaternion.copy(cam.quaternion);
+    this.swirl.scale.setScalar(r0 / 1.7);
+
+    // Collapse: a shockwave ring lying in the orbit plane (a real 3D ring) and the burst.
+    const sh = this.shock;
+    sh.centre.copy(centre);
+    sh.ring = (0.15 + c.ring * 3.2) * r0;
+    sh.ringOpacity = c.ring > 0 && c.ring < 1 ? 1 - c.ring : 0;
+    sh.burst = c.ring;
+    const normal = e1
+      .clone()
+      .cross(up.clone().multiplyScalar(Math.cos(c.phi)).addScaledVector(e3, Math.sin(c.phi)));
+    this.ring.position.copy(centre);
+    this.ring.lookAt(centre.clone().add(normal));
+
+    // Post: bloom carries the flashes and strikes; aberration spikes on the collapse; space bends.
+    this.bloom.intensity = 1.1 + c.bolts * 1.3 + c.flashWhite * 5 + c.flashPurple * 2.5 + this.strike * 1.5;
+    this.aberration.offset.set(0.0006 + c.aberration * 0.012, 0.0004 + c.aberration * 0.008);
+    if (this.lens) {
+      const v = centre.clone().project(cam);
+      const w = this.host.clientWidth || innerWidth;
+      const h = this.host.clientHeight || innerHeight;
+      this.lens.set({
+        centre: new Vector2((v.x + 1) / 2, (v.y + 1) / 2),
+        strength: c.distortion,
+        ripple: c.ripple * 0.7,
+        rippleAmp: c.ripple > 0 && c.ripple < 1 ? (1 - c.ripple) * 0.05 : 0,
+        aspect: w / h,
+        flash: new Vector3(1, 1, 1)
+          .multiplyScalar(c.flashWhite * 0.9 + this.strike * 0.25)
+          .add(new Vector3(0.65, 0.48, 1).multiplyScalar(c.flashPurple * 0.45)),
+      });
+    }
   }
 
   /** A purple flash, shockwave and burst at a viewport point (the contact form send). */
@@ -842,7 +1055,6 @@ export class World {
     const upp = this.unitsPerPixel(DEPTH);
     let rx = mobile ? 0.85 : 1.25;
     let ry = rx * 0.45;
-    let shockFromScroll = false;
 
     switch (this.station) {
       case "home": {
@@ -860,29 +1072,9 @@ export class World {
           rx = 0.42;
           ry = 0.2;
         } else this.anchor(vw * 0.72, vh * 0.45, DEPTH, centre);
-        const hero = centre.clone();
-        if (!mobile) hero.add(new Vector3(this.pointer.x * 0.9, this.pointer.y * 0.6, 0));
-        const tp = input.teaserProgress;
-        const blend = smoothstep(0.05, 0.6, tp);
-        if (input.teaser && blend > 0) {
-          const teaser = new Vector3();
-          this.rectAnchor(input.teaser, teaser);
-          hero.lerp(teaser, blend);
-        }
-        centre.copy(hero);
-        const close = smoothstep(0.35, 0.8, tp);
-        rx *= 1 - close;
-        ry *= 1 - close;
-        merge = smoothstep(0.7, 0.85, tp);
-        // Scroll-scrubbed collision: the shockwave tracks scroll, so scrolling back un-collides.
-        const wave = smoothstep(0.78, 1, tp);
-        if (wave > 0 && wave < 1 && !this.flash?.isActive()) {
-          shockFromScroll = true;
-          this.shock.centre.copy(centre);
-          this.shock.ring = 0.1 + wave * 2.5;
-          this.shock.ringOpacity = 1 - wave;
-          this.shock.burst = wave;
-        }
+        if (!mobile) centre.add(new Vector3(this.pointer.x * 0.9, this.pointer.y * 0.6, 0));
+        // Reduced motion: the still is the merged purple sphere (the end of Convergence).
+        if (this.stillMode) merge = 1;
         break;
       }
       case "about":
@@ -934,32 +1126,48 @@ export class World {
     this.purple.targetScale = orbScale * merge * 1.3 * size;
     this.red.opacity = this.blue.opacity = this.purple.opacity = 1;
 
-    // The intro overrides the cast: its timeline drives positions, scale and opacity directly.
-    const intro = this.intro;
-    const g = this.introGeometry;
-    let introSnap = false;
-    if (intro && g) {
-      introSnap = true;
-      this.anchor(intro.redX, intro.redY, DEPTH, this.red.target);
-      this.anchor(intro.blueX, intro.blueY, DEPTH, this.blue.target);
-      this.red.targetScale = this.blue.targetScale = intro.orbScale;
-      this.red.opacity = this.blue.opacity = intro.orbOpacity;
-      this.anchor(g.x, g.y, DEPTH, this.purple.target);
-      this.purple.targetScale = intro.coreScale * 1.4;
-      this.purple.opacity = intro.coreOpacity;
-      this.shock.centre.copy(this.purple.target);
-      const ringPx = Math.max(g.width, g.height) * 0.35;
-      this.shock.ring = intro.ringScale * ringPx * upp * 0.5;
-      this.shock.ringOpacity = intro.ringOpacity;
-      this.shock.burst = intro.burst;
-      this.bloom.intensity = 0.8 + intro.bloom * 2.4;
-      this.aberration.offset.set(0.0006 + intro.aberration, 0.0004 + intro.aberration * 0.6);
+    // Convergence (r7). The intro autoplays it; on Home the CREATIVE · DATA · GROWTH section scrubs it.
+    const lenis = (window as unknown as { __akLenis?: { velocity: number } }).__akLenis;
+    this.vel += ((lenis?.velocity ?? 0) - this.vel) * (snap ? 1 : damp(6, dt));
+    if (this.convMode !== "intro") {
+      const scrubbing =
+        this.station === "home" && !this.stillMode && !!input.teaser && input.teaserProgress > 0.001;
+      if (scrubbing) {
+        this.convMode = "scroll";
+        this.convTl.progress((input.teaserProgress * SCROLL_END) / CONVERGENCE_DURATION);
+        // Scrolling faster spins the vortex faster; scrolling back unwinds it.
+        this.velPhase += this.vel * dt * 0.05;
+      } else if (this.convMode === "scroll") {
+        this.convMode = "off";
+        this.lightning.hide();
+      }
+    }
+    const conv = this.convMode !== "off";
+    if (conv) {
+      let r0 = mobile ? 0.9 : 1.7;
+      if (this.convMode === "intro" && this.convStage) {
+        this.anchor(this.convStage.x, this.convStage.y, DEPTH, centre);
+      } else {
+        const rect = this.rectAnchor(input.teaser, centre);
+        if (rect) r0 = Math.min(2.2, Math.max(0.8, rect.width * upp * 0.32));
+      }
+      this.applyConvergence(dt, centre, r0, mobile ? 0.6 : 1);
+      if (this.convMode === "intro" && !this.convRevealed && this.convTl.time() >= 3.25) {
+        this.convRevealed = true;
+        this.convHandlers?.reveal();
+      }
     } else {
+      this.red.setCharge(0);
+      this.blue.setCharge(0);
+      this.purple.setCharge(merge);
       this.bloom.intensity = 1.1;
       this.aberration.offset.set(0.0006, 0.0004);
+      this.lens?.set({ strength: 0, rippleAmp: 0, flash: new Vector3() });
+      this.swirl.visible = false;
+      this.strike = 0;
     }
 
-    for (const orb of [this.red, this.blue, this.purple]) orb.update(dt, t, this.camera, snap || introSnap);
+    for (const orb of [this.red, this.blue, this.purple]) orb.update(dt, t, this.camera, snap || conv);
 
     // About path and nodes.
     const pathMesh = this.pathMesh;
@@ -1026,12 +1234,12 @@ export class World {
 
     // Shockwave (intro, scroll collision or a send burst).
     const s = this.shock;
-    if (!intro && !shockFromScroll && !this.flash?.isActive()) {
+    if (!conv && !this.flash?.isActive()) {
       s.ringOpacity = 0;
       s.burst = 0;
     }
     this.ring.position.copy(s.centre);
-    this.ring.quaternion.copy(this.camera.quaternion);
+    if (!conv) this.ring.quaternion.copy(this.camera.quaternion);
     this.ring.scale.setScalar(Math.max(s.ring, 0.0001));
     this.ring.material.uniforms.uOpacity.value = s.ringOpacity;
     this.ring.visible = s.ringOpacity > 0.01;
@@ -1056,7 +1264,7 @@ export class World {
     this.raf = requestAnimationFrame(this.loop);
     const dt = Math.min((now - (this.last || now)) / 1000, 0.05);
     // Low tier: 30 fps while idle (no scroll, pointer or transition for 2.5 s), 60 otherwise.
-    const idle = now - this.lastInput > 2500 && !this.intro && !this.flash?.isActive();
+    const idle = now - this.lastInput > 2500 && this.convMode === "off" && !this.flash?.isActive();
     const capped = this.quality.idleCap && idle;
     if (capped && now - this.last < 1000 / 30 - 2) return;
     this.last = now;

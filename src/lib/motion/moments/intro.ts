@@ -46,6 +46,7 @@ export async function runIntro(): Promise<void> {
   // The persistent world's host: in 3D mode the intro plays on its canvas, raised above the page.
   const worldHost = document.querySelector<HTMLElement>("[data-world]");
   let worldMode = false;
+  let convergence: { stop: () => void } | null = null;
   let revealed = false;
   let finished = false;
 
@@ -64,7 +65,9 @@ export async function runIntro(): Promise<void> {
     root.classList.remove("intro", "intro-running", "intro-skipped", "intro-world");
     if (worldMode && worldHost) {
       // The world drops back behind the page and fades in there, now as the ambient scene.
-      done?.dispose();
+      convergence?.stop();
+      worldHost.style.removeProperty("mask-image");
+      worldHost.style.removeProperty("-webkit-mask-image");
       gsap.fromTo(
         worldHost,
         { opacity: 0 },
@@ -93,6 +96,7 @@ export async function runIntro(): Promise<void> {
     reveal(skipped);
     if (skipped) {
       overlay.style.pointerEvents = "none";
+      convergence?.stop();
       if (worldMode && worldHost) gsap.to(worldHost, { opacity: 0, duration: 0.15, ease: "ui-out" });
       gsap.to(overlay, { opacity: 0, duration: 0.15, ease: "ui-out", onComplete: cleanUp });
     } else {
@@ -133,15 +137,34 @@ export async function runIntro(): Promise<void> {
     if (wants3d()) {
       const world = await withTimeout(worldReady, WORLD_TIMEOUT_MS).catch(() => null);
       if (world && !finished && worldHost) {
-        stage = world.introStage(g);
+        // Convergence (r7, docs/MOTION.md §16): the world plays the whole 3.5 s sequence. At the
+        // release it tears the screen open (a radial mask growing from the collision point) to
+        // reveal the hero underneath, which is real HTML and the LCP element all along.
         worldMode = true;
         root.classList.add("intro-world");
+        root.dataset.introMode = "3d";
+        const host = worldHost;
+        const tear = () => {
+          overlay.style.pointerEvents = "none";
+          const hole = { r: 0 };
+          const far = Math.hypot(g.width, g.height);
+          gsap.to(hole, {
+            r: far,
+            duration: 0.25,
+            ease: "power2.in",
+            onUpdate: () => {
+              const mask = `radial-gradient(circle at ${g.x}px ${g.y}px, transparent ${hole.r}px, #000 ${hole.r + 60}px)`;
+              host.style.setProperty("mask-image", mask);
+              host.style.setProperty("-webkit-mask-image", mask);
+            },
+          });
+          reveal(false);
+        };
+        convergence = world.playConvergence(g, { reveal: tear, complete: () => finish(false) });
+        return;
       }
     }
-    if (finished) {
-      stage?.dispose();
-      return;
-    }
+    if (finished) return;
     stage ??= create2dStage(stageHost, g);
     root.dataset.introMode = stage.mode;
 
