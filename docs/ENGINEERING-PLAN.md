@@ -4,9 +4,9 @@
 
 **Goal:** a static, four-page Astro portfolio for Aden Khan that passes the course rubric, reads perfectly without JavaScript, and layers the motion system from `docs/MOTION.md` on top.
 
-**Architecture:** Astro static output (multi-page, no client router). Pages are `.astro` components fed by typed data files; interactivity is small bundled `<script>` modules, not React, unless a component can only exist in React. Motion is one module (`src/lib/motion`) that boots per page; 3D is a lazy chunk used only by the intro and the CV burst.
+**Architecture:** Astro static output (multi-page, no client router). Pages are `.astro` components fed by typed data files; interactivity is small bundled `<script>` modules, not React, unless a component can only exist in React. Motion is one module (`src/lib/motion`) that boots per page. ~~3D is a lazy chunk used only by the intro and the CV burst.~~ Round 2: 3D is a core, persistent WebGL scene behind every page (see "Round 2 rules" and §6).
 
-**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy, optional enhancement), @tsparticles/slim 4.5.0 (stretch goal only), Playwright, Netlify.
+**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy; core from Round 2), custom GLSL, @react-three/fiber, @react-three/drei and @react-three/postprocessing (allowed from r1; installed by the prompt that first uses them), @tsparticles/slim 4.5.0, Playwright, Netlify.
 
 **Spec:** `docs/00-design-plan.md` (copy, SEO table, wireframe), `docs/01-brief.md` (success criteria), `DESIGN.md` (tokens, components), `docs/MOTION.md` (motion), `CLAUDE.md` (non-negotiables). Read the relevant one before each milestone.
 
@@ -16,14 +16,35 @@ Copied from the spec; every milestone includes them.
 - All meaningful text is real HTML, never baked into images or canvas. The site is fully readable with JavaScript disabled.
 - Every page: unique `<title>`, meta description, exactly one H1 containing a target keyword, Open Graph tags, canonical URL. Title, description and H1 values come verbatim from the SEO table in `docs/00-design-plan.md` §5.
 - Every image has descriptive alt text; decorative images use `alt=""`.
-- `prefers-reduced-motion: reduce`: no intro, no parallax, no large movement.
+- `prefers-reduced-motion: reduce`: no intro, no parallax, no large movement; static versions of every effect. This is the only setting that makes an effect static.
 - Works at 360px wide with no horizontal scroll. Body text ≥ 16px. Tap targets ≥ 44px.
 - Intro: under 3 s, once per browser session (`sessionStorage["ak.intro"]`), Skip visible from the first frame, Esc skips.
 - Hero image is the illustrated avatar (no photo). No franchise characters, logos, names or named techniques.
 - Facts only from `docs/cv-source.md`. The phone number never appears on the site.
-- Budgets: mobile Lighthouse Performance ≥ 85, SEO ≥ 95, Accessibility ≥ 95, Best Practices ≥ 95; LCP < 2.5 s, CLS < 0.1, INP < 200 ms; first-load JS < 150 KB gzip excluding lazy 3D (three and postprocessing) only.
+- Budgets (Round 2):
+  - Lighthouse Performance: desktop ≥ 75, mobile ≥ 65.
+  - Lighthouse SEO ≥ 95, Accessibility ≥ 95, Best Practices ≥ 95.
+  - LCP < 2.5 s, CLS < 0.1, INP < 200 ms.
+  - Entry (first-load) JS < 150 KB gzip. Lazily loaded 3D and visual chunks have no size limit.
+  - The first paint shows real HTML text.
+  - Before r1 the targets were mobile Performance ≥ 85, with lazy chunks counted in the 150 KB.
+- Word budgets (Round 2), counting visible words in `<main>`: Home ≤ 80, About ≤ 160, Work ≤ 60 per case study, Contact ≤ 40. Each fact appears once on the site; BBA/IBA only in the About education chip (plus meta and JSON-LD).
 - Deploy to Netlify (GitHub Pages as backup). Never Vercel.
 - Definition of done (CLAUDE.md §7): `astro check` and `npm run build` pass, no console errors, checked at 375px and 1440px, reduced motion checked, docs updated, one commit per milestone (`pNN: <name>`).
+
+## Round 2 rules (r1, 2026-11-02)
+The p08–p16 build passed its gates but failed the owner's vision. The evidence and the rule behind every cut are in `docs/audits/round2-baseline.md`. From r1 on, the rules below override the rest of this plan where they conflict. Their canonical text is in `CLAUDE.md` §4a and `docs/MOTION.md` §0.
+
+1. **Visual first, with word budgets.** Each section leads with a visual or motion moment. Add a test, owned by the first Round 2 page prompt, that counts visible words in `<main>` per page and per `[data-case-study]`, and fails over budget.
+2. **Each fact once.** Add a test that reads the built HTML's visible text and fails when a registered fact appears more than once: "BBA", "IBA" outside the education chip, "72%", "40%", "7,000", the availability line and employer names. Meta, JSON-LD and the CV dialog are excluded.
+3. **3D core and persistent.** A single WebGL scene sits behind every page. It mounts once per page load, is fixed and full-viewport at `z-index` below content, and ignores pointer events except for the regions R3 defines. R3 decides between:
+   - (a) adopting Astro `<ClientRouter />` with `transition:persist` on the canvas, so the scene survives navigation;
+   - (b) keeping MPA navigation and restoring the scene's state per page.
+
+   The recommended choice is (a), because rebuilding a WebGL context on every navigation flashes and costs 100–300 ms. Choosing (a) reopens ADR-001, and the decision must be logged.
+4. **Lower quality, never remove.** Quality tiers set DPR, counts, shader variant, postprocessing resolution and idle frame rate. No tier other than `reduced` (static) and "no usable WebGL" (2D or poster) may skip an effect.
+5. **Budgets.** See "Global constraints". Update `scripts/check-budget.mjs` in R3 or earlier so that it measures entry chunks only against 150 KB and reports lazy chunk sizes without failing. Lighthouse desktop ≥ 75 and mobile ≥ 65 become the performance gate.
+6. **Libraries.** R3F, drei and `@react-three/postprocessing` are allowed; ADR-002's "no required islands" no longer binds the 3D scene. A React root that exists only for the canvas may load lazily (`client:only="react"` or a dynamic import) as long as the entry JS stays under 150 KB.
 
 ## Review focus
 Inputs the spec implies but no happy-path test covers. Each has a test in the milestone that owns the code.
@@ -71,9 +92,9 @@ graph TD
 `client:load` and `client:idle` are not used: nothing above the fold needs React, and idle hydration would still count toward first load on Home.
 
 ### Architecture decisions (ADR summaries)
-**ADR-001 Static multi-page Astro, no `<ClientRouter />`.** Accepted. Context: the rubric needs four real pages; `docs/MOTION.md` chose native cross-document view transitions. Alternatives: Astro's ClientRouter (SPA-like transitions, persistent state) was rejected because it adds JS, forces every script to handle `astro:page-load` and `astro:before-swap` re-init and cleanup, and complicates Lenis, ScrollTrigger and the session-gated intro. Consequence: each navigation is a full document load; motion boots fresh per page; the browser crossfades with `@view-transition { navigation: auto; }`; unsupported browsers navigate instantly.
+**ADR-001 Static multi-page Astro, no `<ClientRouter />`.** Accepted. Context: the rubric needs four real pages; `docs/MOTION.md` chose native cross-document view transitions. Alternatives: Astro's ClientRouter (SPA-like transitions, persistent state) was rejected because it adds JS, forces every script to handle `astro:page-load` and `astro:before-swap` re-init and cleanup, and complicates Lenis, ScrollTrigger and the session-gated intro. Consequence: each navigation is a full document load; motion boots fresh per page; the browser crossfades with `@view-transition { navigation: auto; }`; unsupported browsers navigate instantly. **Round 2 (r1): under review.** A persistent WebGL scene favours ClientRouter with `transition:persist`; R3 decides and logs it.
 
-**ADR-002 No required React islands.** Accepted. Context: 150 KB first-load budget, about 45–60 KB of which React would take. Alternative: building sections in React for convenience. Consequence: interactivity is vanilla TypeScript; React appears only for registry components, always deferred.
+**ADR-002 No required React islands.** Accepted. Context: 150 KB first-load budget, about 45–60 KB of which React would take. Alternative: building sections in React for convenience. Consequence: interactivity is vanilla TypeScript; React appears only for registry components, always deferred. **Round 2 (r1): relaxed.** The persistent 3D scene may use React Three Fiber in a lazily loaded root; entry JS still stays under 150 KB.
 
 **ADR-003 Copy in typed TypeScript, not content collections.** Accepted. Context: four pages, fixed copy, no Markdown authoring. Alternative: Astro content collections with Zod. Rejected as more machinery than the content needs; plain `as const` objects with interfaces give type safety and one place to edit.
 
@@ -261,7 +282,9 @@ export function initMotion(page: PageId): MotionHandle;
 
 ## 6. 3D loading strategy
 
-- **Where:** Home intro, and the CV burst (any page, since the CV button is in the nav). No other 3D.
+> **Round 2:** this section described the p08–p16 build. From r1 on, 3D is core on every page through a persistent scene (Round 2 rule 3). "Baseline first" and "kept only if budgets hold" no longer apply. `lite` devices get the 3D scene at lower quality, using the limits in the "Mobile `full` devices" bullet below. The 2D version is only for devices with no usable WebGL.
+
+- **Where (p08–p16):** Home intro, and the CV burst (any page, since the CV button is in the nav). ~~No other 3D.~~ Round 2 adds the persistent scene and page visuals.
 - **Capability check (`three/capability.ts`):** `canUseWebGL(): boolean` creates a throwaway canvas and requests `webgl2`, then `webgl`, with `failIfMajorPerformanceCaveat: true`; returns false on null or exception. 3D runs only when `tier === "full"` and this returns true.
 - **Loading:** `await import("@/components/three/intro-scene")`, which imports named members from `three` and `postprocessing` only (no `import * as THREE`). The intro import starts after first paint (`requestAnimationFrame` → `requestAnimationFrame`) and only when `html.intro` is set. The burst import starts on `pointerenter` or `focus` of any CV button, or on click if neither happened.
 - **Baseline first:** `three/orbs-2d.ts` (two radial-gradient elements and a CSS ring, transform and opacity only) is the intro and the CV burst on every tier, and is built first (p11, p12). The Three.js scenes are an enhancement for `full` tier, added only after the 2D version passes and kept only if Home still meets the §9 budgets. If the check fails, the tier is `lite`, or the import has not resolved within 600 ms, the 2D version runs.
@@ -289,12 +312,12 @@ export function initMotion(page: PageId): MotionHandle;
 
 | Metric | Target | How it is checked |
 |---|---|---|
-| Lighthouse mobile Performance | ≥ 85 | `npx lighthouse <url> --preset=perf --form-factor=mobile` against the Netlify preview, each route |
+| Lighthouse Performance (Round 2) | desktop ≥ 75, mobile ≥ 65 (was mobile ≥ 85) | `npx lighthouse <url> --preset=desktop` and `--form-factor=mobile`, against the Netlify preview, each route |
 | Lighthouse SEO / Accessibility / Best Practices | ≥ 95 each | same run, all categories |
 | LCP | < 2.5 s | Lighthouse (lab) on mobile throttling |
 | CLS | < 0.1 | Lighthouse; plus no shift from the intro, fonts, count-ups |
 | INP | < 200 ms | Lighthouse TBT as a proxy in the lab; real-device check on CV dialog and menu |
-| First-load JS | < 150 KB gzip, excluding three and postprocessing only (tsParticles counts if built) | `scripts/check-budget.mjs` after build: reads each `dist/**/*.html`, sums gzip size of its `<script type="module">` entries plus their static imports, exits 1 over budget |
+| First-load JS | Round 2: < 150 KB gzip for entry chunks only. Lazily loaded 3D and visual chunks are reported, not limited. (Was: < 150 KB including lazy chunks, excluding three and postprocessing.) | `scripts/check-budget.mjs` after build: reads each `dist/**/*.html`, sums gzip size of its `<script type="module">` entries plus their static imports, exits 1 over budget |
 
 Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor that fails a milestone.
 
@@ -471,9 +494,9 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 
 | Risk | Likelihood | Impact | Mitigation | Watched in |
 |---|---|---|---|---|
-| 3D intro hurts mobile performance | High | High | 2D version first for every tier; Three.js only as a `full`-tier enhancement kept if budgets hold; lazy chunk; 600 ms fallback; dispose after use | p11, p17 |
+| 3D hurts mobile performance | High | High | Round 2: lower quality, never remove. Use DPR caps, reduced counts, cheaper shaders, half-resolution postprocessing and a 30 fps idle cap on `lite`; pause off-screen; lazy chunks; the 2D version only without usable WebGL; gate on Lighthouse mobile ≥ 65. (Before r1: 3D was a `full`-only enhancement, kept only if budgets held.) | R3+ |
 | Intro hides the hero and delays LCP | Medium | High | Hidden states set after first paint and under the overlay only; avatar never at opacity 0; LCP measured with a cold session | p11, p13, p17 |
-| Motion scope misses the deadline | High | High | Cut order agreed in `docs/audits/docs-review.md`: pointer glow and Lottie cut, DrawSVG replaced, particles and 3D made optional | all |
+| Motion scope misses the deadline | High | High | Round 2: the effect list is not cut. Scope is controlled by quality levels and by building the persistent scene first, so page visuals reuse it. The p07 cut order in `docs/audits/docs-review.md` is void. | all |
 | Netlify subdomain `aden-khan-portfolio` already taken | Medium | Low | `SITE_URL` is one constant; p21 picks the next free name and updates it | p21 |
 | Avatar not original (IP) | Low | High | Owner confirms the avatar is original art they own before launch | p19 |
 | Motion makes text unreadable or delays it | Medium | High | H1s never hidden in HTML; no typing of real content; reduced-motion and no-JS tests | p10, p20 |

@@ -304,3 +304,32 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Rejected guideline suggestions: Title Case headings and second-person copy (DESIGN.md and the brief govern); `translate="no"` deferred.
 - Decision: The teaser orbs and the card pointer light stay, though impeccable flags them as purple halos; they are the brand concept and DESIGN.md allows glow in those places.
 - Source: p16, `docs/audits/ui.md`.
+
+## 2026-11-02 — Round 2: new rules (r1)
+- Why: The p16 site passed every gate but failed the owner's vision: too text heavy, generic and repetitive copy, case studies that are single lines, and almost no 3D or animated visuals. `docs/audits/round2-baseline.md` measured it:
+  - Home has 87 visible words, About 224 and Contact 54.
+  - −72% CAC, +40% and BBA/IBA each appear on three or four pages.
+  - Every 3D and motion cut traces to three rules: the 150 KB budget that counted lazy chunks, "loud in two places, restrained everywhere else", and "3D is an optional enhancement kept only if budgets hold".
+- Decision: **Visual first.** Every section leads with a visual or motion moment; text is a caption. Word budgets (visible words in `<main>`): Home ≤ 80, About ≤ 160, Work ≤ 60 per case study, Contact ≤ 40.
+- Decision: **Each fact once on the whole site.** BBA/IBA appears only in the About education chip, plus meta tags and JSON-LD. Ruling: the CV dialog is exempt, like meta, because it previews the CV PDF only when asked. Cost if wrong: one more place to trim.
+- Decision: **3D is a core feature on every page**, not progressive enhancement. A persistent WebGL scene runs behind the site (built in R3).
+- Decision: **Performance work may lower quality** (pixel ratio, particle counts, shader detail, postprocessing resolution, idle frame rate) **but may not remove an effect.** Mobile and `lite` get a lighter version of every effect; only `prefers-reduced-motion` gets static versions.
+- Ruling: a device with no usable WebGL still gets the 2D or static version. That is a capability limit, not a performance cut. Cost if wrong: none; those devices can't draw the 3D.
+- Decision: **New budgets.**
+  - Lighthouse Performance: desktop ≥ 75, mobile ≥ 65 (was mobile ≥ 85).
+  - SEO and Accessibility: still ≥ 95.
+  - JavaScript: the limit is lifted for lazily loaded 3D and visual chunks. Ruling: entry (first-load) JS keeps its 150 KB gzip limit, because the rule also requires the first paint to show real HTML text, and a heavy entry would delay it. Cost if wrong: an R-prompt may need to move code into a lazy chunk.
+- Decision: React Three Fiber, drei and custom GLSL shaders are allowed. Ruling: `@react-three/fiber`, `@react-three/drei` and `@react-three/postprocessing` are **not installed in r1**. The rule says to install them "if the plan uses them", and the scene plan (R3) doesn't exist yet. R3 installs them if it chooses R3F over the existing vanilla Three.js modules. Cost if wrong: one `npm install` in R3.
+- Ruling: CLAUDE.md's non-negotiable "Motion is progressive enhancement" is replaced; "fully readable with JavaScript disabled" stays. The owner's own rule keeps real HTML text at first paint, and the rubric's SEO needs it.
+- Ruling: ADR-001 (no client router) is reopened for R3, since a scene that persists between pages favours ClientRouter with `transition:persist`. ADR-002 (no React islands) is relaxed for a lazily loaded 3D root.
+- Ruling: `docs/01-brief.md`, `DESIGN.md` (glow and motif limits), `docs/SEO.md` (the About H2 that names BBA/IBA) and the design plan's copy still state old rules. They are not edited in r1, which covers CLAUDE.md, MOTION.md and ENGINEERING-PLAN.md as asked. CLAUDE.md §4a states that Round 2 rules win, and each doc is updated by the Round 2 prompt that touches its area. Cost if wrong: a later prompt reads an old rule. The precedence line covers that.
+- Decision: `scripts/check-budget.mjs` keeps failing on lazy chunks until R3 or earlier changes it to limit entry chunks only. r1 changes no code.
+- Supersedes:
+  - "Intro is rare, short and optional": its "optional" part only; the once-per-session limit and Skip stay.
+  - "Large motion is limited to the intro collision and the CV-download burst".
+  - "p07: 2D intro first, 3D optional, particles stretch".
+  - "p07: first-load budget excludes only 3D".
+  - "JS budget approach".
+  - The p12 ruling that the burst is 2D on every tier.
+  - The cut order in `docs/audits/docs-review.md`.
+- Source: r1, `docs/audits/round2-baseline.md`, `CLAUDE.md` §4a, `docs/MOTION.md` §0, `docs/ENGINEERING-PLAN.md` "Round 2 rules".

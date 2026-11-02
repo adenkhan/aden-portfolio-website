@@ -2,7 +2,36 @@
 
 Inputs: `DESIGN.md`, `docs/01-brief.md`, `docs/00-design-plan.md` section 4, `CLAUDE.md`. Written 2026-11-02.
 
-Rule from the brief: loud in two places (the intro collision and the CV burst), restrained everywhere else. Every moment below went through the `animate` decision order: frequency gate, purpose, tool, properties, curve and duration, interruption and exit, reduced motion. A moment with no purpose was cut, and the cuts are listed with reasons in section 3.
+~~Rule from the brief: loud in two places (the intro collision and the CV burst), restrained everywhere else.~~ **Superseded by Round 2 (§0).** Every moment below went through the `animate` decision order: frequency gate, purpose, tool, properties, curve and duration, interruption and exit, reduced motion. Section 3 lists the p04–p07 cuts for history; under Round 2, a cut made for budget or "restraint" no longer stands.
+
+## 0. Round 2 rules (r1, 2026-11-02)
+
+These rules override everything below where they conflict. Evidence for the change: `docs/audits/round2-baseline.md`.
+
+1. **Visual first.** Every section opens with a visual or motion moment, and its text is a caption. Word budgets (visible words in `<main>`): Home ≤ 80, About ≤ 160, Work ≤ 60 per case study, Contact ≤ 40. A section that needs more words needs a better visual instead.
+2. **Each fact once.** Motion must not restate a fact that another section already shows. Count-ups, chips and labels count as showing it. BBA/IBA appears only in the About education chip.
+3. **3D is core, on every page.** One persistent WebGL scene runs behind the site (built in R3). The intro, the CV burst and each page's visuals are moments of that scene, or sit beside it. 3D is never cut to save budget.
+4. **Lower quality, never remove.** Performance work may lower:
+   - pixel ratio;
+   - particle and instance counts;
+   - shader detail (fewer octaves or steps, cheaper variants);
+   - postprocessing resolution and passes;
+   - frame rate when idle, off-screen or the tab is hidden.
+
+   It may not remove an effect. Every tier sees every effect; only `reduced` gets static versions (table below).
+5. **Budgets:**
+   - Lighthouse Performance: desktop ≥ 75, mobile ≥ 65.
+   - Lighthouse SEO and Accessibility: ≥ 95.
+   - Lazily loaded 3D and visual chunks have no size limit.
+   - Entry JS stays under 150 KB gzip, and the first paint shows real HTML text, never a canvas waiting for JavaScript.
+6. **Tools.** Three.js with custom GLSL shaders, postprocessing, and React Three Fiber, drei and `@react-three/postprocessing` are all allowed. Use whichever the R3 scene plan chooses, and install the R3F packages only then.
+7. **What stays.**
+   - Reduced motion gets a calm static version of every effect.
+   - Animate transform and opacity in the DOM. Inside WebGL, anything goes.
+   - `gsap.matchMedia()` owns setup and teardown.
+   - Skip and Esc on the intro.
+   - No franchise names for the orb collision.
+   - Real HTML text for all content.
 
 Your constraints (intro limits, library ownership, transform and opacity, `gsap.matchMedia()`, 150 KB) override the "cheapest tool" default in `animate`. Where the cheaper tool also satisfies them, I used it (CSS hover, CSS scroll-snap, native view transitions).
 
@@ -23,9 +52,11 @@ Decided once at load and stored on `<html data-motion="...">`:
 
 | Tier | When | What runs |
 |---|---|---|
-| `full` | `prefers-reduced-motion: no-preference`, desktop pointer, ≥ 8 GB or unknown memory, not save-data | Everything below |
-| `lite` | no-preference but touch device, or `hardwareConcurrency ≤ 4`, or `deviceMemory ≤ 4`, or `saveData` | GSAP scroll moments; intro and CV burst use the 2D version (no Three.js); no particles |
-| `reduced` | `prefers-reduced-motion: reduce` | No intro, no parallax, no movement. Content at final state. Opacity or colour changes under 200 ms only where they aid comprehension |
+| `full` | `prefers-reduced-motion: no-preference`, desktop pointer, ≥ 8 GB or unknown memory, not save-data | Every effect at full quality |
+| `lite` | no-preference but touch device, or `hardwareConcurrency ≤ 4`, or `deviceMemory ≤ 4`, or `saveData` | **Round 2: every effect, lighter.** The persistent 3D scene, the 3D intro, the 3D burst and particles all run, with these limits: DPR capped at 1.5 (1.0 on `deviceMemory ≤ 2`); half-resolution postprocessing; chromatic aberration at half strength; particle and instance counts at 25–50%; cheaper shader variants; 30 fps idle cap, and paused when off-screen or the tab is hidden. (Before r1: no Three.js and no particles.) |
+| `reduced` | `prefers-reduced-motion: reduce` | Static versions of every effect: the scene renders one still frame (or a poster image), with no intro, no parallax and no movement. Content at final state. Opacity or colour changes under 200 ms only where they aid comprehension |
+
+Not a tier but a capability: if WebGL is unavailable or software-rendered (`failIfMajorPerformanceCaveat`), the 2D version (`three/orbs-2d.ts` and its successors) or a static poster runs instead. That is the only case, besides `reduced`, where a 3D effect is not drawn in 3D.
 
 All GSAP setup lives inside `gsap.matchMedia()`:
 ```js
@@ -54,8 +85,8 @@ gsap.ticker.lagSmoothing(0);
 | Lenis | smooth scroll | any visual animation |
 | Motion (`motion/react`) | small interactions inside React islands (Kokonut components) via `LazyMotion` + `domAnimation` | page-level timelines |
 | CSS | hover, focus, press, scroll-snap, view transitions, cursor blink | anything needing sequencing |
-| Three.js + postprocessing | intro shockwave and CV burst only, as an enhancement on `full` tier over the 2D baseline (see "Build order" in moment 1) | anything else |
-| tsParticles slim | hero ambient particles only; stretch goal (moment 7a) | any other page or effect |
+| Three.js + postprocessing (+ custom GLSL; R3F, drei and `@react-three/postprocessing` allowed from r1) | the persistent site scene behind every page (R3), the intro, the CV burst and each page's 3D visuals, on every tier except `reduced` (Round 2 §0) | DOM layout, and any text: text stays HTML |
+| tsParticles slim | hero ambient particles (moment 7a). Round 2 may replace them with GPU particles inside the scene | DOM-heavy effects outside the hero |
 | lottie-web | not used (cut in p07: no burst asset exists, and the 2D ring already covers the fallback) | — |
 | Rive | not used. There is no `.riv` file in `src/assets`; revisit only if one is added | — |
 
@@ -180,6 +211,8 @@ Hover is "tens of times a day" frequency, so it stays small and fast.
 - **Cost:** none in JS. Snapshots use the GPU.
 
 ## 3. Cut or changed from the plan
+
+> History from p04–p07. Under Round 2 (§0), any cut below made for budget or restraint is void. A Round 2 prompt may reinstate it without a new justification; it must still meet the reduced-motion and "text is HTML" rules.
 | Candidate | Decision | Reason |
 |---|---|---|
 | Headline type-in with glitch | Cut | The brief lists typewriter and glitch headings as cringe, and they block reading |
@@ -197,6 +230,8 @@ Hover is "tens of times a day" frequency, so it stays small and fast.
 | Rive avatar | Not used | No `.riv` file exists |
 
 ## 4. First-load JavaScript budget (target under 150 KB gzip)
+
+> Round 2 (§0.5): the 150 KB limit now applies to entry (first-load) JS only. Lazily loaded 3D and visual chunks have no size limit; they are judged by the Lighthouse targets (desktop ≥ 75, mobile ≥ 65) instead.
 
 All figures are estimates from typical published bundle sizes, not measurements. They exist to show the shape of the budget; `ENGINEERING-PLAN.md` must add a build-time size check that fails the build over the limit.
 
