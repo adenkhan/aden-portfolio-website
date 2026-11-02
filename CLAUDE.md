@@ -81,12 +81,12 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/00-design-plan.md` | Purpose, audience, wireframe, SEO plan, word-for-word site copy, stack | exists |
 | `docs/cv-source.md` | Source facts for the CV and all copy | exists |
 | `docs/SKILLS-AND-TOOLS.md` | Installed skills and tools reference | exists |
-| `docs/01-brief.md` | Design brief | pending |
+| `docs/01-brief.md` | Creative brief: positioning, personality, concept, success criteria | exists |
 | `DESIGN.md` | Design system: tokens, type, components | pending |
 | `docs/MOTION.md` | Motion system and moments | pending |
 | `docs/ENGINEERING-PLAN.md` | Build plan and architecture | pending |
 | `docs/SEO.md` | SEO implementation details | pending |
-| `docs/DECISIONS.md` | Running log of decisions | pending |
+| `docs/DECISIONS.md` | Running log of decisions | exists |
 
 ## 7. Definition of done
 A task is done only when all of these hold:
