@@ -95,3 +95,29 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Keep the four-number strip from the design plan once, on Home only, coloured by lane and attributed to a role.
 - Why: It matches the hero-metric template that impeccable flags, but the copy and numbers are fixed by the design plan and the recruiter needs them. The constraint reduces the template feel.
 - Source: p03, `DESIGN.md` Do's and Don'ts.
+
+## 2026-11-02 — Motion system
+- Decision: `docs/MOTION.md` defines three tiers (full, lite, reduced), keeps the intro (2.6 s, 2.0 s on lite), the CV burst, the Home H1 word rise, the About panel scroll reveal, the Home count-ups, the skills-tree line drawing, a CSS scroll-snap gallery, a decorative contact prompt scramble, hero-only particles, an avatar-card pointer glow, CSS hover and press, and native cross-document view transitions.
+- Why: Follows the brief's "loud once, restrained elsewhere" and the `animate` decision order. Each kept moment has a named purpose.
+- Source: p04, `docs/MOTION.md`.
+
+## 2026-11-02 — Motion cuts and moves
+- Decision: Cut the headline glitch and type-in, mission-card entrances, typing out the contact details, the page-wide cursor glow and parallax. Move count-ups from Work to the Home stats strip. Replace a pinned horizontal gallery with CSS scroll-snap. Do not use Astro's client router or Rive.
+- Why: Glitch and typewriter headings are listed as cringe in the brief; the Work numbers sit inside sentences; contact details must be instant; scroll-jacking hurts phones and keyboard users; native view transitions need no JS; there is no `.riv` file.
+- Source: p04, `docs/MOTION.md` section 3.
+
+## 2026-11-02 — Motion easing tokens replace the expo curve
+- Decision: Use `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)` and `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`, registered in GSAP as `ui-out` and `ui-in-out` with CustomEase. Durations: press 160 ms, hover 150 ms, UI 220 ms, reveal 600 ms, intro 2600 ms.
+- Why: These are the curves the `animate` skill requires; the earlier `--ease-out-expo` token in DESIGN.md is replaced so there is one easing system.
+- Source: p04, `docs/MOTION.md` section 1, `DESIGN.md` @theme.
+- Supersedes: `--ease-out-expo`, `--duration-fast`, `--duration-base` and `--duration-intro: 2800ms` in the DESIGN.md @theme block.
+
+## 2026-11-02 — Intro gating details
+- Decision: An inline head script sets `html.intro` before first paint only if `sessionStorage["ak.intro"]` is unset and motion is not reduced. The flag is written when the intro starts, so a reload mid-intro does not replay it. If storage throws, the intro does not play. Esc is handled by the inline script. The 3D chunk gets 600 ms to load before the 2D fallback runs.
+- Why: Meets the once-per-session, Esc and Skip constraints, keeps no-JS visitors overlay-free, and stops a slow 3D download from delaying the page.
+- Source: p04, `docs/MOTION.md` moment 1.
+
+## 2026-11-02 — JS budget approach
+- Decision: Home's first load has no React island; the CV dialog is a native `<dialog>`; React islands use `client:visible` or `client:idle`; Three.js, tsParticles and lottie-web load lazily. Estimated first load is about 62 KB gzip without islands. The build must check the real size.
+- Why: Keeps first load under the 150 KB gzip target with room for one island. The figures are estimates, not measurements.
+- Source: p04, `docs/MOTION.md` section 4.

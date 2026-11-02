@@ -380,10 +380,13 @@ Not applied to code yet. When it is, it goes in `src/styles/global.css` after `@
   --z-skip: 110;
 
   /* motion */
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 150ms;
-  --duration-base: 300ms;
-  --duration-intro: 2800ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-press: 160ms;
+  --duration-hover: 150ms;
+  --duration-ui: 220ms;
+  --duration-reveal: 600ms;
+  --duration-intro: 2600ms;
 
   /* glow: orb, burst and focus only */
   --shadow-glow-creative: 0 0 48px 0 rgb(255 77 106 / 0.45);

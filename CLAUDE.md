@@ -84,7 +84,7 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/01-brief.md` | Creative brief: positioning, personality, concept, success criteria | exists |
 | `DESIGN.md` | Design system: tokens, type, components, Tailwind @theme block | exists |
 | `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
-| `docs/MOTION.md` | Motion system and moments | pending |
+| `docs/MOTION.md` | Motion system: tiers, moments, budget, checklist | exists |
 | `docs/ENGINEERING-PLAN.md` | Build plan and architecture | pending |
 | `docs/SEO.md` | SEO implementation details | pending |
 | `docs/DECISIONS.md` | Running log of decisions | exists |
