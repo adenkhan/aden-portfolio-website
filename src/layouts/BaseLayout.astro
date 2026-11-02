@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer.astro";
 import Nav from "@/components/layout/Nav.astro";
 import SEO from "@/components/layout/SEO.astro";
 import SkipLink from "@/components/layout/SkipLink.astro";
+import MotionGate from "@/components/motion/MotionGate.astro";
 import { seo } from "@/data/seo";
 import type { PageId } from "@/data/types";
 
@@ -21,6 +22,7 @@ const meta = seo[page];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <MotionGate />
     <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -34,13 +36,19 @@ const meta = seo[page];
     />
     <slot name="head" />
   </head>
-  <body>
+  <body data-page={page}>
     <SkipLink />
     <Nav />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
+    <script>
+      import { initMotion } from "@/lib/motion";
+      import type { PageId } from "@/data/types";
+
+      initMotion((document.body.dataset.page ?? "home") as PageId);
+    </script>
   </body>
 </html>
 

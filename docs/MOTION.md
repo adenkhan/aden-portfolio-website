@@ -104,7 +104,7 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 - **Mobile:** the 2D burst, same timing. If the 3D chunk has not loaded within 150 ms of the click on `full`, play the 2D burst; never delay the dialog.
 - **Cost:** the 2D burst reuses the intro's 2D module. The 3D version (if shipped) reuses the intro's Three module when loaded; otherwise the chunk is prefetched on intent.
 
-### 3. Headline reveals — MERGE and TRIM
+### 3. Headline reveals — MERGE and TRIM (changed in p10, see §7)
 - **Gate and purpose:** the Home H1 is seen once per session, with the intro. Purpose: preventing a jarring change (text appearing while the overlay lifts). Other pages' H1s fail the purpose test, so they stay static.
 - **What changed from the plan:** "type-in with glitch" is cut. The brief lists typewriter text that blocks reading and a glitch on every heading as cringe. The reveal is a masked word rise, and ScrambleText is used once on the small HUD status line.
 - **Trigger:** only inside the intro timeline (Home, first view per session, `full` or `lite`). On every other load the H1 is plain static HTML.
@@ -155,14 +155,14 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 - **Cost:** reuses ScrambleText.
 
 ### 7. Ambient — MERGE and CUT
-**7a. Particles — STRETCH (p07).** Built only after p17 passes with budget headroom on Home; otherwise not built. It is pure decoration with a continuous main-thread cost and an extra dependency.
+**7a. Particles — BUILT in p10 at the owner's request (see §7).** Previously: Built only after p17 passes with budget headroom on Home; otherwise not built. It is pure decoration with a continuous main-thread cost and an extra dependency.
 - **Gate and purpose:** constantly visible, so it must be nearly imperceptible. Purpose: atmosphere behind the avatar only; if it cannot be subtle it is cut.
 - **Scope:** Home hero only, behind the character-select card. 28 particles, drifting slowly, 25–50% opacity, red and blue (purple where they overlap), no links, `fpsLimit: 30`.
 - **Gating:** `full` tier only. Loaded with `requestIdleCallback` after the intro ends (or after load when there is no intro). Paused when the hero leaves the viewport (IntersectionObserver) and when the tab is hidden.
 - **Owner and cost:** tsParticles slim on a `<canvas>`. It draws without touching layout, but it does run on the main thread with rAF, which is why it is capped, paused and lazy. Outside the first-load budget; measure its chunk.
 - **Reduced motion and mobile:** not created.
 
-**7b. Cursor glow — CUT (p07).** A page-wide glow has no purpose, and the narrowed avatar-card version contradicted `DESIGN.md`, which allows glow only on the orb, the CV burst and the focus ring. It added code and testing for decoration alone.
+**7b. Cursor glow — REINSTATED in p10 as the avatar-card pointer light (see §7).** Previously cut: A page-wide glow has no purpose, and the narrowed avatar-card version contradicted `DESIGN.md`, which allows glow only on the orb, the CV burst and the focus ring. It added code and testing for decoration alone.
 
 **7c. Hover and focus micro-interactions — CSS only.** All transitions list their properties and sit behind `@media (hover: hover) and (pointer: fine)` for hover:
 - Press: `transform: scale(0.97)`, 160 ms `ease-out`, on `:active` for every button.
@@ -258,3 +258,27 @@ Run before calling any motion work done.
 - [ ] `prefers-reduced-motion: reduce` checked: no intro, no overlay, no movement, view transitions off, Lenis not created.
 - [ ] Page works with JavaScript disabled: all text and links visible and usable.
 - [ ] Slowed-down review (2–5× duration in the animation inspector) and a second look the next day, for the intro and the CV burst.
+
+## 7. Changes in p10 (global motion layer)
+
+The owner's p10 prompt asked for headline reveals on all four H1s, ambient particles and a cursor glow. Those override the earlier cuts above; everything else in this file stands.
+
+**Headline reveal on every page.** `data-reveal="headline"` on the H1 of Home, About, Work and Contact (404 and Thanks stay static).
+- Trigger: every page load, `full` and `lite` tiers. Not session-gated yet; p11 folds the Home reveal into the intro.
+- Hide-before-animate: an inline `<head>` script adds `html.motion-pending` (CSS: `visibility: hidden` on reveal targets) only when motion is allowed, and removes it after 2.5 s if the motion bundle never runs. No JavaScript, reduced motion or a failed bundle all leave the text visible.
+- Motion: SplitText `type: "lines,words"`, `mask: "lines"`, `aria: "auto"`, `autoSplit: true`. Words `yPercent: 110 → 0`, 700 ms, stagger 50 ms, `ui-out` (lite: 450 ms, stagger 40 ms). Split waits for fonts, at most 600 ms.
+- Cost measured: mobile Lighthouse LCP rose from 1.5–1.9 s to 1.9–2.1 s across the four pages; all still under 2.5 s, Performance 98–99.
+
+**Scramble label.** `data-reveal="scramble"` runs ScrambleText (`chars: "01"`, 500 ms, `revealDelay` 0.1 s) on the HUD tag in the character-select card. The scrambled span is `aria-hidden` with a visually hidden copy for screen readers. It animates text, not transform or opacity; justified because it is one 13 px label for 0.5 s, with `contain: layout paint` and `overflow-wrap: anywhere` so it never shifts or overflows.
+
+**Particles (7a).** Built as specified in 7a: Home hero only, 28 particles, `fpsLimit: 30`, paused off-screen and on blur, `full` tier on screens ≥ 768 px. Loaded with `requestIdleCallback` (Astro's `client:idle` needs a framework island; a vanilla idle loader gives the same timing without about 45 KB of React).
+
+**Pointer light (7b).** A 240 px radial gradient inside the character-select card follows the pointer with `gsap.quickTo` on `x`/`y` (transform), 0.5 s `power3.out`; fades in 220 ms and out 180 ms. `full` tier, fine pointer, ≥ 768 px. The card rect is cached per hover so `pointermove` never forces layout. DESIGN.md's glow rule now lists it.
+
+**Page transition (moment 8).** Implemented as specified: `@view-transition { navigation: auto }`, old page 100 ms, new page 180 ms, `--ease-out`, nav has `view-transition-name: site-nav`, all view-transition animations off under reduced motion. No Astro client router, so no `astro:before-swap` / `astro:page-load` handling is needed; each document boots motion once and `gsap.matchMedia().revert()` runs on `pagehide`.
+
+**Plugins.** Registered: ScrollTrigger, CustomEase (every page), SplitText and ScrambleText (headline module). DrawSVG is not registered: the skills tree uses transform-scaled connectors (p07).
+
+**Dev overlay.** `src/lib/motion/dev-hud.ts` shows FPS, active ScrollTriggers and the tier. It is imported only under `import.meta.env.DEV`, so production builds do not contain it (tested).
+
+**Budget, measured** (`npm run budget`, gzip): first load 59.7 KB on every page (GSAP core, ScrollTrigger, CustomEase, SplitText, ScrambleText, Lenis, motion code). Lazy: 49.3 KB of tsParticles, fetched only on Home when idle on the full tier. Home total 109.0 KB of the 150 KB budget.

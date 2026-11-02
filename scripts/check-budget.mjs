@@ -1,12 +1,17 @@
-// Fails the build when any page's first-load JavaScript exceeds the budget (docs/ENGINEERING-PLAN.md §9).
-// First load = every module script and modulepreload in the page's HTML, plus their static imports.
-// Excluded: chunks that contain three.js or postprocessing (lazy 3D only).
+// Fails the build when any page's JavaScript exceeds the budget (docs/ENGINEERING-PLAN.md §9).
+// first load = module scripts and modulepreloads in the page's HTML, plus their static imports.
+// + lazy    = chunks those files can import() later (for example the idle-loaded particles).
+// The budget applies to first load + lazy, excluding only three.js and postprocessing (the lazy 3D),
+// because tsParticles counts even though it loads at idle (docs/DECISIONS.md, p07).
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, posix } from "node:path";
 import { gzipSync } from "node:zlib";
 
 const BUDGET_KB = 150;
 const DIST = "dist";
+const STATIC_IMPORT = /(?:^|[;\s}])import(?:[^"'()]*?from)?\s*["']([^"']+\.js)["']/g;
+// Vite emits dynamic imports with backticks: import(`./chunk.js`).
+const DYNAMIC_IMPORT = /import\(\s*["'`]([^"'`]+\.js)["'`]\s*\)/g;
 
 function htmlFiles(dir) {
   return readdirSync(dir).flatMap((name) => {
@@ -15,18 +20,35 @@ function htmlFiles(dir) {
   });
 }
 
-function staticImports(file, seen) {
-  if (seen.has(file)) return;
-  seen.add(file);
-  const code = readFileSync(join(DIST, file), "utf8");
-  // Static `import ... from "./x.js"` and bare `import "./x.js"`; dynamic import() is lazy and skipped.
-  for (const match of code.matchAll(/(?:^|[;\s}])import(?:[^"'()]*?from)?\s*["']([^"']+\.js)["']/g)) {
-    const spec = match[1];
-    if (!spec.startsWith(".") && !spec.startsWith("/")) continue;
-    const target = spec.startsWith("/") ? spec.slice(1) : posix.join(posix.dirname(file), spec);
-    staticImports(target, seen);
+function resolve(file, spec) {
+  if (!spec.startsWith(".") && !spec.startsWith("/")) return null;
+  return spec.startsWith("/") ? spec.slice(1) : posix.join(posix.dirname(file), spec);
+}
+
+function closure(entries, seen, lazy) {
+  const stack = [...entries];
+  while (stack.length) {
+    const file = stack.pop();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    const code = readFileSync(join(DIST, file), "utf8");
+    for (const m of code.matchAll(STATIC_IMPORT)) {
+      const target = resolve(file, m[1]);
+      if (target) stack.push(target);
+    }
+    for (const m of code.matchAll(DYNAMIC_IMPORT)) {
+      const target = resolve(file, m[1]);
+      if (target) lazy.add(target);
+    }
   }
 }
+
+const is3d = (code) => /three\.module|postprocessing|WebGLRenderer/.test(code);
+const gz = (files) =>
+  [...files].reduce((sum, file) => {
+    const code = readFileSync(join(DIST, file));
+    return is3d(code.toString("utf8")) ? sum : sum + gzipSync(code).length;
+  }, 0);
 
 let failed = false;
 for (const html of htmlFiles(DIST)) {
@@ -35,32 +57,44 @@ for (const html of htmlFiles(DIST)) {
     ...source.matchAll(/<script[^>]+type="module"[^>]+src="([^"]+)"/g),
     ...source.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="([^"]+)"/g),
   ].map((m) => m[1].replace(/^\//, ""));
-  const files = new Set();
-  for (const entry of entries) staticImports(entry, files);
 
-  let bytes = 0;
-  for (const file of files) {
-    const code = readFileSync(join(DIST, file));
-    if (/three\.module|postprocessing/i.test(code.toString("utf8", 0, 4000))) continue;
-    bytes += gzipSync(code).length;
-  }
-  // Inline module scripts count too.
+  const first = new Set();
+  const lazyEntries = new Set();
+  closure(entries, first, lazyEntries);
+  let inline = 0;
   for (const m of source.matchAll(/<script type="module">([\s\S]*?)<\/script>/g))
-    bytes += gzipSync(m[1]).length;
+    inline += gzipSync(m[1]).length;
 
-  const kb = bytes / 1024;
+  // Lazy chunks keep following their own dynamic imports (a lazy chunk can load another).
+  const lazy = new Set(first);
+  let frontier = [...lazyEntries];
+  while (frontier.length) {
+    const next = new Set();
+    closure(frontier, lazy, next);
+    frontier = [...next].filter((f) => !lazy.has(f));
+  }
+  for (const f of first) lazy.delete(f);
+
+  const firstKb = (gz(first) + inline) / 1024;
+  const lazyKb = gz(lazy) / 1024;
+  const total = firstKb + lazyKb;
+  const ok = total <= BUDGET_KB;
+  if (!ok) failed = true;
   const page = html
     .split("\\")
     .join("/")
     .replace(/^dist/, "")
     .replace(/index\.html$/, "");
-  const ok = kb <= BUDGET_KB;
-  if (!ok) failed = true;
-  console.log(`${ok ? "ok  " : "FAIL"} ${kb.toFixed(1).padStart(6)} KB  ${page}`);
+  const fmt = (n) => n.toFixed(1).padStart(6);
+  console.log(
+    `${ok ? "ok  " : "FAIL"} first ${fmt(firstKb)} KB + lazy ${fmt(lazyKb)} KB = ${fmt(total)} KB  ${page}`,
+  );
 }
 
 if (failed) {
-  console.error(`\nFirst-load JS over ${BUDGET_KB} KB gzip on at least one page.`);
+  console.error(
+    `\nJavaScript over ${BUDGET_KB} KB gzip (first load + lazy, excluding 3D) on at least one page.`,
+  );
   process.exit(1);
 }
-console.log(`\nAll pages under ${BUDGET_KB} KB gzip first-load JS.`);
+console.log(`\nAll pages under ${BUDGET_KB} KB gzip (first load + lazy, excluding 3D).`);

@@ -9,7 +9,7 @@ import CharacterCard from "./CharacterCard.astro";
 <section class="container-site hero" aria-labelledby="hero-title">
   <div class="copy">
     <div id="hero-title" class="title">
-      <PageTitle page="home" />
+      <PageTitle page="home" reveal />
     </div>
     <p class="sub">{home.subhead}</p>
     <p class="availability">{home.availability}</p>
@@ -23,6 +23,7 @@ import CharacterCard from "./CharacterCard.astro";
     </div>
   </div>
   <div class="visual">
+    <div class="particles" data-ambient-particles aria-hidden="true"></div>
     <CharacterCard />
   </div>
 </section>
@@ -61,8 +62,22 @@ import CharacterCard from "./CharacterCard.astro";
   }
 
   .visual {
+    position: relative;
     width: 100%;
     max-width: 420px;
+  }
+
+  /* Ambient particles host (docs/MOTION.md 7a). Decorative; tsParticles draws a canvas here on the full tier. */
+  .particles {
+    position: absolute;
+    inset: -2rem 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .visual > :global(.card) {
+    position: relative;
+    z-index: 1;
   }
 
   @media (width >= 48rem) {

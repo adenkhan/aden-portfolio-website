@@ -396,7 +396,7 @@ Goal: `CvDialog`, `moments/cv-reveal.ts`, the 2D burst from `three/orbs-2d.ts`; 
 Verify: `npx playwright test cv-dialog`. Commit: `p12: cv burst`.
 
 ### p13 — Home
-Goal: hero assembly, HUD scramble, count-ups. Particles are a stretch goal, built only after p17 if Home has budget headroom.
+Goal: hero assembly and count-ups. The HUD scramble, particles and pointer light were built in p10 (docs/MOTION.md §7).
 - [ ] Given a first session view, when the intro ends, then the stats show their exact `display` values and the page has no layout shift (CLS < 0.1).
 - [ ] Screen readers read the final stat values (visually hidden text), never intermediate numbers.
 - [ ] Given a recruiter on a 375px phone, when Home first renders, then name, role, one proof number (−72%), IBA Karachi and availability ("Open to internships now and full-time roles from mid-2027.") are visible without scrolling past the hero (brief §6 recruiter test).

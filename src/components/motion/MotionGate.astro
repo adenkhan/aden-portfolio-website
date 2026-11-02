@@ -1,0 +1,22 @@
+<!--
+  Runs before first paint. Adds html.motion-pending (which hides opt-in reveal targets) only when
+  motion is allowed, and removes it after 2.5 s if the motion bundle never runs, so text can never
+  stay hidden. With JavaScript off this never runs and nothing is hidden.
+-->
+<script is:inline>
+  (function () {
+    var root = document.documentElement;
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        root.setAttribute("data-motion", "reduced");
+        return;
+      }
+    } catch (e) {
+      return;
+    }
+    root.classList.add("motion-pending");
+    setTimeout(function () {
+      root.classList.remove("motion-pending");
+    }, 2500);
+  })();
+</script>

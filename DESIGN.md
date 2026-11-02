@@ -250,7 +250,7 @@ The nav is a text row from `md` up. Below `md` it collapses to the logo, CV butt
 
 Declare depth once: border or shadow, never both. This site uses borders (1px `line`) plus a lightness step between surfaces. There are no drop shadows on cards.
 
-Glow is a light source, not decoration. It is allowed in exactly three places: the orb collision behind the avatar, the CV-download burst, and the focus ring. Nowhere else.
+Glow is a light source, not decoration. It is allowed in exactly four places: the orb collision behind the avatar, the CV-download burst, the focus ring, and the pointer light inside the character-select card (desktop, fine pointer). Nowhere else.
 
 Z-index scale (tokens in `@theme`): base 0, content 1, nav 40, intro overlay 80, dialog 90, toast 100, skip link 110.
 
@@ -271,7 +271,7 @@ Each motif has a place and an upper limit, so the page does not get noisy.
 | Manga panel borders | About panels only; 1px `line-strong` with one 3px `creative`/`data`/`growth` top edge on the panel's own lane | mission cards, buttons |
 | HUD corner brackets | the character-select avatar card and the terminal panel | every card |
 | Grid lines | inside the character-select card only, as a measuring grid behind the readout | full-page grid or scanline overlays |
-| Ambient particles (stretch goal, `docs/MOTION.md` 7a) | behind the character-select card in the hero, desktop only | any other section or page |
+| Ambient particles (`docs/MOTION.md` 7a, built in p10) | behind the character-select card in the hero, desktop only | any other section or page |
 | HUD labels (mono) | role/date lines; the single "// PLAYER 01" tag inside the avatar card | above every heading |
 
 ## Components
@@ -303,7 +303,7 @@ States use the same rules everywhere. Focus-visible: 2px `focus` outline with 3p
 
 ## Breakpoint motion notes
 
-Phones get lighter effects: the 2D orb version and no particles. There is no cursor glow on any device (cut in p07). Reduced motion removes the intro, parallax and large movement and shows the final composed state.
+Phones get lighter effects: the 2D orb version and no particles. The character-card pointer light is desktop-only (fine pointer); there is no page-wide cursor glow. Reduced motion removes the intro, parallax and large movement and shows the final composed state.
 
 ## Tailwind v4 `@theme` block
 
@@ -408,7 +408,7 @@ Anti-patterns to avoid, from running impeccable's craft-floor and the frontend-d
 - **Gradient text and purple-on-white.** No gradient text. The only gradient is the one CV button. Purple means "both", never filler.
 - **Coloured side stripes.** No `border-left` or `border-right` above 1px on cards. Lanes are shown with a dot plus a word, and panels use a top edge.
 - **Hard offset shadows.** Rejected with direction B. Depth is a border plus a surface step.
-- **Glow as decoration.** Glow only on the orb, the CV burst and the focus ring. No glowing text, no neon buttons.
+- **Glow as decoration.** Glow only on the orb, the CV burst, the focus ring and the character-card pointer light. No glowing text, no neon buttons.
 - **Scanline, grid or stripe backgrounds.** Only the measuring grid inside the character-select card.
 - **Monospace as a costume.** Mono is for roles, dates, readouts and the terminal only.
 - **Identical rounded cards everywhere.** Cards use 12px radius, panels use cut corners, buttons are pills. Mix on purpose, not by default.

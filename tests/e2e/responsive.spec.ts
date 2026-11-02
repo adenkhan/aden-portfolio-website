@@ -19,6 +19,8 @@ for (const { route, name } of routes) {
 
       // SAVE_SCREENS=1 writes the reference screenshots kept in docs/screens/.
       if (process.env.SAVE_SCREENS && (width === 375 || width === 1440)) {
+        // Let the headline reveal and HUD scramble finish so the screenshot shows the resting state.
+        await page.waitForTimeout(1500);
         await page.screenshot({ path: `docs/screens/${name}-${width}.png`, fullPage: true });
       }
     });

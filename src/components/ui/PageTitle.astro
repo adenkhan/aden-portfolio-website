@@ -4,12 +4,15 @@ import type { PageId } from "@/data/types";
 
 interface Props {
   page: PageId;
+  /** Opt in to the headline reveal (docs/MOTION.md moment 3). */
+  reveal?: boolean;
 }
 
-const meta = seo[Astro.props.page];
+const { page, reveal = false } = Astro.props;
+const meta = seo[page];
 ---
 
-<h1 class="page-title">
+<h1 class="page-title" data-reveal={reveal ? "headline" : undefined}>
   {meta.h1}
   {meta.h1Sub && <span class="h1-sub">{meta.h1Sub}</span>}
 </h1>

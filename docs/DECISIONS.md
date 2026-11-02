@@ -231,3 +231,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Playwright's web server runs `astro preview --force` so a stale preview server cannot block the suite.
 - Result: Lighthouse mobile (simulated throttling, local preview), Performance / Accessibility / Best Practices / SEO: Home 99/100/100/100 (LCP 1.7 s, CLS 0, TBT 0 ms); About 100/100/100/100 (LCP 1.5 s); Work 99/100/100/100 (LCP 1.9 s); Contact 100/100/100/100 (LCP 1.5 s, CLS 0.004). Local scores, not the live site; p21 re-runs them on Netlify.
 - Source: p09.
+
+## 2026-11-02 — p10 global motion layer
+- Decision: Headline reveals run on all four H1s on every page load, as the owner asked. This overrides MOTION.md moment 3 ("other pages' H1s stay static"). LCP safety comes from an inline gate (`html.motion-pending`, removed by the motion bundle or after 2.5 s) instead of "after first paint"; measured mobile LCP 1.9–2.1 s (was 1.5–1.9 s), all under 2.5 s.
+- Decision: Ambient particles and the pointer light are built now, as the owner asked, which reverses the p07 cut and stretch status. Both follow the MOTION.md 7a/7b specs (full tier, fine pointer, ≥ 768 px, never on touch or reduced motion). DESIGN.md's glow rule now includes the character-card pointer light.
+- Decision: Particles load through `requestIdleCallback`, not Astro's `client:idle`. `client:idle` needs a framework island, which would add about 45 KB of React to do the same thing (ADR-002).
+- Decision: DrawSVG is not registered even though the prompt listed it; nothing uses it since the p07 skills-tree change. ScrollTrigger, CustomEase, SplitText and ScrambleText are registered.
+- Decision: No `astro:before-swap` / `astro:page-load` handling: the site has no Astro client router (ADR-001). Page transitions are native cross-document view transitions; motion is torn down with `gsap.matchMedia().revert()` on `pagehide`.
+- Decision: The HUD tag scramble animates text, not transform or opacity. It is allowed as one small label for 0.5 s, with `contain: layout paint` and `overflow-wrap: anywhere` (the scramble removes spaces, which overflowed 360 px before this fix).
+- Decision: `scripts/check-budget.mjs` now counts lazy chunks too (first load + lazy, excluding only three/postprocessing). Measured: first load 59.7 KB gzip on every page; Home total 109.0 KB with tsParticles.
+- Decision: The pointer light caches the card's rect per hover (and on scroll/resize) so `pointermove` never forces layout (animation-performance review).
+- Source: p10, `docs/MOTION.md` §7.

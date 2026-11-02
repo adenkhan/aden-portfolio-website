@@ -65,6 +65,8 @@ const isCurrent = (href: string) => (href === "/" ? current === "/" : current.st
   .site-nav {
     position: relative;
     z-index: var(--z-nav);
+    /* Stays put while the page content crossfades between documents. */
+    view-transition-name: site-nav;
     background-color: var(--color-bg-base);
     border-bottom: 1px solid var(--color-line);
   }
