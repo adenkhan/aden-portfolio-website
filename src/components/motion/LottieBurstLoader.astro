@@ -1,0 +1,39 @@
+---
+interface Props {
+  path: string;
+}
+
+const { path } = Astro.props;
+---
+
+<meta name="ak-lottie-cv-burst" content={path} />
+
+<script>
+  // Registers a Lottie version of the CV burst; src/lib/motion/cv-burst.ts uses it when present.
+  type BurstWindow = Window & { akLottieBurst?: (x: number, y: number) => void };
+  const path = document.querySelector<HTMLMetaElement>('meta[name="ak-lottie-cv-burst"]')?.content;
+
+  if (path) {
+    (window as BurstWindow).akLottieBurst = async (x, y) => {
+      const { default: lottie } = await import("lottie-web/build/player/lottie_light");
+      const size = 160;
+      const box = document.createElement("div");
+      box.setAttribute("aria-hidden", "true");
+      box.style.cssText =
+        `position:fixed;left:${x - size / 2}px;top:${y - size / 2}px;width:${size}px;height:${size}px;` +
+        "z-index:var(--z-toast);pointer-events:none";
+      document.body.append(box);
+      const anim = lottie.loadAnimation({
+        container: box,
+        renderer: "svg",
+        loop: false,
+        autoplay: true,
+        path,
+      });
+      anim.addEventListener("complete", () => {
+        anim.destroy();
+        box.remove();
+      });
+    };
+  }
+</script>

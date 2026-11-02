@@ -8,9 +8,21 @@ import { stats } from "@/data/stats";
   </h2>
   <dl class="strip">
     {stats.map((stat) => (
-      <div class="stat" data-lane={stat.lane}>
+      <div class="stat" data-lane={stat.lane} data-stat>
         <dt>{stat.label}</dt>
-        <dd>{stat.display}</dd>
+        <dd>
+          <span class="sr-only">{stat.display}</span>
+          <span
+            class="ticker"
+            aria-hidden="true"
+            data-count={stat.value}
+            data-prefix={stat.prefix}
+            data-suffix={stat.suffix}
+            style={`min-inline-size: ${stat.display.length}ch`}
+          >
+            {stat.display}
+          </span>
+        </dd>
       </div>
     ))}
   </dl>
@@ -48,6 +60,11 @@ import { stats } from "@/data/stats";
     font-weight: 900;
     font-variant-numeric: tabular-nums;
     color: var(--lane-colour, var(--color-text));
+  }
+
+  /* The counting copy keeps the final value's width, so counting never shifts layout. */
+  .ticker {
+    display: inline-block;
   }
 
   [data-lane="creative"] {

@@ -44,3 +44,12 @@ Slot data (paths, sizes, alt text) lives in `src/data/assets.ts`. Alt text follo
 - Original work the owner has rights to. No third-party characters, logos or named techniques (IP rule, `CLAUDE.md`).
 - No important text baked into images; repeat any key number in the page text.
 - Screenshots: crop to the content; no device mockups.
+
+## Optional animation slots
+
+These files do not exist yet. Adding one switches its effect on at the next build; removing it switches back. Without them, the static avatar and CSS bursts are used and neither runtime is referenced by any page.
+
+| Slot | Path | What the file should contain | Effect when present |
+|---|---|---|---|
+| Rive avatar | `src/assets/rive/avatar.riv` | A Rive file of the same illustrated avatar on a 4:5 artboard (1200×1500 or the same ratio), transparent background, with a state machine named **`Idle`** (for example blinking or breathing; an optional boolean input `hover` is fine but not required). Original artwork only. | A canvas fades in over the static avatar the first time the character card is hovered or focused (desktop, fine pointer, not reduced motion, not data saver). The static image stays the LCP image and the fallback. |
+| Lottie CV burst | `src/assets/lottie/cv-burst.json` | A Lottie JSON (Bodymovin export) of a short one-shot burst, about 0.6 s, roughly 160×160, transparent background, in the brand colours (red #FF4D6A, blue #3DB0FF, purple #A77CFF). Shape layers only (the light player is used, so no expressions). | Replaces the CSS burst on the CV buttons. Loaded when a CV button is first hovered or focused. Never plays for reduced motion. |

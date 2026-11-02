@@ -1,0 +1,14 @@
+---
+import LottieBurstLoader from "./LottieBurstLoader.astro";
+
+// Optional Lottie bursts (docs/ASSETS.md). Each JSON file that exists switches its effect on;
+// without the file this renders nothing, so lottie-web is never referenced by the page.
+const files = import.meta.glob<string>("/src/assets/lottie/*.json", {
+  query: "?url",
+  import: "default",
+  eager: true,
+});
+const cvBurst = files["/src/assets/lottie/cv-burst.json"];
+---
+
+{cvBurst && <LottieBurstLoader path={cvBurst} />}

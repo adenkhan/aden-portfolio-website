@@ -45,7 +45,7 @@ export function initMotion(page: PageId): MotionHandle {
         return;
       }
 
-      const ctx: MomentContext = { tier, fine, wide };
+      const ctx: MomentContext = { tier, fine, wide, add: (fn) => context.add(fn) };
       const cleanups: Array<() => void> = [];
       const scroll = startLenis();
       cleanups.push(scroll.stop);
@@ -64,9 +64,20 @@ export function initMotion(page: PageId): MotionHandle {
         window.addEventListener("ak:intro-end", () => scroll.lenis.start(), { once: true });
       }
 
-      headlines(ctx)
-        .catch((error) => console.warn("[motion] headline reveal skipped", error))
-        .finally(() => root.classList.remove("motion-pending"));
+      // Page-specific moments load only on their page.
+      const pageMoments =
+        page === "home"
+          ? import("./moments/home").then(async (m) => {
+              const cleanup = await m.home(ctx);
+              if (cleanup) cleanups.push(cleanup);
+            })
+          : Promise.resolve();
+
+      // Every hidden start state is set before html.motion-pending is removed.
+      Promise.allSettled([
+        headlines(ctx).catch((error) => console.warn("[motion] headline reveal skipped", error)),
+        pageMoments.catch((error) => console.warn("[motion] page moments skipped", error)),
+      ]).finally(() => root.classList.remove("motion-pending"));
 
       for (const moment of [pointerGlow, particles]) {
         const cleanup = moment(ctx);

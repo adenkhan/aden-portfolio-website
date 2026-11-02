@@ -7,6 +7,7 @@ import SEO from "@/components/layout/SEO.astro";
 import SkipLink from "@/components/layout/SkipLink.astro";
 import MotionGate from "@/components/motion/MotionGate.astro";
 import CvDialog from "@/components/ui/CvDialog.astro";
+import LottieSlots from "@/components/motion/LottieSlots.astro";
 import { seo } from "@/data/seo";
 import type { PageId } from "@/data/types";
 
@@ -35,6 +36,7 @@ const meta = seo[page];
       noindex={meta.noindex}
       jsonLd={jsonLd}
     />
+    <LottieSlots />
     <slot name="head" />
   </head>
   <body data-page={page}>

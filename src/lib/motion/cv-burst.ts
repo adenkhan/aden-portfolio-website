@@ -14,6 +14,10 @@ export function playBurst(trigger: HTMLElement): void {
   const box = trigger.getBoundingClientRect();
   const x = box.left + box.width / 2;
   const y = box.top + box.height / 2;
+
+  // Optional Lottie version, registered only when src/assets/lottie/cv-burst.json exists.
+  const lottieBurst = (window as Window & { akLottieBurst?: (x: number, y: number) => void }).akLottieBurst;
+  if (lottieBurst) return lottieBurst(x, y);
   const size = Math.max(box.width, 72);
 
   const layer = document.createElement("div");

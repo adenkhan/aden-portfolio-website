@@ -4,13 +4,22 @@ import { getSlot } from "@/data/assets";
 import { home } from "@/data/home";
 import { site } from "@/data/site";
 import { getImageFor, isPlaceholder } from "@/lib/images";
+import RiveAvatar from "@/components/motion/RiveAvatar.astro";
+
+// Optional animated avatar: switches on when this file exists (docs/ASSETS.md).
+const rive = import.meta.glob<string>("/src/assets/rive/avatar.riv", {
+  query: "?url",
+  import: "default",
+  eager: true,
+});
+const riveSrc = rive["/src/assets/rive/avatar.riv"];
 
 const avatar = getSlot("avatar");
 // Dev-only badge while the generated placeholder is in place; never in production builds.
 const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
 ---
 
-<figure class="card" data-pointer-glow-host>
+<figure class="card" data-pointer-glow-host data-reveal="card">
   <span class="glow-clip" aria-hidden="true">
     <span class="glow" data-pointer-glow></span>
   </span>
@@ -33,13 +42,14 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
       fetchpriority="high"
       decoding="sync"
     />
+    {riveSrc && <RiveAvatar src={riveSrc} width={avatar.width} height={avatar.height} />}
     {showBadge && <span class="placeholder-badge">placeholder</span>}
   </div>
   <ul class="bars" aria-label="Focus areas">
     {home.statBars.map((label) => (
       <li>
         <span>{label}</span>
-        <i aria-hidden="true" />
+        <i aria-hidden="true" data-bar />
       </li>
     ))}
   </ul>

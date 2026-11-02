@@ -213,8 +213,14 @@
   }
 
   /* Hide-before-animate: only while the inline gate has set html.motion-pending (never without JS). */
-  html.motion-pending [data-reveal="headline"] {
+  html.motion-pending [data-reveal="headline"],
+  html.motion-pending [data-reveal="rise"],
+  html.motion-pending [data-stat] {
     visibility: hidden;
+  }
+
+  html.motion-pending [data-bar] {
+    transform: scaleX(0);
   }
 
   /* The CV dialog locks background scroll (Lenis is paused too). */

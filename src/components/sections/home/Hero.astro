@@ -11,9 +11,13 @@ import CharacterCard from "./CharacterCard.astro";
     <div id="hero-title" class="title">
       <PageTitle page="home" reveal />
     </div>
-    <p class="sub">{home.subhead}</p>
-    <p class="availability">{home.availability}</p>
-    <div class="cta">
+    <p class="sub" data-reveal="rise">
+      {home.subhead}
+    </p>
+    <p class="availability" data-reveal="rise">
+      {home.availability}
+    </p>
+    <div class="cta" data-reveal="rise">
       <Button href={site.cvPath} download data-cv-trigger>
         {home.ctaPrimary}
       </Button>

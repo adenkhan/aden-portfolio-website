@@ -1,0 +1,84 @@
+---
+interface Props {
+  src: string;
+  width: number;
+  height: number;
+}
+
+const { src, width, height } = Astro.props;
+---
+
+<!--
+  Optional animated avatar. Rendered only when src/assets/rive/avatar.riv exists (docs/ASSETS.md).
+  The static avatar underneath stays the LCP image and the fallback; this canvas fades in on top once
+  Rive has loaded (on first hover or focus of the card), and never loads for reduced motion, touch
+  devices or data saver.
+-->
+<canvas
+  class="rive-avatar"
+  data-rive-src={src}
+  width={width}
+  height={height}
+  aria-hidden="true"
+  hidden
+></canvas>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>("canvas[data-rive-src]");
+  const allowed =
+    !matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+
+  // Rive is about 85 KB gzip plus a 0.9 MB WebAssembly file, so it loads on intent (first hover or
+  // focus of the character card), not at idle, to stay inside the JS budget (docs/MOTION.md §10).
+  const card = canvas?.closest<HTMLElement>("[data-reveal='card']");
+
+  if (canvas && card && allowed) {
+    let started = false;
+    const start = async () => {
+      if (started) return;
+      started = true;
+      try {
+        const [{ Rive, RuntimeLoader }, { default: wasmUrl }] = await Promise.all([
+          import("@rive-app/canvas"),
+          import("@rive-app/canvas/rive.wasm?url"),
+        ]);
+        // Self-hosted runtime instead of the default third-party CDN.
+        RuntimeLoader.setWasmUrl(wasmUrl);
+        const rive = new Rive({
+          src: canvas.dataset.riveSrc!,
+          canvas,
+          autoplay: true,
+          stateMachines: "Idle",
+          onLoad: () => {
+            rive.resizeDrawingSurfaceToCanvas();
+            canvas.hidden = false;
+            requestAnimationFrame(() => canvas.classList.add("ready"));
+          },
+          onLoadError: () => canvas.remove(),
+        });
+      } catch {
+        canvas.remove();
+      }
+    };
+    card.addEventListener("pointerenter", start, { once: true });
+    card.addEventListener("focusin", start, { once: true });
+  }
+</script>
+
+<style>
+  .rive-avatar {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-sm);
+    opacity: 0;
+    transition: opacity var(--duration-ui) var(--ease-out);
+  }
+
+  .rive-avatar.ready {
+    opacity: 1;
+  }
+</style>

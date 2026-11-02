@@ -264,3 +264,14 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Modified clicks (Ctrl/Cmd/Shift/Alt or middle click) on a CV button keep the plain link behaviour.
 - Fix: Tailwind's reset removed the dialog's `margin: auto`, which left it in the top-left corner; restored.
 - Source: p12, `docs/MOTION.md` §9.
+
+## 2026-11-02 — p13 Home motion
+- Decision: Hero entrance, stat bars, count-ups, card tilt and the scroll-linked teaser collision are built natively (MOTION.md §10). Kokonut UI is not used: all candidates are React components and one island would push Home past the 150 KB budget.
+- Decision: A skipped intro shows the hero in its final state (as p11 required); a visit without an intro plays the entrance straight away.
+- Decision: Count-ups keep MOTION.md's once-per-session rule (`ak.counted`); the real value is in a visually hidden span and the counting copy is `aria-hidden`, so there is no live-region noise.
+- Decision: The teaser trigger ends when the stage bottom reaches 85% of the viewport, because the original end point ("center 40%") was unreachable at maximum scroll and the merge never completed.
+- Decision: Optional Rive (`src/assets/rive/avatar.riv`) and Lottie (`src/assets/lottie/cv-burst.json`) switch on when their file exists. They load on intent (hover or focus), not at idle: Rive is 85 KB gzip plus a 0.9 MB WebAssembly file and Lottie light is 47 KB gzip, so idle loading would break the budget. Rive's WebAssembly is self-hosted rather than fetched from unpkg. This reverses the p07 Lottie cut for this optional slot only.
+- Decision: `scripts/check-budget.mjs` now excludes the intent-only Lottie and Rive runtimes, like the lazy 3D chunk; idle-loaded code still counts.
+- Decision: Animations created after an `await` now register with the `gsap.matchMedia()` context through `ctx.add`, so they revert if reduced motion is switched on mid-session (this also fixes the p10 headline split). A count-up interrupted that way restores the real numbers.
+- Result: Home mobile Lighthouse before Performance 98, LCP 2.1 s; after Performance 97, LCP 2.3 s, CLS 0, TBT 0 ms. Within budget.
+- Source: p13, `docs/MOTION.md` §10.

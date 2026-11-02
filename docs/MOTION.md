@@ -328,3 +328,21 @@ Built as moment 2 describes, with these changes.
 - **Reduced motion.** No burst; the dialog and backdrop fade only, in 150 ms (an exception to the global reduced-motion reset, in `global.css`).
 - **No JavaScript.** CV buttons are plain `<a href="/cv/aden-khan-cv.pdf" download>` links.
 - **Preview card.** Title, role line, the four roles with dates, education and certification, all from `docs/cv-source.md` (`src/data/cv.ts`), plus Download PDF (`download`) and Open in new tab (`target="_blank" rel="noopener"`).
+
+## 10. Changes in p13 (Home)
+
+All in `src/lib/motion/moments/home.ts`, loaded only on Home (dynamic import from the motion boot). Everything waits for the intro's reveal beat on a first visit (`src/lib/motion/intro-gate.ts`), runs straight away when no intro plays, and shows the final state at once when the intro is skipped. Hidden start states come from `html.motion-pending` (CSS: `visibility: hidden` on `[data-reveal="rise"]` and `[data-stat]`, `scaleX(0)` on `[data-bar]`), so no JavaScript means everything is visible and final.
+
+| Moment | Spec |
+|---|---|
+| Hero entrance | Avatar card `scale 0.96 → 1`, 600 ms (transform only, the avatar is the LCP image); subhead, availability line and buttons rise 12 px with opacity, 500 ms, stagger 70 ms, from +150 ms; all `ui-out`. Lite: 450/400 ms. |
+| Stat bars | `scaleX 0 → 1` from the left, 600 ms, stagger 80 ms, from +350 ms. Still equal-length decoration, not ratings. |
+| Stats strip | Items rise 12 px with opacity, stagger 60 ms, from +300 ms. Number ticker (moment 5a): an `aria-hidden` copy counts from 0 to the real value in 900 ms `power3.out` (lite 700 ms) when the strip reaches 90% of the viewport; the real value sits in a visually hidden span for screen readers and is the copy's text without JavaScript. Once per session (`sessionStorage["ak.counted"]`). The copy reserves the final value's width in `ch`, so counting never shifts layout (CLS tested < 0.01). |
+| Card tilt | Desktop, fine pointer, full tier: `rotationY` up to ±3° and `rotationX` up to ±2° following the pointer, `quickTo` 0.4 s `power3.out`, perspective 900 px, back to 0 on leave. Card rect cached per hover. |
+| Teaser collision | Scroll-driven (scrubbed, 0.6 s smoothing): red starts 12% left of its place and travels to the centre, blue mirrors it, purple grows `0.4 → 1.15` and fades in from 35% of the way, red and blue settle to 30% opacity. Trigger from the stage top at 95% of the viewport to its bottom at 85% (reachable even though the teaser is the last section). At rest (no JS, reduced motion) the stage shows the equation: red, purple, blue. The three orbs carry `will-change: transform, opacity` because they are large gradients moved on every scroll frame. |
+
+**Optional assets.** `src/assets/rive/avatar.riv` switches on a Rive avatar over the static one (state machine `Idle`); `src/assets/lottie/cv-burst.json` replaces the CSS CV burst with a Lottie one. Both are opt-in by file: without the file, the page references neither runtime. Both load on intent (Rive on first hover or focus of the character card; Lottie on first hover or focus of a CV button), never for reduced motion. Rive's WebAssembly is self-hosted (bundled from the package), not fetched from unpkg. Verified with a temporary Lottie file: the burst switched to the Lottie SVG and back when the file was removed.
+
+**Kokonut UI.** Not used: every candidate text effect, card and button is a React component, and one React island on Home would push it past 150 KB.
+
+**Measured.** Home first load 63.8 KB, total with idle particles 115.3 KB. Mobile Lighthouse on Home (cold session, 2D intro): before Performance 98, LCP 2.1 s, CLS 0; after Performance 97, LCP 2.3 s, CLS 0, TBT 0 ms. LCP is still the avatar; its render delay grew about 165 ms under simulated throttling.
