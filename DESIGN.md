@@ -277,7 +277,7 @@ Each motif has a place and an upper limit, so the page does not get noisy.
 
 The HUD tag from the design plan ("// PLAYER 01 · PRODUCT MARKETER · KARACHI") sits inside the character-select card as its status line, not above the H1. The H1 carries its own weight.
 
-States use the same rules everywhere. Focus-visible: 2px `focus` outline with 3px offset, never removed. Hover changes lightness or border colour only, in 150ms with an exponential ease-out. Active steps one tone darker. Disabled is 45% opacity with `cursor: not-allowed` and does not need to meet contrast.
+States use the same rules everywhere. Focus-visible: 2px `focus` outline with 3px offset, never removed. Hover changes lightness or border colour only, in 150ms with `ease` (see `docs/MOTION.md`). Active steps one tone darker. Disabled is 45% opacity with `cursor: not-allowed` and does not need to meet contrast.
 
 | Component | Default | Hover | Focus-visible | Active | Disabled |
 |---|---|---|---|---|---|
