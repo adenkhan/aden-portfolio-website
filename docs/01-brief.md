@@ -57,7 +57,7 @@ The viewer should also recall that the site "looks like a game HUD", and should 
 
 **Grader rubric (4 marks).** All four routes exist with real HTML text; Home has intro, headline and a high-quality image; About has bio, education and goals; Work shows projects and skills; Contact shows email and LinkedIn; each page has keywords in its H1 and content, a meta description and alt text; the site is readable on mobile; and it is live on Netlify (GitHub Pages as backup).
 
-**Lighthouse (mobile, production build).** Performance 85+, Accessibility 95+, Best Practices 95+, SEO 100. Performance is deliberately a little lower than the others because of the motion layer; the text must still render fast (LCP under 2.5 s, no layout shift from the intro).
+**Lighthouse (mobile, production build).** Performance 85+, Accessibility 95+, Best Practices 95+, SEO 95+ (aim 100). Performance is deliberately a little lower than the others because of the motion layer; the text must still render fast (LCP under 2.5 s, no layout shift from the intro).
 
 **Other checks.** Readable with JavaScript off. Works at 360px with no horizontal scroll. Reduced-motion gets a calm version. No franchise terms anywhere.
 
@@ -90,4 +90,5 @@ Logged because they need real input or a later decision. None blocks progress.
 4. The old portfolio on Vercel (aden-portfolio-creative.vercel.app) is still live. Should it be taken down or redirected once the Netlify site is up?
 5. Should Contact include the optional form, or email and LinkedIn only?
 6. Is a short voiced or sound element wanted at all? (Current plan: no sound.)
-7. Final palette, type and the exact visual weight of the HUD framing are for prompt 3, which may revise anything in the design plan's suggestions.
+7. Is the avatar original art the owner made or commissioned, with no resemblance to an existing franchise character? (Needed for the IP rule before launch.)
+8. Final palette, type and the exact visual weight of the HUD framing are for prompt 3, which may revise anything in the design plan's suggestions.

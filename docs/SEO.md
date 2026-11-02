@@ -309,6 +309,7 @@ Reviewed and left unchanged:
 - Footer: © 2026 Aden Khan · Product Marketer · Karachi, Pakistan
 
 ### Copy added by this spec (not in the design plan)
+- Home availability line, under the subhead (added in p07 so the brief's 30-second recruiter test can pass on Home; both sentences are reused from the About education and career-goals copy): BBA Marketing student at IBA Karachi. Open to internships now and full-time roles from mid-2027.
 - About H1 subline: About Aden Khan, product marketer
 - Contact H1 subline: Contact Aden Khan, product marketer
 - H2s listed in §4

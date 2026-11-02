@@ -22,13 +22,13 @@ shadcn registries: `@kokonutui`, `@bklit` (see `components.json`). shadcn MCP is
 | @astrojs/react | 7.1.2 |
 | react / react-dom | 19.3.1 |
 | tailwindcss / @tailwindcss/vite | 4.3.3 |
-| gsap | 3.15.0 (ScrollTrigger, SplitText, ScrambleText, DrawSVG, MorphSVG; all free) |
+| gsap | 3.15.0 (uses ScrollTrigger, SplitText, ScrambleText, CustomEase; DrawSVG and MorphSVG are free but unused) |
 | lenis | 1.3.27 |
 | motion | 14.9.0 |
-| lottie-web | 5.13.0 |
+| lottie-web | 5.13.0 (installed, unused: cut in p07) |
 | @rive-app/canvas | 2.49.0 |
-| @tsparticles/engine, @tsparticles/slim | 4.5.0 |
-| three / @types/three | 0.187.0 |
+| @tsparticles/engine, @tsparticles/slim | 4.5.0 (stretch goal only) |
+| three / @types/three | 0.187.0 (optional 3D enhancement over the 2D intro) |
 | postprocessing | 6.39.6 |
 | @pixiv/three-vrm | 3.5.5 |
 | shadcn (CLI, dev) | 4.23.0 |
@@ -44,7 +44,7 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - Add components: `npx shadcn@latest add @kokonutui/<name>` or `@bklit/<name>`
 
 ## 4. Non-negotiables
-- Four real routes: `/`, `/about`, `/work`, `/contact`, plus a 404. Separate pages, not one scroll.
+- Four real routes: `/`, `/about/`, `/work/`, `/contact/`, plus `/thanks/` (form confirmation, noindex) and a 404. Separate pages, not one scroll. Trailing slash always.
 - All meaningful text is real HTML. Never bake text into images or canvas.
 - Every page has a unique `<title>`, meta description, exactly one H1 containing a target keyword, Open Graph tags and a canonical URL.
 - Every image has descriptive alt text; decorative images use `alt=""`.
@@ -82,6 +82,8 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/cv-source.md` | Source facts for the CV and all copy | exists |
 | `docs/SKILLS-AND-TOOLS.md` | Installed skills and tools reference | exists |
 | `docs/01-brief.md` | Creative brief: positioning, personality, concept, success criteria | exists |
+| `docs/02-wireframes.md` | Low-fidelity wireframes per page, mobile and desktop | exists |
+| `docs/audits/docs-review.md` | p07 cross-doc review: contradictions, rubric gaps, cuts | exists |
 | `DESIGN.md` | Design system: tokens, type, components, Tailwind @theme block | exists |
 | `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
 | `docs/MOTION.md` | Motion system: tiers, moments, budget, checklist | exists |

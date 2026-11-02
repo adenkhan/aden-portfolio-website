@@ -24,7 +24,7 @@ Decided once at load and stored on `<html data-motion="...">`:
 | Tier | When | What runs |
 |---|---|---|
 | `full` | `prefers-reduced-motion: no-preference`, desktop pointer, ≥ 8 GB or unknown memory, not save-data | Everything below |
-| `lite` | no-preference but touch device, or `hardwareConcurrency ≤ 4`, or `deviceMemory ≤ 4`, or `saveData` | GSAP scroll moments; intro and CV burst use the 2D fallback (no Three.js); no particles; no pointer glow |
+| `lite` | no-preference but touch device, or `hardwareConcurrency ≤ 4`, or `deviceMemory ≤ 4`, or `saveData` | GSAP scroll moments; intro and CV burst use the 2D version (no Three.js); no particles |
 | `reduced` | `prefers-reduced-motion: reduce` | No intro, no parallax, no movement. Content at final state. Opacity or colour changes under 200 ms only where they aid comprehension |
 
 All GSAP setup lives inside `gsap.matchMedia()`:
@@ -50,13 +50,13 @@ gsap.ticker.lagSmoothing(0);
 ### Library ownership
 | Library | Owns | Never used for |
 |---|---|---|
-| GSAP (+ ScrollTrigger, SplitText, ScrambleText, DrawSVG, CustomEase) | all timelines, scroll triggers, text effects, count-ups, line drawing, dialog open/close | hover and focus |
+| GSAP (+ ScrollTrigger, SplitText, ScrambleText, CustomEase) | all timelines, scroll triggers, text effects, count-ups, connector drawing, dialog open/close | hover and focus |
 | Lenis | smooth scroll | any visual animation |
 | Motion (`motion/react`) | small interactions inside React islands (Kokonut components) via `LazyMotion` + `domAnimation` | page-level timelines |
 | CSS | hover, focus, press, scroll-snap, view transitions, cursor blink | anything needing sequencing |
-| Three.js + postprocessing | intro shockwave and CV burst only | anything else |
-| tsParticles slim | hero ambient particles only | any other page or effect |
-| lottie-web (light build) | one-shot vector burst fallback for the CV reveal | loops, backgrounds |
+| Three.js + postprocessing | intro shockwave and CV burst only, as an enhancement on `full` tier over the 2D baseline (see "Build order" in moment 1) | anything else |
+| tsParticles slim | hero ambient particles only; stretch goal (moment 7a) | any other page or effect |
+| lottie-web | not used (cut in p07: no burst asset exists, and the 2D ring already covers the fallback) | — |
 | Rive | not used. There is no `.riv` file in `src/assets`; revisit only if one is added | — |
 
 ## 2. Moments
@@ -67,7 +67,8 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 - **Gate and purpose:** rare tier (once per session), so the delight budget applies. Purpose: explanation. It shows the Creative × Data = Growth idea in 2.6 s before the reader meets the copy.
 - **Trigger:** first Home load in a browser session, `full` or `lite` tier only. A tiny inline script in `<head>` runs before first paint: it reads `sessionStorage["ak.intro"]`; if absent and not reduced-motion it sets the flag immediately (so a reload mid-intro does not replay) and adds `html.intro`. If storage throws (private mode), the intro does not play. CSS shows the overlay only under `html.intro`, so no-JS visitors never see it. The same inline script attaches an Esc listener, so Esc works before the main bundle loads. A `pageshow` handler with `event.persisted` removes the overlay after a back/forward restore.
 - **Owner:** GSAP timeline. Three.js + postprocessing render the orbs and shockwave on one canvas inside the overlay. The overlay is a fixed full-viewport `bg-void` div, with a Skip button in the HTML (top right, 44 px target, text "Skip intro") visible from the first paint and first in tab order.
-- **LCP:** the hero is real HTML and renders underneath from the first paint. The overlay is a plain background colour and a `<canvas>`, neither of which is an LCP candidate. The three chunk is fetched with `fetchpriority="low"` only when `html.intro` is set. I have not measured this; verify LCP in the Lighthouse pass.
+- **Build order (p07):** the 2D version (two radial-gradient orb elements and a CSS ring, transform and opacity only) is built first and is the intro for every tier. The Three.js scene is an enhancement for `full` tier, added only after the 2D version passes, and kept only if Home still meets the p17 budgets. If time runs out, the 2D version ships for everyone.
+- **LCP:** the hero is real HTML and renders underneath from the first paint. The overlay is a plain background colour and a `<canvas>`, neither of which is an LCP candidate. The three chunk is fetched with `fetchpriority="low"` only when `html.intro` is set. Hero hidden states (H1 words, subhead, buttons) are applied only after the first paint (double `requestAnimationFrame`), while the overlay covers them, so the first paint always contains the real text. The avatar is the LCP image, so it is never faded from opacity 0; it animates with transform only. I have not measured this; verify LCP in the Lighthouse pass.
 - **Choreography** (t = ms from when motion starts; the clock starts when the 3D scene is ready, or at 600 ms after DOM ready if it is not, in which case the 2D fallback runs):
 
 | t | What happens | Properties and curve |
@@ -77,18 +78,18 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 | 1000–1160 | Collision. The orbs merge into a purple core; bloom spikes | bloom 0 → 1 in 160 ms `ui-out`, then settles to 0.4 over 400 ms |
 | 1000–1700 | Shockwave ring expands from centre; chromatic aberration spikes then relaxes (full tier, desktop only) | ring scale 0.1 → 3.2 over 700 ms `ui-out`; aberration 0.004 → 0 over 400 ms |
 | 1150–1600 | Overlay fades out; `pointer-events: none` from 1150 ms so the hero is usable immediately | opacity 1 → 0, 450 ms `ui-out` |
-| 1300–2300 | Hero assembles under the shockwave: H1 masked word rise (moment 3), avatar card scale 0.96 → 1 with opacity, subhead and buttons fade-rise 12 px, stats strip stagger 60 ms | transform + opacity, 500–700 ms `ui-out` |
+| 1300–2300 | Hero assembles under the shockwave: H1 masked word rise (moment 3), avatar card scale 0.96 → 1 (transform only, opacity stays 1), subhead and buttons fade-rise 12 px, stats strip stagger 60 ms | transform + opacity, 500–700 ms `ui-out` |
 | 2300–2600 | Count-ups finish (moment 5); overlay node removed from the DOM; focus moves to `<main>` (`preventScroll`) | — |
 
 - **Interruption:** the Skip button or Esc runs `tl.timeScale(10)` on the overlay portion and sets all hero elements to their final state, then removes the overlay within 150 ms. Scroll and wheel input are ignored (Lenis is stopped), so the user cannot scroll under the overlay. Nothing else skips it, so a stray click does not.
 - **Reduced motion:** never plays. No overlay, no flag write needed.
-- **Mobile (`lite`):** no Three.js. The same timeline runs with two 2D orb elements (radial-gradient divs, transform and opacity only) and a CSS ring, duration 2.0 s. The `full` mobile-class devices (rare) still cap DPR at 1.5, drop chromatic aberration and use half-resolution bloom.
-- **Cost:** `full` loads a lazy chunk of tree-shaken Three.js + postprocessing (est. 120–170 KB gzip; measure). It is outside the first-load budget because it is lazy, and the hero never waits for it.
+- **Mobile (`lite`):** no Three.js. The 2D version runs, duration 2.0 s. If the 3D enhancement ships, `full` mobile-class devices (rare) cap DPR at 1.5, drop chromatic aberration and use half-resolution bloom.
+- **Cost:** the 2D version is a few KB of our own code in the Home bundle. The optional 3D enhancement is a lazy chunk of tree-shaken Three.js + postprocessing (est. 120–170 KB gzip; measure), outside the first-load budget, and the hero never waits for it.
 
 ### 2. CV reveal: mini burst, then the dialog — KEEP
 - **Gate and purpose:** user-initiated, once or twice per visit. Purpose: feedback and delight. It is the only other place purple "growth" appears as an event, and it confirms the click.
 - **Trigger:** click on the primary Download CV button (nav button and hero button). `pointerenter` and `focus` on the button prefetch the 3D chunk (intent prefetch).
-- **Owner:** CSS for the press; GSAP for the sequence; Three.js for the burst on `full`; lottie-web (light build, one-shot, `loop: false`) on `lite`; a CSS ring if the Lottie file is not there yet.
+- **Owner:** CSS for the press; GSAP for the sequence; the 2D ring and core from the intro module on every tier; Three.js on `full` only if the intro's 3D enhancement shipped.
 - **Sequence:**
 
 | t | What happens | Properties and curve |
@@ -100,14 +101,14 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 - **Dialog:** a native `<dialog>` element, so focus trap and Esc come free. It holds the CV link (PDF slot from `src/data/assets.ts`) and a LinkedIn link. Close: 140 ms `ui-out` (exit faster than enter). The scrim is `bg-void` at 80% and fades with the dialog.
 - **Interruption:** an `isPlaying` guard means a double click plays one burst. Esc or the scrim click closes the dialog at any time; the burst, if still running, finishes behind it.
 - **Reduced motion:** no burst. The dialog opens with a 150 ms opacity fade and no scale.
-- **Mobile:** Lottie burst, same timing. If the burst asset has not loaded within 150 ms of the click, skip it and open the dialog; never delay the dialog.
-- **Cost:** reuses the intro's Three module when it is already loaded; otherwise the chunk is prefetched on intent. The Lottie light build and its JSON load lazily on `lite` tier only.
+- **Mobile:** the 2D burst, same timing. If the 3D chunk has not loaded within 150 ms of the click on `full`, play the 2D burst; never delay the dialog.
+- **Cost:** the 2D burst reuses the intro's 2D module. The 3D version (if shipped) reuses the intro's Three module when loaded; otherwise the chunk is prefetched on intent.
 
 ### 3. Headline reveals — MERGE and TRIM
 - **Gate and purpose:** the Home H1 is seen once per session, with the intro. Purpose: preventing a jarring change (text appearing while the overlay lifts). Other pages' H1s fail the purpose test, so they stay static.
 - **What changed from the plan:** "type-in with glitch" is cut. The brief lists typewriter text that blocks reading and a glitch on every heading as cringe. The reveal is a masked word rise, and ScrambleText is used once on the small HUD status line.
 - **Trigger:** only inside the intro timeline (Home, first view per session, `full` or `lite`). On every other load the H1 is plain static HTML.
-- **Owner:** GSAP + SplitText (`type: "lines,words"`, `mask: "lines"`, `aria: "auto"` so the full text stays accessible). Initial hidden state is set by script only while the overlay is up, so the H1 is never hidden in the HTML and no-JS users read it.
+- **Owner:** GSAP + SplitText (`type: "lines,words"`, `mask: "lines"`, `aria: "auto"` so the full text stays accessible). Initial hidden state is set by script only after the first paint and only while the overlay is up, so the H1 is never hidden in the HTML, no-JS users read it, and the LCP paint contains it.
 - **Properties and timing:** words `yPercent: 110 → 0`, stagger 50 ms, 700 ms `ui-out`, starting at t = 1300 ms. The HUD status line "// PLAYER 01 · PRODUCT MARKETER · KARACHI" uses ScrambleText: `chars: "01"`, 500 ms, once, then holds.
 - **Interruption:** Skip sets the final state instantly. SplitText `revert()` runs on `matchMedia` revert so the DOM returns to plain text.
 - **Reduced motion and mobile:** static text. `lite` keeps the word rise but with a 40 ms stagger and a 450 ms duration.
@@ -138,12 +139,12 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 **5c. Skills-tree branches drawing in — KEEP.**
 - **Gate and purpose:** once per page view. Purpose: explanation. The tree shows that four lanes branch from one trunk.
 - **Trigger:** ScrollTrigger `start: "top 70%"`, `once: true`.
-- **Owner:** GSAP + DrawSVG on desktop; plain transform on mobile.
-- **Sequence:** trunk draws 500 ms `ui-out`; four branches draw 400 ms each, stagger 100 ms, each in its lane colour; then the skill chips on each branch appear (`opacity` + `scale 0.96 → 1`), stagger 25 ms. Total about 1.3 s, acceptable because it is explanatory and rare.
-- **Responsive approach:** on `wide` the tree is a fixed-aspect SVG that scales with its viewBox, and DrawSVG animates the strokes. Below 768 px the tree becomes four stacked lanes whose connectors are divs animated with `scaleY` (`transform-origin: top`), because a path drawn for a wide layout breaks when it reflows.
+- **Owner:** GSAP timeline animating `transform` on connector elements (one implementation for every width; DrawSVG cut in p07).
+- **Structure:** the tree is HTML, not SVG: a trunk line, then four lanes (four columns at ≥ 1024px, two at ≥ 768px, one stacked below). Each connector is a 2px element whose length comes from layout, so it never breaks on reflow.
+- **Sequence:** trunk grows (`scaleX` or `scaleY` from 0 to 1 with the origin at the trunk start) 500 ms `ui-out`; four lane connectors grow 400 ms each, stagger 100 ms, each in its lane colour; then the skill chips appear (`opacity` + `scale 0.96 → 1`), stagger 25 ms. Total about 1.3 s, acceptable because it is explanatory and rare.
 - **Interruption:** `once`, no reverse.
 - **Reduced motion:** fully drawn, chips visible.
-- **Cost:** DrawSVG (est. 3 KB gzip) loads on `/work` only.
+- **Cost:** no extra plugin.
 
 **5d. Horizontal creative gallery — KEEP as CSS, no JS motion.** A pinned horizontal scroll would hijack vertical scrolling, which is hostile on phones and for keyboard users. Use native `overflow-x: auto` with `scroll-snap-type: x proximity` and `scroll-padding`. The strip is focusable (`tabindex="0"`, labelled) and has small previous/next buttons that call `scrollBy({ behavior: "smooth" })` (`auto` under reduced motion). It carries `data-lenis-prevent`. Properties animated by JS: none. Cost: zero JS animation.
 
@@ -154,16 +155,14 @@ Format per moment: gate and purpose, trigger, owner, properties, timing and curv
 - **Cost:** reuses ScrambleText.
 
 ### 7. Ambient — MERGE and CUT
-**7a. Particles — KEEP, small.**
+**7a. Particles — STRETCH (p07).** Built only after p17 passes with budget headroom on Home; otherwise not built. It is pure decoration with a continuous main-thread cost and an extra dependency.
 - **Gate and purpose:** constantly visible, so it must be nearly imperceptible. Purpose: atmosphere behind the avatar only; if it cannot be subtle it is cut.
 - **Scope:** Home hero only, behind the character-select card. 28 particles, drifting slowly, 25–50% opacity, red and blue (purple where they overlap), no links, `fpsLimit: 30`.
 - **Gating:** `full` tier only. Loaded with `requestIdleCallback` after the intro ends (or after load when there is no intro). Paused when the hero leaves the viewport (IntersectionObserver) and when the tab is hidden.
 - **Owner and cost:** tsParticles slim on a `<canvas>`. It draws without touching layout, but it does run on the main thread with rAF, which is why it is capped, paused and lazy. Outside the first-load budget; measure its chunk.
 - **Reduced motion and mobile:** not created.
 
-**7b. Cursor glow — NARROWED.** A page-wide glow follows the pointer constantly and has no purpose. Instead, the character-select card gets a soft light that follows the pointer.
-- **Owner:** GSAP `quickTo` writing `transform: translate3d()` on one radial-gradient element, 0.5 s `power3.out`. It writes `transform` directly on that element, never a CSS variable on a parent.
-- **Gating:** `fine` pointer on `wide` screens, `full` tier only. Touch and reduced motion: no glow.
+**7b. Cursor glow — CUT (p07).** A page-wide glow has no purpose, and the narrowed avatar-card version contradicted `DESIGN.md`, which allows glow only on the orb, the CV burst and the focus ring. It added code and testing for decoration alone.
 
 **7c. Hover and focus micro-interactions — CSS only.** All transitions list their properties and sit behind `@media (hover: hover) and (pointer: fine)` for hover:
 - Press: `transform: scale(0.97)`, 160 ms `ease-out`, on `:active` for every button.
@@ -187,8 +186,11 @@ Hover is "tens of times a day" frequency, so it stays small and fast.
 | Mission-card entrances | Cut | Nine identical fade-ups is the generic pattern; slows scanning |
 | Work count-ups | Moved to Home | The Work numbers sit inside sentences; Home has the standalone proof strip |
 | Typing the contact details | Cut | The contact details are the page's job and must be instant |
-| Page-wide cursor glow | Narrowed to the avatar card | No purpose on a reading surface |
-| Site-wide particles | Narrowed to the hero | Same reason; also cost |
+| Page-wide cursor glow | Cut, including the avatar-card version (p07) | No purpose; contradicts DESIGN.md's glow rule |
+| Site-wide particles | Narrowed to the hero, then made a stretch goal (p07) | Decoration with a continuous main-thread cost |
+| Lottie burst | Cut (p07) | No asset exists; the 2D ring covers every tier |
+| DrawSVG skills tree | Replaced by transform-scaled connectors (p07) | One implementation for all widths; one fewer plugin |
+| Three.js intro and burst | Re-sequenced as an enhancement over the 2D version (p07) | The 2D version must exist anyway; 3D ships only if budgets hold |
 | Parallax | Not added | Large movement is excluded for reduced motion and adds no meaning |
 | Astro client router | Not used | Native cross-document view transitions do the job with no JS |
 | Pinned horizontal gallery scroll | Replaced by scroll-snap | Scroll-jacking hurts phones and keyboard users |
@@ -206,9 +208,8 @@ All figures are estimates from typical published bundle sizes, not measurements.
 | ScrollTrigger | ~12 KB | all pages |
 | CustomEase | ~2 KB | all pages |
 | SplitText + ScrambleText | ~9 KB | Home (ScrambleText also Contact) |
-| DrawSVG | ~3 KB | Work |
-| Page code (ours) | ~6 KB | per page |
-| **Vanilla total** | **~62 KB** | |
+| Page code (ours, including the 2D intro on Home) | ~8 KB | per page |
+| **Vanilla total** | **~64 KB** | |
 | React + react-dom (islands) | ~45–60 KB | only pages that hydrate an island |
 | Motion with `LazyMotion` + `domAnimation` | ~15 KB | inside islands only |
 | **Worst case with an island** | **~120–140 KB** | still under 150 KB |
@@ -216,7 +217,7 @@ All figures are estimates from typical published bundle sizes, not measurements.
 Rules that keep it there:
 - Home first load has no React island. The nav, avatar card, stats and CV dialog are Astro and vanilla (the dialog is a native `<dialog>`).
 - Kokonut and Bklit islands use `client:visible` or `client:idle`, so they are outside first load.
-- Lazy and excluded from the budget: Three.js + postprocessing, tsParticles slim, lottie-web light build. Each is requested only by the moment that needs it, after first paint.
+- Excluded from the budget: Three.js + postprocessing only (lazy 3D, as the constraint says). tsParticles, if the stretch goal is built, counts toward the budget even though it loads lazily.
 - Import GSAP plugins individually and register only what a page uses.
 
 ## 5. Vocabulary (exact names)
@@ -227,7 +228,7 @@ Terms from the glossary, with the moment they belong to.
 - **Stagger**: hero assembly, manga panels, skill chips.
 - **Scroll reveal**: manga panels and the skills tree (triggered once, not scrubbed). This is not a *scroll-driven animation*, which would tie progress to scroll position.
 - **Number ticker**: the Home stats count-up, with **tabular numbers**.
-- **Line drawing**: DrawSVG on the skills tree.
+- **Line drawing**: the skills-tree connectors growing from the trunk (done with `scale`, not SVG strokes).
 - **Press / Tap feedback**: `scale(0.97)` on every button.
 - **Hover effect**: card border and nav underline.
 - **Crossfade** and **View transition**: page-to-page navigation.
@@ -239,18 +240,19 @@ Terms from the glossary, with the moment they belong to.
 ## 6. Performance checklist
 Run before calling any motion work done.
 
-- [ ] Only `transform` and `opacity` are animated, plus `clip-path` on About panels (the sanctioned fourth) and `stroke-dashoffset` on the small skills-tree SVG. No `width`, `height`, `margin`, `top`, `left` or `box-shadow` in any animation.
+- [ ] Only `transform` and `opacity` are animated, plus `clip-path` on About panels (the sanctioned fourth). No `width`, `height`, `margin`, `top`, `left` or `box-shadow` in any animation.
+- [ ] The avatar (LCP image) is never animated from opacity 0, and hero hidden states are applied only after the first paint.
 - [ ] No `transition: all`. Every transition lists its properties.
-- [ ] No animated CSS variable on a parent whose children inherit it. Transforms are written directly on the element (pointer glow, count-ups).
+- [ ] No animated CSS variable on a parent whose children inherit it. Transforms are written directly on the element.
 - [ ] No React state updates per frame. Pointer and scroll handlers write to refs or use `quickTo`.
 - [ ] Every scroll moment is `once: true` or reverts under `matchMedia`; no ScrollTrigger is left behind on teardown.
 - [ ] Lenis is driven by `gsap.ticker`, with `lagSmoothing(0)`, and `lenis.on("scroll", ScrollTrigger.update)` is set.
 - [ ] `will-change` is not set anywhere by default. Add it only to a specific element once a 1 px shift or dropped frames are observed.
 - [ ] Animated blur and bloom stay under 20 px equivalent; the orb layer is a small, pre-rendered element rather than a full-screen blur.
-- [ ] The intro's three chunk is lazy, low priority, and has a 600 ms fallback to the 2D version.
+- [ ] The 2D intro works on every tier on its own. If the 3D enhancement ships, its chunk is lazy, low priority, and falls back to the 2D version after 600 ms.
 - [ ] LCP is not delayed by the intro. Verify in Lighthouse and in DevTools Performance with the overlay present.
 - [ ] No layout shift from count-ups (tabular numerals, reserved width) or from the overlay removal.
-- [ ] Particles pause when the hero is off-screen or the tab is hidden, and are not created on `lite` or `reduced`.
+- [ ] If the particles stretch goal ships: they pause when the hero is off-screen or the tab is hidden, are not created on `lite` or `reduced`, and count toward the JS budget.
 - [ ] First-load JS is under 150 KB gzip, checked by the build, not estimated.
 - [ ] Recorded on a real mid-range Android phone over remote debugging at 4× CPU throttle: the intro (or its fallback), a scroll through About, and the CV reveal hold 60 fps, with the Performance panel showing no long tasks over 50 ms during the animation.
 - [ ] `prefers-reduced-motion: reduce` checked: no intro, no overlay, no movement, view transitions off, Lenis not created.

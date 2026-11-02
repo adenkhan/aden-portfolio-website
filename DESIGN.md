@@ -271,6 +271,7 @@ Each motif has a place and an upper limit, so the page does not get noisy.
 | Manga panel borders | About panels only; 1px `line-strong` with one 3px `creative`/`data`/`growth` top edge on the panel's own lane | mission cards, buttons |
 | HUD corner brackets | the character-select avatar card and the terminal panel | every card |
 | Grid lines | inside the character-select card only, as a measuring grid behind the readout | full-page grid or scanline overlays |
+| Ambient particles (stretch goal, `docs/MOTION.md` 7a) | behind the character-select card in the hero, desktop only | any other section or page |
 | HUD labels (mono) | role/date lines; the single "// PLAYER 01" tag inside the avatar card | above every heading |
 
 ## Components
@@ -302,7 +303,7 @@ States use the same rules everywhere. Focus-visible: 2px `focus` outline with 3p
 
 ## Breakpoint motion notes
 
-Phones get lighter effects: no particles, a static orb image instead of animated blur, and no cursor glow. Reduced motion removes the intro, parallax and large movement and shows the final composed state.
+Phones get lighter effects: the 2D orb version and no particles. There is no cursor glow on any device (cut in p07). Reduced motion removes the intro, parallax and large movement and shows the final composed state.
 
 ## Tailwind v4 `@theme` block
 

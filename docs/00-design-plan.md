@@ -1,5 +1,7 @@
 # Aden Khan Portfolio — Design Plan & Site Copy
 
+> Status (p07): sections 4, 5 and 7 were starting suggestions. Final values live in `DESIGN.md` (palette, type, components), `docs/SEO.md` (SEO, including H1 sublines and the Home availability line), `docs/MOTION.md` and `docs/ENGINEERING-PLAN.md` (motion, stack, budgets). Wireframes per page: `docs/02-wireframes.md`. Changes are logged in `docs/DECISIONS.md`.
+
 ## 1. Website purpose
 The site is a personal brand and job-application portfolio that positions Aden Khan as a product marketer for tech companies. It replaces an image-only portfolio (aden-portfolio-creative.vercel.app, ten stacked images with no indexable text) with a fast, searchable site that recruiters can skim in under a minute.
 Three jobs:

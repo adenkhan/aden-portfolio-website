@@ -6,7 +6,7 @@
 
 **Architecture:** Astro static output (multi-page, no client router). Pages are `.astro` components fed by typed data files; interactivity is small bundled `<script>` modules, not React, unless a component can only exist in React. Motion is one module (`src/lib/motion`) that boots per page; 3D is a lazy chunk used only by the intro and the CV burst.
 
-**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, DrawSVG, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy), @tsparticles/slim 4.5.0 (lazy), lottie-web 5.13.0 (lazy), Playwright, Netlify.
+**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy, optional enhancement), @tsparticles/slim 4.5.0 (stretch goal only), Playwright, Netlify.
 
 **Spec:** `docs/00-design-plan.md` (copy, SEO table, wireframe), `docs/01-brief.md` (success criteria), `DESIGN.md` (tokens, components), `docs/MOTION.md` (motion), `CLAUDE.md` (non-negotiables). Read the relevant one before each milestone.
 
@@ -21,7 +21,7 @@ Copied from the spec; every milestone includes them.
 - Intro: under 3 s, once per browser session (`sessionStorage["ak.intro"]`), Skip visible from the first frame, Esc skips.
 - Hero image is the illustrated avatar (no photo). No franchise characters, logos, names or named techniques.
 - Facts only from `docs/cv-source.md`. The phone number never appears on the site.
-- Budgets: mobile Lighthouse Performance ≥ 85, SEO ≥ 95, Accessibility ≥ 95, Best Practices ≥ 95; LCP < 2.5 s, CLS < 0.1, INP < 200 ms; first-load JS < 150 KB gzip excluding lazy 3D, particles and Lottie.
+- Budgets: mobile Lighthouse Performance ≥ 85, SEO ≥ 95, Accessibility ≥ 95, Best Practices ≥ 95; LCP < 2.5 s, CLS < 0.1, INP < 200 ms; first-load JS < 150 KB gzip excluding lazy 3D (three and postprocessing) only.
 - Deploy to Netlify (GitHub Pages as backup). Never Vercel.
 - Definition of done (CLAUDE.md §7): `astro check` and `npm run build` pass, no console errors, checked at 375px and 1440px, reduced motion checked, docs updated, one commit per milestone (`pNN: <name>`).
 
@@ -44,9 +44,9 @@ graph TD
   Pages --> Sections["components/sections/*.astro"]
   Sections --> UI["components/ui/*.astro"]
   Pages -- "bundled &lt;script&gt;" --> Motion["lib/motion/index.ts<br/>GSAP + Lenis + matchMedia"]
-  Motion -- "dynamic import, after first paint" --> Three["components/three/*.ts<br/>three + postprocessing"]
-  Motion -- "requestIdleCallback" --> Particles["tsParticles slim"]
-  Motion -- "lite tier, on click" --> Lottie["lottie-web light"]
+  Motion --> Orbs2D["components/three/orbs-2d.ts<br/>2D intro + burst, every tier"]
+  Motion -- "full tier, after first paint (optional)" --> Three["components/three/*-scene.ts<br/>three + postprocessing"]
+  Motion -- "stretch goal, requestIdleCallback" --> Particles["tsParticles slim"]
   Pages -- "client:visible (optional)" --> Islands["React islands<br/>Kokonut / Bklit only"]
   Build["astro build"] --> Dist["dist/ static files"] --> Netlify["Netlify CDN + Forms"]
 ```
@@ -106,15 +106,14 @@ src/
     motion/
       index.ts  tier.ts  eases.ts  lenis.ts
       moments/  intro.ts  cv-reveal.ts  headline.ts  panels.ts  countup.ts
-                skills-tree.ts  contact-prompt.ts  particles.ts  pointer-glow.ts
+                skills-tree.ts  contact-prompt.ts  particles.ts (stretch goal only)
   styles/
     global.css             # tailwind, @theme tokens from DESIGN.md, shadcn variable mapping
     fonts.css              # Fontsource imports
   assets/
     avatar/  placeholder.svg      (real avatar.png arrives later)
     gallery/ .gitkeep             (screenshots arrive later)
-    og/      og-default.png       (1200x630, built from tokens in p18)
-    lottie/  burst.json           (optional; CSS ring used if absent)
+    og/      default.png home.png about.png work.png contact.png   (1200x630, p18)
 public/
   favicon.svg  favicon.ico  apple-touch-icon.png
   cv/  .gitkeep                   (aden-khan-cv.pdf arrives later)
@@ -165,6 +164,7 @@ export interface Stat {
 
 export interface HomeCopy {
   h1: string; subhead: string;
+  availability: string;              // "BBA Marketing student at IBA Karachi. Open to internships now and full-time roles from mid-2027."
   ctaPrimary: string; ctaSecondary: string;
   statBars: [string, string, string, string];
   stats: [Stat, Stat, Stat, Stat];
@@ -251,11 +251,12 @@ export interface MotionHandle { tier: MotionTier; lenis: Lenis | null; destroy()
 export function initMotion(page: PageId): MotionHandle;
 ```
 - `tier.ts`: `getTier(): MotionTier` (rules from `docs/MOTION.md` §1), writes `document.documentElement.dataset.motion`.
-- `eases.ts`: registers `ScrollTrigger`, `SplitText`, `ScrambleText`, `DrawSVG`, `CustomEase` exactly once (module-level guard), creates `ui-out` (`0.23,1,0.32,1`) and `ui-in-out` (`0.77,0,0.175,1`). Pages import only the plugins their moments use, so DrawSVG never ships on Home.
+- `eases.ts`: registers `ScrollTrigger` and `CustomEase` exactly once (module-level guard), creates `ui-out` (`0.23,1,0.32,1`) and `ui-in-out` (`0.77,0,0.175,1`). `SplitText` and `ScrambleText` are registered by the moments that use them (Home, Contact), so they never ship on About or Work.
 - `lenis.ts`: `startLenis(): Lenis` using the MOTION.md settings; ticks from `gsap.ticker`, `lagSmoothing(0)`, `lenis.on("scroll", ScrollTrigger.update)`.
 - `index.ts` creates one `gsap.matchMedia()` with conditions `{ ok: "(prefers-reduced-motion: no-preference)", fine: "(hover: hover) and (pointer: fine)", wide: "(min-width: 768px)" }`. Inside `ok` it starts Lenis and registers the page's moments from `moments/`. Each moment is `(ctx: { tier: MotionTier; fine: boolean; wide: boolean }) => void | (() => void)`.
 - **Cleanup:** no client router (ADR-001), so there is no `astro:before-swap` work. `destroy()` reverts the matchMedia context and calls `lenis.destroy()`; it runs on `pagehide` when `event.persisted === false`. On `pageshow` with `persisted === true`, `IntroGate` removes any overlay.
 - **No-JS safety:** no CSS hides content by default. Initial hidden states are set by GSAP at runtime (`gsap.set` / `from` tweens inside matchMedia), so if the module fails, everything stays visible.
+- **LCP safety:** hero hidden states are applied only after the first paint (double `requestAnimationFrame`) and only under the intro overlay. The avatar is never animated from opacity 0.
 - Each page calls it from a bundled script: `<script>import { initMotion } from "@/lib/motion"; initMotion("about");</script>`.
 
 ## 6. 3D loading strategy
@@ -263,7 +264,7 @@ export function initMotion(page: PageId): MotionHandle;
 - **Where:** Home intro, and the CV burst (any page, since the CV button is in the nav). No other 3D.
 - **Capability check (`three/capability.ts`):** `canUseWebGL(): boolean` creates a throwaway canvas and requests `webgl2`, then `webgl`, with `failIfMajorPerformanceCaveat: true`; returns false on null or exception. 3D runs only when `tier === "full"` and this returns true.
 - **Loading:** `await import("@/components/three/intro-scene")`, which imports named members from `three` and `postprocessing` only (no `import * as THREE`). The intro import starts after first paint (`requestAnimationFrame` → `requestAnimationFrame`) and only when `html.intro` is set. The burst import starts on `pointerenter` or `focus` of any CV button, or on click if neither happened.
-- **Fallback:** if the check fails, the tier is `lite`, or the import has not resolved within 600 ms, `three/orbs-2d.ts` runs the same timeline with two radial-gradient elements and a CSS ring (transform and opacity only). The burst falls back to the Lottie file, then to the CSS ring if `burst.json` is absent.
+- **Baseline first:** `three/orbs-2d.ts` (two radial-gradient elements and a CSS ring, transform and opacity only) is the intro and the CV burst on every tier, and is built first (p11, p12). The Three.js scenes are an enhancement for `full` tier, added only after the 2D version passes and kept only if Home still meets the §9 budgets. If the check fails, the tier is `lite`, or the import has not resolved within 600 ms, the 2D version runs.
 - **Mobile `full` devices:** `renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5))`, half-resolution bloom, no chromatic aberration, particle sprites in the shockwave halved (desktop 160, mobile 80).
 - **Disposal (`three/dispose.ts`):** `disposeScene(scene, renderer, composer)` traverses the scene and disposes every geometry, material and texture, disposes the composer and its passes, calls `renderer.dispose()` and `renderer.forceContextLoss()`, removes the canvas and drops references. It runs when the intro ends or is skipped. The burst disposes after its 600 ms play, and keeps the module cached for a second click.
 - **Budget:** the 3D chunk is excluded from the 150 KB first-load figure; `check-budget.mjs` must confirm `three` is not in any entry chunk.
@@ -293,7 +294,7 @@ export function initMotion(page: PageId): MotionHandle;
 | LCP | < 2.5 s | Lighthouse (lab) on mobile throttling |
 | CLS | < 0.1 | Lighthouse; plus no shift from the intro, fonts, count-ups |
 | INP | < 200 ms | Lighthouse TBT as a proxy in the lab; real-device check on CV dialog and menu |
-| First-load JS | < 150 KB gzip, excluding three, postprocessing, tsParticles, lottie | `scripts/check-budget.mjs` after build: reads each `dist/**/*.html`, sums gzip size of its `<script type="module">` entries plus their static imports, exits 1 over budget |
+| First-load JS | < 150 KB gzip, excluding three and postprocessing only (tsParticles counts if built) | `scripts/check-budget.mjs` after build: reads each `dist/**/*.html`, sums gzip size of its `<script type="module">` entries plus their static imports, exits 1 over budget |
 
 Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor that fails a milestone.
 
@@ -340,7 +341,7 @@ Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor
 - `package.json` `engines.node` is `>=22.23.4` (from the scaffold); Netlify's `NODE_VERSION = "22"` resolves to the latest 22.x. If the build complains, pin `NODE_VERSION` to an exact 22.x that satisfies it.
 - Deploy previews on every branch and pull request (Netlify default once connected). `main` deploys production.
 - `netlify-cli` (dev dependency) for `npx netlify dev` (forms locally) and `npx netlify deploy --build` (draft deploy) when the owner is signed in.
-- Backup: GitHub Pages via the official Astro action, documented in p21, not enabled unless Netlify fails.
+- Backup: GitHub Pages via the official Astro action, documented in p21, not enabled unless Netlify fails. A project site is served from `/aden-portfolio-website/`, so the backup build needs `base: "/aden-portfolio-website/"`, every internal link must use `import.meta.env.BASE_URL`, and the Netlify form is replaced by the mailto link. Build links through one helper from p08 so the backup stays a config change.
 
 ## 13. Milestones (prompts p08–p22)
 
@@ -353,12 +354,15 @@ Files: `astro.config.mjs` (site, sitemap), `styles/global.css` (DESIGN.md `@them
 - [ ] Given a fresh clone, when `npm ci && npm run verify` runs, then type check, build, budget and smoke tests pass.
 - [ ] The system shall expose every string the design plan §6 fixes from `src/data`, verbatim (spot-check 10 strings by grep against the design plan).
 - [ ] Where `assets.cvPdf.status` is `placeholder`, `cvAvailable()` shall return `false`.
+- [ ] Fonts are self-hosted: a built page makes no request to `fonts.googleapis.com` or `fonts.gstatic.com`.
 Verify: `npm run verify`. Commit: `p08: scaffold`.
 
 ### p09 — Content-first pages
 Goal: all four pages, `/thanks` and 404 complete as static HTML with DESIGN.md styling and no motion.
 - [ ] Given JavaScript disabled, when any route loads, then every section from the wireframe (design plan §3) is present with its copy.
-- [ ] Each route shall have one H1 matching `seo.ts`, a unique title and description.
+- [ ] Each route shall have one H1 matching `seo.ts` (About and Contact include their `h1Sub` line inside the H1), a unique title and description.
+- [ ] Layout follows the wireframes in `docs/02-wireframes.md` at 375px and 1440px.
+- [ ] Home's hero shows the `availability` line under the subhead.
 - [ ] Given a 360px viewport, when any route loads, then `scrollWidth <= innerWidth`.
 - [ ] The avatar slot renders the placeholder at a fixed 4:5 box (no CLS when replaced).
 Verify: `npm run verify`; screenshots at 375 and 1440 reviewed. Commit: `p09: content pages`.
@@ -378,12 +382,12 @@ Goal: `IntroGate`, `IntroOverlay`, `moments/intro.ts`, `three/intro-scene.ts`, `
 - [ ] The intro shall finish within 2.6 s (2.0 s on lite) from motion start.
 - [ ] Given the intro has played this session, when Home loads again (reload, link, or Back), then no overlay appears.
 - [ ] If `sessionStorage` throws, then the intro shall not play and no error shall be logged.
-- [ ] If WebGL is unavailable or the 3D chunk takes over 600 ms, then the 2D fallback shall run.
-- [ ] After the intro, `renderer.info.memory.geometries` and `.textures` are 0 and the canvas is removed.
+- [ ] The 2D intro meets every criterion above on its own and is committed before any Three.js work starts.
+- [ ] Where the 3D enhancement is built: if WebGL is unavailable or the 3D chunk takes over 600 ms, then the 2D version shall run; after the intro, `renderer.info.memory.geometries` and `.textures` are 0 and the canvas is removed; and Home still meets the §9 budgets, otherwise the 3D layer is removed and the decision logged.
 Verify: `npx playwright test intro`; Lighthouse LCP on Home with a cold session < 2.5 s. Commit: `p11: intro`.
 
 ### p12 — CV burst
-Goal: `CvDialog`, `moments/cv-reveal.ts`, `three/burst-scene.ts`, Lottie fallback.
+Goal: `CvDialog`, `moments/cv-reveal.ts`, the 2D burst from `three/orbs-2d.ts`; `three/burst-scene.ts` only if p11's 3D enhancement shipped.
 - [ ] When a CV button gets hover or focus, the system shall start loading the burst chunk (full tier).
 - [ ] When the CV button is clicked, the dialog shall open at 380 ms with focus on its first control, whether or not the burst has loaded.
 - [ ] Where the CV PDF is a placeholder, the dialog shall show the LinkedIn link and a "CV PDF coming soon" line and no download link.
@@ -392,16 +396,18 @@ Goal: `CvDialog`, `moments/cv-reveal.ts`, `three/burst-scene.ts`, Lottie fallbac
 Verify: `npx playwright test cv-dialog`. Commit: `p12: cv burst`.
 
 ### p13 — Home
-Goal: hero assembly, HUD scramble, count-ups, particles, pointer glow.
+Goal: hero assembly, HUD scramble, count-ups. Particles are a stretch goal, built only after p17 if Home has budget headroom.
 - [ ] Given a first session view, when the intro ends, then the stats show their exact `display` values and the page has no layout shift (CLS < 0.1).
 - [ ] Screen readers read the final stat values (visually hidden text), never intermediate numbers.
-- [ ] Particles exist only on `full` tier, pause when the hero is off-screen, and are absent at 375px.
+- [ ] Given a recruiter on a 375px phone, when Home first renders, then name, role, one proof number (−72%), IBA Karachi and availability ("Open to internships now and full-time roles from mid-2027.") are visible without scrolling past the hero (brief §6 recruiter test).
+- [ ] The avatar is never at opacity 0 at any point (check with a Performance recording).
 Verify: `npm run verify`; Lighthouse mobile on `/` ≥ 85 Performance. Commit: `p13: home`.
 
 ### p14 — About + Work
-Goal: arc panel scroll reveal, skills-tree line drawing (SVG desktop, stacked mobile), mission cards, scroll-snap gallery.
+Goal: arc panel scroll reveal, skills-tree connectors (HTML, transform-scaled, one implementation), mission cards, scroll-snap gallery.
 - [ ] When an arc panel reaches 85% of the viewport, it reveals once and never reverses.
-- [ ] At ≥ 768px the skills tree draws trunk, then branches, then chips; below 768px the stacked version animates with `scaleY`.
+- [ ] The skills tree draws trunk, then lane connectors, then chips at every width, using `transform` only; it reflows to 4, 2 and 1 columns without broken lines.
+- [ ] Every mission card's `related` link resolves to an element id that exists (`/about/#arc-*` or `/work/#skills-creative`).
 - [ ] The gallery scrolls by touch, trackpad, keyboard (focusable region) and its buttons, with no scroll-jacking.
 Verify: `npm run verify`; manual pass at 375 and 1440. Commit: `p14: about and work`.
 
@@ -423,6 +429,7 @@ Goal: hit budgets; font fallback metrics; image sizes; verify 3D disposal.
 - [ ] Lighthouse mobile Performance ≥ 85 on every route; LCP < 2.5 s; CLS < 0.1.
 - [ ] `npm run budget` reports first-load JS < 150 KB gzip per route, and no entry chunk contains `three`.
 - [ ] A recording on a mid-range Android device (or 4× CPU throttle if none) shows the intro and About scroll without long tasks over 50 ms during animation.
+- [ ] Lighthouse mobile Total Blocking Time < 200 ms on every route (lab proxy for INP < 200 ms), and opening the CV dialog and mobile menu responds in under 200 ms in a Performance recording.
 Verify: Lighthouse JSON saved to `docs/perf/` (not committed if large; summary in DECISIONS). Commit: `p17: performance`.
 
 ### p18 — Accessibility + metadata
@@ -436,6 +443,7 @@ Verify: `npx playwright test a11y smoke`. Commit: `p18: accessibility and metada
 Goal: `no-ai-slop` over all copy in `src/data` against `docs/cv-source.md`; facts unchanged.
 - [ ] No number, date, employer or tool appears that is not in `cv-source.md`.
 - [ ] H1s still contain their target keywords (SEO table unchanged unless logged).
+- [ ] IP check: a grep of `src/` and `dist/` for franchise names and technique names returns nothing, and no visual element copies a known character, logo or signature move. The owner has confirmed the avatar is original art they own (logged in DECISIONS).
 Verify: diff review of `src/data`; `npm run verify`. Commit: `p19: copy pass`.
 
 ### p20 — Tests
@@ -450,6 +458,7 @@ Goal: Netlify connected, production live, URL recorded.
 - [ ] `Astro.site`, canonical URLs, OG URLs and the sitemap use the live origin.
 - [ ] A branch push produces a deploy preview.
 - [ ] Lighthouse mobile run on the live URL meets §9; results summarised in `DECISIONS.md`.
+- [ ] Rubric gate: the real high-resolution avatar is in place on Home (not the placeholder). If it has not arrived, deploy anyway and record the open rubric risk in `DECISIONS.md` for the owner.
 Verify: smoke tests against the live URL (`BASE_URL=<live> npx playwright test smoke`). Commit: `p21: deploy`.
 
 ### p22 — Bonus reel
@@ -462,12 +471,17 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 
 | Risk | Likelihood | Impact | Mitigation | Watched in |
 |---|---|---|---|---|
-| 3D intro hurts mobile performance | High | High | `lite` tier skips Three on touch and low-memory devices; lazy chunk; 600 ms fallback; dispose after use | p11, p17 |
+| 3D intro hurts mobile performance | High | High | 2D version first for every tier; Three.js only as a `full`-tier enhancement kept if budgets hold; lazy chunk; 600 ms fallback; dispose after use | p11, p17 |
+| Intro hides the hero and delays LCP | Medium | High | Hidden states set after first paint and under the overlay only; avatar never at opacity 0; LCP measured with a cold session | p11, p13, p17 |
+| Motion scope misses the deadline | High | High | Cut order agreed in `docs/audits/docs-review.md`: pointer glow and Lottie cut, DrawSVG replaced, particles and 3D made optional | all |
+| Netlify subdomain `aden-khan-portfolio` already taken | Medium | Low | `SITE_URL` is one constant; p21 picks the next free name and updates it | p21 |
+| Avatar not original (IP) | Low | High | Owner confirms the avatar is original art they own before launch | p19 |
 | Motion makes text unreadable or delays it | Medium | High | H1s never hidden in HTML; no typing of real content; reduced-motion and no-JS tests | p10, p20 |
 | Rubric gap: Home "high-quality image" expects a photo | Medium | Medium | Owner chose the illustrated avatar (known risk, brief decision 9). Mitigate with a high-resolution avatar and strong alt text | p09, p21 |
 | Assets arrive late (avatar, screenshots, CV) | High | Medium | Placeholder slots in `assets.ts`; `cvAvailable()` gates the download link | p08, p12 |
 | First-load JS creeps over 150 KB | Medium | Medium | No required islands; per-page plugin imports; `check-budget.mjs` fails the build | p08, p17 |
 | Scope creep from 140+ installed skills and extra effects | High | Medium | MOTION.md section 3 is the cut list; anything new needs a DECISIONS entry | all |
+| Design plan doc too thin for rubric item 1 (wireframe was text only) | Medium | Medium | `docs/02-wireframes.md` adds per-page wireframes at mobile and desktop | p07 |
 | SplitText or ScrambleText hurting accessibility | Low | Medium | `aria: "auto"`; `revert()` on matchMedia revert; axe and screen-reader spot check | p13, p18 |
 | Netlify Forms not detected | Low | Medium | Static form in built HTML with `form-name`; mailto fallback always visible | p15, p21 |
 | Lenis interfering with keyboard, anchors or nested scroll | Medium | Low | `anchors: true`, `data-lenis-prevent` on gallery and dialog, not created for reduced motion | p10, p14 |
@@ -492,4 +506,4 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 | `prettier-plugin-astro` | devDependency | not installed | 1.1.2 |
 | `netlify-cli` | devDependency | not installed | 27.16.1 |
 
-To remove in p08: `@fontsource-variable/geist` (installed by shadcn, unused). Already installed and used by this plan: astro, @astrojs/react, react, react-dom, tailwindcss, @tailwindcss/vite, gsap, lenis, motion, three, @types/three, postprocessing, @tsparticles/engine, @tsparticles/slim, lottie-web, shadcn. Installed but unused unless a `.riv` file appears: `@rive-app/canvas`. Installed but out of scope: `@pixiv/three-vrm` (no 3D avatar planned).
+To remove in p08: `@fontsource-variable/geist` (installed by shadcn, unused). Already installed and used by this plan: astro, @astrojs/react, react, react-dom, tailwindcss, @tailwindcss/vite, gsap, lenis, motion, shadcn. Installed for optional or stretch work: three, @types/three, postprocessing (3D enhancement), @tsparticles/engine, @tsparticles/slim (particles stretch goal). Installed but unused: `lottie-web` (cut in p07), `@rive-app/canvas` (no `.riv` file), `@pixiv/three-vrm` (no 3D avatar planned). Leave them installed; unused packages add nothing to the bundle.

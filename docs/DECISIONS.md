@@ -157,3 +157,51 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Why: Each closes a gap the review found (`docs/SEO.md` §10).
 - Source: p06, `docs/SEO.md`.
 - Supersedes: separate Person and WebSite JSON-LD blocks and the single default OG image in `docs/ENGINEERING-PLAN.md` (updated in the same commit).
+
+## 2026-11-02 — p07 docs review: contradictions resolved
+- Decision: The design plan gets a status note naming DESIGN.md, SEO.md, MOTION.md and ENGINEERING-PLAN.md as final for palette, type, SEO, motion, stack and budgets. The brief's SEO target reads "95+ (aim 100)". CLAUDE.md lists `/thanks/` and trailing slashes in its routes rule, and its stack table marks each library as used, optional, stretch or unused. DESIGN.md's motif table gains a particles row.
+- Why: Findings 1–4, 7 and 8 in `docs/audits/docs-review.md`.
+- Source: p07.
+
+## 2026-11-02 — p07: pointer glow and Lottie burst cut
+- Decision: Cut the avatar-card pointer glow and the Lottie CV burst.
+- Why: The glow contradicted DESIGN.md's glow rule and is decoration only; the Lottie path was a third burst implementation with no asset.
+- Source: p07, findings 5, 14, 15.
+- Supersedes: MOTION.md 7b "narrowed" glow and the Lottie owner in moment 2.
+
+## 2026-11-02 — p07: one skills-tree implementation
+- Decision: The skills tree is HTML with transform-scaled connectors at every width (4, 2 or 1 columns). DrawSVG is not used.
+- Why: One implementation instead of two; nothing breaks on reflow; one fewer plugin.
+- Source: p07, finding 16.
+- Supersedes: MOTION.md 5c SVG/DrawSVG desktop version.
+
+## 2026-11-02 — p07: 2D intro first, 3D optional, particles stretch
+- Decision: The 2D intro and burst are built first and ship on every tier. Three.js is an enhancement for the `full` tier, kept only if Home meets the budgets. Particles are a stretch goal built only after p17 with budget headroom.
+- Why: The 2D version had to exist anyway; 3D and particles are the biggest performance and deadline risks.
+- Source: p07, findings 17, 18; cut order in `docs/audits/docs-review.md`.
+
+## 2026-11-02 — p07: first-load budget excludes only 3D
+- Decision: The 150 KB gzip first-load budget excludes three and postprocessing only. tsParticles counts if built.
+- Why: Matches the owner's constraint ("excluding lazily loaded 3D").
+- Source: p07, finding 6.
+- Supersedes: the exclusions for tsParticles and Lottie in ENGINEERING-PLAN.md.
+
+## 2026-11-02 — p07: LCP-safe intro
+- Decision: Hero hidden states are applied only after the first paint and only under the overlay. The avatar (LCP image) animates with transform only, never from opacity 0.
+- Why: Hiding the hero before first paint would move LCP to the end of the intro.
+- Source: p07, finding 19.
+
+## 2026-11-02 — p07: Home availability line
+- Decision: Add "BBA Marketing student at IBA Karachi. Open to internships now and full-time roles from mid-2027." under the Home subhead.
+- Why: The brief's recruiter test needs IBA and availability on Home within 30 seconds. Both sentences reuse existing About copy, so no new facts.
+- Source: p07, finding 9; `docs/SEO.md` appendix.
+
+## 2026-11-02 — p07: wireframes doc
+- Decision: Add `docs/02-wireframes.md` with mobile and desktop wireframes for every page.
+- Why: Rubric item 1 asks for a wireframe; the design plan had a text list.
+- Source: p07, finding 10.
+
+## 2026-11-02 — p07: new acceptance criteria and risks
+- Decision: Add criteria for self-hosted fonts (p08), H1 sublines, wireframes and the availability line (p09), a standalone 2D intro (p11), recruiter test and avatar opacity (p13), mission link ids and the single skills tree (p14), TBT/INP (p17), an IP grep and avatar originality confirmation (p19), and an avatar launch gate (p21). Add risk rows for LCP, deadline, Netlify subdomain, wireframe and avatar IP. Document the GitHub Pages base-path requirement.
+- Why: Findings 11, 13, 21–29.
+- Source: p07.
