@@ -82,7 +82,8 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `docs/cv-source.md` | Source facts for the CV and all copy | exists |
 | `docs/SKILLS-AND-TOOLS.md` | Installed skills and tools reference | exists |
 | `docs/01-brief.md` | Creative brief: positioning, personality, concept, success criteria | exists |
-| `DESIGN.md` | Design system: tokens, type, components | pending |
+| `DESIGN.md` | Design system: tokens, type, components, Tailwind @theme block | exists |
+| `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
 | `docs/MOTION.md` | Motion system and moments | pending |
 | `docs/ENGINEERING-PLAN.md` | Build plan and architecture | pending |
 | `docs/SEO.md` | SEO implementation details | pending |
