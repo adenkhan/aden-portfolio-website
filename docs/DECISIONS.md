@@ -422,3 +422,17 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
   - `npm run verify` passes, with new tests for: the pin and sideways movement; counts reaching their real values; keyboard focus scrolling a case into view; the phone stack; gallery momentum; and reduced-motion and no-JS end states.
   - Screenshots are in `docs/screens/` (`work-case-*`).
 - Source: r4, `docs/MOTION.md` §14.
+
+## 2026-11-03 — r5: motion density
+- Decision: owner rule **"no section is static"**. Every section on the four pages has a motion moment tied to its message, under one hero motion per screen. `find-animation-opportunities` produced the list (`docs/audits/round2-motion.md`); its default restraint is applied to *how* each moment moves (purpose, duration budget, transform and opacity, reduced motion), not *whether* it moves. Spec: `docs/MOTION.md` §15.
+- Decision: **kinetic H1s** are per-character 3D flips. The glitch stays cut (p04: cringe, and MOTION.md moment 3 disallows it); scramble stays for small labels. GROWTH swells on impact rather than scrambling, because scrambling would destroy its split characters.
+- Decision: **stat meters encode the real numbers** (72%, 40%, seven $1K ticks, four company dots); no invented scale. Between 1024 and 1280 px the strip goes 2×2 so the meters never squeeze the avatar card. The hero columns became `minmax(0, …)` after the meters shrank the card to 307 px.
+- Decision: **About arcs slam** like manga panels, with an impact flash, shake and speed lines, on the same trigger that lights the 3D path node.
+- Decision: **section wipes** have a halftone edge. Round 2 overrides DESIGN.md's "halftone only in About panels" (CLAUDE.md §4a). They are transform only and never on a first screen.
+- Decision: **a cursor companion, not a replacement cursor.** The system cursor stays (precision, assistive setups). Magnetic buttons carry their own press feedback.
+- Decision: **page changes** get their own `<main>` view transition, and the 3D flight starts on click (`astro:before-preparation`), so the page move and the camera move are one gesture.
+- Ruling: no text block over 40 words existed (the longest is the About bio at 21), so nothing was replaced or cut.
+- Ruling: impeccable's "content hidden at rest" on Work (case captions waiting for their beat) is kept. That is the r4 choreography the owner asked for; the captions stay in the HTML and the accessibility tree, and reduced motion and no-JS show them at once. Its low-contrast hits on Home are mid-animation frames, not end states (axe passes at rest). Cost if wrong: a later pass shows case captions at rest and animates only the visual.
+- Fix: programmatic scroll jumps go through Lenis (`window.__akLenis`). Under load, a native `scrollTo` could be pulled back by smooth scroll.
+- Verification: `npm run verify` passes, 104 tests; the world spec passed three repeats in a row.
+- Source: r5.

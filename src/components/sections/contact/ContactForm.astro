@@ -170,8 +170,25 @@ const { form } = contact;
     gap: 0.5rem;
   }
 
+  /* Focus feedback (r5): the label steps forward and takes the growth colour. Transform and colour only. */
   label {
+    display: inline-block;
+    justify-self: start;
     font-weight: 600;
+    transition:
+      transform var(--duration-ui) var(--ease-out),
+      color var(--duration-hover) ease;
+  }
+
+  .field:focus-within label {
+    transform: translateX(4px);
+    color: var(--color-growth);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .field:focus-within label {
+      transform: none;
+    }
   }
 
   input,

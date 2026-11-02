@@ -323,3 +323,94 @@
     color: var(--color-text-muted);
   }
 }
+
+/* Section wipe (r5, docs/MOTION.md §15): a cover in the page colour slides off each section as it
+   enters; its leading edge is a fading halftone. Added by script only. */
+.wipe-host {
+  position: relative;
+  overflow-x: clip;
+}
+
+.wipe {
+  position: absolute;
+  inset: -1px;
+  z-index: 5;
+  background-color: var(--color-bg-base);
+  pointer-events: none;
+}
+
+.wipe::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 100%;
+  bottom: 0;
+  width: 140px;
+  background-image: radial-gradient(circle, var(--color-bg-base) 38%, transparent 42%);
+  background-size: 12px 12px;
+  mask-image: linear-gradient(to left, #000, transparent);
+}
+
+/* Desktop cursor companion (r5): a small orb that opens into a ring over interactive elements.
+   The system cursor stays. Fine pointer, full tier only (created by script). */
+.cursor-orb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-skip);
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-ui) ease;
+}
+
+/* Two layers cross-fade (dot → ring); GSAP scales the element (0.25 → 1). Transform and opacity only. */
+.cursor-orb::before,
+.cursor-orb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transition: opacity var(--duration-ui) ease;
+}
+
+.cursor-orb::before {
+  background-color: var(--color-growth);
+  box-shadow: 0 0 24px 6px rgb(167 124 255 / 0.6);
+}
+
+.cursor-orb::after {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-growth),
+    0 0 14px rgb(167 124 255 / 0.45);
+  opacity: 0;
+}
+
+html.has-cursor .cursor-orb {
+  opacity: 1;
+}
+
+.cursor-orb.is-over::before {
+  opacity: 0;
+}
+
+.cursor-orb.is-over::after {
+  opacity: 1;
+}
+
+/* Page change (r5): the old page lifts away, the new one rises in, while the 3D camera flies. */
+@keyframes ak-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+}
+
+@keyframes ak-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}

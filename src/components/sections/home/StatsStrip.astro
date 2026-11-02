@@ -11,17 +11,56 @@ import { stats } from "@/data/stats";
     {stats.map((stat) => (
       <div class="stat" data-lane={stat.lane} data-stat>
         <dt>{stat.label}</dt>
-        <dd data-final={stat.display}>
+        <dd>
+          {/* Meter (r5): draws the same real number. Decorative; the value is read as text. */}
+          {stat.meter.kind === "ring" && (
+            <svg
+              class="meter"
+              viewBox="0 0 40 40"
+              aria-hidden="true"
+              focusable="false"
+              data-meter="ring"
+              data-percent={stat.meter.percent}
+            >
+              <circle cx="20" cy="20" r="16" class="track" />
+              <circle
+                cx="20"
+                cy="20"
+                r="16"
+                class="value"
+                pathLength="100"
+                stroke-dasharray={`${stat.meter.percent} 100`}
+                transform="rotate(-90 20 20)"
+                data-meter-value
+              />
+            </svg>
+          )}
+          {stat.meter.kind === "ticks" && (
+            <svg class="meter" viewBox="0 0 52 40" aria-hidden="true" focusable="false" data-meter="units">
+              {Array.from({ length: stat.meter.count }, (_, i) => (
+                <rect x={i * 7 + 2} y="8" width="4" height="24" rx="2" class="unit" data-meter-unit />
+              ))}
+            </svg>
+          )}
+          {stat.meter.kind === "dots" && (
+            <svg class="meter" viewBox="0 0 40 40" aria-hidden="true" focusable="false" data-meter="units">
+              {[
+                [12, 12],
+                [28, 12],
+                [12, 28],
+                [28, 28],
+              ]
+                .slice(0, stat.meter.count)
+                .map(([cx, cy]) => (
+                  <circle cx={cx} cy={cy} r="6" class="unit" data-meter-unit />
+                ))}
+            </svg>
+          )}
           <span class="sr-only">{stat.display}</span>
-          <span
-            class="ticker"
-            aria-hidden="true"
-            data-count={stat.value}
-            data-prefix={stat.prefix}
-            data-suffix={stat.suffix}
-            style={`min-inline-size: ${stat.display.length}ch`}
-          >
-            {stat.display}
+          <span class="ticker" aria-hidden="true" data-final={stat.display}>
+            <span data-count={stat.value} data-prefix={stat.prefix} data-suffix={stat.suffix}>
+              {stat.display}
+            </span>
           </span>
         </dd>
       </div>
@@ -61,19 +100,52 @@ import { stats } from "@/data/stats";
     font-weight: 900;
     font-variant-numeric: tabular-nums;
     color: var(--lane-colour, var(--color-text));
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
-  /* The counting copy keeps the final value's width, so counting never shifts layout. */
+  /* Meters sit beside the number, no taller than it, so the strip keeps its height (recruiter test). */
+  .meter {
+    flex-shrink: 0;
+    width: 0.9em;
+    height: 0.9em;
+    overflow: visible;
+  }
+
+  .meter[data-meter="units"] {
+    width: 1.15em;
+  }
+
+  .track {
+    fill: none;
+    stroke: var(--color-line);
+    stroke-width: 5;
+  }
+
+  .value {
+    fill: none;
+    stroke: var(--lane-colour);
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+
+  .unit {
+    fill: var(--lane-colour);
+  }
+
+  /* Counting never changes width: the final value, invisible, reserves the space (CLS). */
   .ticker {
-    display: inline-block;
+    display: inline-grid;
   }
 
-  /* Zero-height copy of the final value: reserves its real rendered width, so content-sized tracks never resize. */
-  dd::after {
+  .ticker > span,
+  .ticker::after {
+    grid-area: 1 / 1;
+  }
+
+  .ticker::after {
     content: attr(data-final);
-    display: block;
-    height: 0;
-    overflow: hidden;
     visibility: hidden;
   }
 
@@ -99,8 +171,29 @@ import { stats } from "@/data/stats";
   /* In the hero's left column the strip is narrower: content-sized tracks keep "$7,000+" from colliding. */
   @media (width >= 64rem) {
     .strip {
+      grid-template-columns: repeat(2, auto);
+      column-gap: 1.25rem;
+    }
+
+    /* Beside a 3.25rem number the meter can be smaller; it still reads as a dial. */
+    .meter {
+      width: 0.7em;
+      height: 0.7em;
+    }
+
+    .meter[data-meter="units"] {
+      width: 0.9em;
+    }
+
+    dd {
+      gap: 0.35rem;
+    }
+  }
+
+  /* Four across once the left column is wide enough for the numbers and their meters (r5). */
+  @media (width >= 80rem) {
+    .strip {
       grid-template-columns: repeat(4, auto);
-      column-gap: 1.75rem;
     }
   }
 </style>

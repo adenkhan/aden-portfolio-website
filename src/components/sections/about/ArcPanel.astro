@@ -6,9 +6,33 @@ interface Props {
 }
 
 const { arc } = Astro.props;
+// Manga speed lines (r5): rays from the panel's centre, drawn outward when it slams in.
+const rays = Array.from({ length: 14 }, (_, i) => {
+  const a = (i / 14) * Math.PI * 2 + 0.2;
+  return {
+    x1: 50 + Math.cos(a) * 18,
+    y1: 50 + Math.sin(a) * 18,
+    x2: 50 + Math.cos(a) * 75,
+    y2: 50 + Math.sin(a) * 75,
+  };
+});
 ---
 
 <li class="panel" id={arc.id} data-lane={arc.lane} data-arc-panel>
+  <!-- Impact effects (r5): invisible until the motion layer slams the panel in. Decorative. -->
+  <svg
+    class="speed"
+    viewBox="0 0 100 100"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    focusable="false"
+    data-speed-lines
+  >
+    {rays.map((r) => (
+      <line x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} />
+    ))}
+  </svg>
+  <span class="flash" aria-hidden="true" data-impact-flash></span>
   <span class="edge" aria-hidden="true" data-arc-edge></span>
   <h3>
     <span class="period">{arc.period}</span>
@@ -30,6 +54,31 @@ const { arc } = Astro.props;
     border: 1px solid var(--color-line-strong);
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
     scroll-margin-top: 2rem;
+  }
+
+  .speed,
+  .flash {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .speed line {
+    stroke: var(--lane-colour);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .flash {
+    background-color: var(--color-text);
+  }
+
+  .panel > :global(h3),
+  .panel > :global(p) {
+    position: relative;
   }
 
   /* Lane-coloured top edge (DESIGN.md manga-panel). A separate element so it can be drawn in later. */

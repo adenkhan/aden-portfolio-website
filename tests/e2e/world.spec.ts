@@ -18,7 +18,16 @@ test.beforeEach(async ({ page }) => {
 const ready = (page: Page) =>
   expect(page.locator("[data-world]")).toHaveAttribute("data-state", /ready|static/, { timeout: 15000 });
 /** Scrolls an element to the middle of the viewport, past the ScrollTrigger start lines. */
-const centre = (el: Locator) => el.evaluate((node) => node.scrollIntoView({ block: "center" }));
+const centre = (el: Locator) =>
+  el.evaluate((node) => {
+    // Through Lenis when it runs (as a wheel scroll would), so smooth scroll does not undo the jump.
+    const top =
+      node.getBoundingClientRect().top +
+      window.scrollY -
+      (innerHeight - node.getBoundingClientRect().height) / 2;
+    if (window.__akLenis) window.__akLenis.scrollTo(top, { immediate: true });
+    else node.scrollIntoView({ block: "center" });
+  });
 const debug = (page: Page) => page.evaluate(() => window.__akWorld!.debug);
 const nav = (page: Page, name: string) =>
   page.getByRole("navigation", { name: "Main" }).getByRole("link", { name, exact: true }).first().click();
@@ -85,9 +94,17 @@ test("Work: case studies pull the camera to their formation; skills light the co
   await expect
     .poll(() => page.evaluate(() => window.__akWorld!.world.input.activeCase), { timeout: 8000 })
     .toBe(2);
-  await centre(page.locator("[data-tree]"));
+  // Re-centre on every poll: under parallel software rendering a single jump can land before
+  // ScrollTrigger has re-measured after the pin.
+  const tree = page.locator("[data-tree]");
   await expect
-    .poll(() => page.evaluate(() => window.__akWorld!.world.input.skills), { timeout: 8000 })
+    .poll(
+      async () => {
+        await centre(tree);
+        return page.evaluate(() => window.__akWorld!.world.input.skills);
+      },
+      { timeout: 15000 },
+    )
     .toBe(true);
   // Labels are the real HTML lanes: hovering one selects its cluster.
   await page.locator("[data-tree-lane]").nth(1).hover();

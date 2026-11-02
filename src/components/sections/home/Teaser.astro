@@ -15,7 +15,7 @@ const lanes = ["creative", "data", "both"] as const;
     <span class="orb purple" data-orb="purple"></span>
     <span class="orb blue" data-orb="blue"></span>
   </div>
-  <h2 id="teaser-title" class="words">
+  <h2 id="teaser-title" class="words" aria-label={home.scrollWords.join(" · ")}>
     {home.scrollWords.map((word, i) => (
       <>
         {i > 0 && (

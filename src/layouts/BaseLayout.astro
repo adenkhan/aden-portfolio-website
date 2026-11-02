@@ -21,6 +21,20 @@ interface Props {
 
 const { page, jsonLd } = Astro.props;
 const meta = seo[page];
+
+// Page change (r5, docs/MOTION.md §15): the old page lifts away fast, the new one rises in while the
+// 3D camera flies (the flight starts on click, in the world controller). Short: navigation is frequent.
+const pageMove = {
+  old: { name: "ak-page-out", duration: "180ms", easing: "cubic-bezier(0.23, 1, 0.32, 1)", fillMode: "both" },
+  new: {
+    name: "ak-page-in",
+    duration: "320ms",
+    delay: "60ms",
+    easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+    fillMode: "both",
+  },
+};
+const pageTransition = { forwards: pageMove, backwards: pageMove };
 ---
 
 <html lang="en">
@@ -52,7 +66,7 @@ const meta = seo[page];
     <slot name="before-nav" />
     <SkipLink />
     <Nav />
-    <main id="main" tabindex="-1">
+    <main id="main" tabindex="-1" transition:name="page" transition:animate={pageTransition}>
       <slot />
     </main>
     <Footer />

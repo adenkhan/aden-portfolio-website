@@ -9,7 +9,12 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 <BaseLayout page="contact">
   <header class="container-site page-head">
     <PageTitle page="contact" reveal />
-    <p class="measure intro">{contact.line}</p>
+    <p class="measure intro">
+      {contact.line.slice(0, contact.line.lastIndexOf(" ") + 1)}
+      <span class="wave" data-wave>
+        {contact.line.slice(contact.line.lastIndexOf(" ") + 1)}
+      </span>
+    </p>
   </header>
   <TerminalPanel />
   <ContactForm />
@@ -25,5 +30,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
     font-size: var(--text-body-lg);
     line-height: var(--text-body-lg--line-height);
     color: var(--color-text-muted);
+  }
+
+  /* "hi." waves once (r5); inline-block so it can rotate. */
+  .wave {
+    display: inline-block;
   }
 </style>

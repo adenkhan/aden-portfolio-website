@@ -9,7 +9,7 @@ gsap.registerPlugin(SplitText, ScrambleTextPlugin);
 const FONT_WAIT_MS = 600;
 /**
  * Opt-in text reveals (docs/MOTION.md moment 3):
- *   data-reveal="headline"  masked word rise
+ *   data-reveal="headline"  kinetic type (r5): each character flips up in 3D from its bottom edge
  *   data-reveal="scramble"  ScrambleText decode, for short decorative labels
  * The hidden start state comes only from html.motion-pending, which the inline gate script adds,
  * so the text is fully visible if JavaScript is off or fails.
@@ -29,16 +29,20 @@ export async function headlines(ctx: MomentContext): Promise<void> {
   // Created after awaits, so register with the matchMedia context (reverts SplitText too).
   ctx.add(() => {
     for (const el of heads) {
+      // Words stay grouped (so lines never break mid-word); characters flip in one after another.
+      gsap.set(el, { perspective: 600 });
       SplitText.create(el, {
-        type: "lines,words",
-        mask: "lines",
+        type: "words,chars",
         aria: "auto",
         autoSplit: true,
         onSplit: (self) =>
-          gsap.from(self.words, {
-            yPercent: 110,
-            duration: lite ? 0.45 : 0.7,
-            stagger: lite ? 0.04 : 0.05,
+          gsap.from(self.chars, {
+            rotationX: -90,
+            yPercent: 40,
+            opacity: 0,
+            transformOrigin: "50% 100%",
+            duration: lite ? 0.5 : 0.7,
+            stagger: lite ? 0.012 : 0.018,
             ease: "ui-out",
           }),
       });

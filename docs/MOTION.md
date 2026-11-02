@@ -518,3 +518,39 @@ The result is the hero: its number (or its whole line, when the result has no nu
 - Cards tilt toward a fine pointer, at most 8° on Y and 6° on X, eased 0.4 s.
 - Touch keeps native swipe and scroll-snap; keyboard and scrollbar work unchanged.
 - The p14 pinned gallery is removed (the case sequence is now the pinned moment on Work).
+
+## 15. Motion density (r5)
+
+**Owner rule:** no section is static. Every section has at least one motion moment tied to its message, under one hero motion per screen. The opportunities, recipes and hierarchy check are in `docs/audits/round2-motion.md`. This section is the spec.
+
+- **Kinetic H1s** (`headline.ts`). SplitText splits each H1 into words and characters (words stay whole, so lines never break mid-word). Each character comes from `rotationX −90°, yPercent 40, opacity 0` around its bottom edge, with perspective 600 px, stagger 0.018 s (lite 0.012 s), 0.7 s `ui-out` (lite 0.5 s). Screen readers read the H1 as one string.
+- **Teaser words** (`home.ts`). Each word's characters flip in the same way, scrubbed with the collision (stagger 0.03): CREATIVE at 0.05, DATA at 0.2, GROWTH at 0.5. GROWTH swells to 1.08 and back at 0.78 (the impact). The H2 carries its accessible name in `aria-label`, so split characters are never read one by one.
+- **Stat meters** (`StatsStrip.astro`, `home.ts`). Each meter draws its real number:
+  - rings to 72% and 40% (`stroke-dasharray` with `pathLength 100`);
+  - seven ticks for $7K (one per $1,000);
+  - four dots for four companies.
+
+  Rings draw over 0.9 s `power3.out`; ticks and dots light in turn, in step with the count-up. When the page starts at the top, both wait 0.75 s so the H1 lands first. Meters sit inline beside the number at 0.9 em (0.7 em on desktop), so the strip keeps its height. The strip runs four across from 1280 px and 2×2 below that.
+- **About arcs: the slam** (`about.ts`). When a panel's top passes 70% (the same moment its 3D node lights):
+  - it drops from `scale 1.12, y −30, rotation ±2°` (phones: `scale 1.06, y −16`) to rest in 0.32 s `power4.in`;
+  - an impact flash (white overlay 0.45 → 0, 0.18 s) and a 4 px shake (0.25 s) follow;
+  - 14 speed lines draw outward (DrawSVG 0% → 40–100%, 0.3 s) and fade;
+  - the lane edge then draws.
+
+  In a two-column row the right panel hits 0.14 s after the left.
+- **Bio lines** rise in order (y 16, 0.5 s, stagger 0.12, from 0.45 s). **Education chips** stamp in (`scale 1.25 → 1`, `rotation −4° → 0`, `back.out(2)`, stagger 0.1). **"Next quest"** decodes (ScrambleText "01", 0.6 s).
+- **Section wipes** (`wipes.ts`). A cover in the page colour, with a fading halftone leading edge, slides off the section (`xPercent 0 → 101`, 0.6 s `ui-in-out`) when its top passes 85%, then removes itself. Details:
+  - Added by script only, and never to a section already on screen at load.
+  - Used on About education and quest, Work skills and gallery, and the Contact form.
+  - What follows each wipe (chip stamps, label decode, form fields) starts 0.3–0.35 s later.
+- **Contact.** "hi." waves once (`rotation 0 → 14 → −8 → 0`, 0.6 s, from 0.9 s). The form fields stagger in after the wipe (y 12, 0.4 s, stagger 0.06). On focus, a field's label steps forward 4 px and takes the growth colour (CSS, 220 ms). The terminal decode now starts at 0.6 s, after the H1.
+- **Cursor companion and magnetic buttons** (`cursor.ts`; desktop, fine pointer, full tier only).
+  - **Orb:** a 40 px element at scale 0.25 follows the pointer (`quickTo`, 0.25 s). Over anything interactive it scales to 1 (0.2 s) and cross-fades from a glowing dot to a ring. The system cursor stays visible.
+  - **Magnetic `.btn`:** it leans up to 6 px toward the pointer (0.3 s `ui-out`) and springs back on leave (`elastic.out(1, 0.5)`, 0.5 s).
+  - **Press:** handled in the same module (scale 0.97 in 0.1 s, back in 0.16 s), because the magnet's inline transform overrides the CSS `:active` scale.
+- **Page changes** (BaseLayout, world controller). `<main>` uses its own view transition:
+  - Old page: `ak-page-out`, translateY −16 px and opacity → 0 over 180 ms.
+  - New page: `ak-page-in`, from 20 px, 320 ms, 60 ms delay, both `ui-out`.
+  - The 3D camera starts flying to the destination's station on `astro:before-preparation` (the click), so the page and the camera move together.
+  - Programmatic scroll jumps (focusing a case) go through Lenis (`window.__akLenis`, immediate), so smooth scroll never pulls the page back.
+- **Reduced motion.** None of this runs: no splits, no meters animating, no slams, wipes, cursor or magnet. The router disables view-transition animations. Every section shows its end state.

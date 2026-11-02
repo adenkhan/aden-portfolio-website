@@ -3,6 +3,7 @@ import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { gsap, ScrollTrigger } from "../eases";
 import type { MomentContext } from "../types";
 import { buildCase, type CaseMotion } from "./case-visuals";
+import { wipes } from "./wipes";
 
 gsap.registerPlugin(DrawSVGPlugin, InertiaPlugin);
 const SVG = "http://www.w3.org/2000/svg";
@@ -82,7 +83,10 @@ function cases(ctx: MomentContext): (() => void) | void {
     panels.forEach((panel, i) => {
       const onFocus = () => {
         const st = slide.scrollTrigger!;
-        window.scrollTo({ top: st.start + (st.end - st.start) * (last ? i / last : 0), behavior: "instant" });
+        const top = st.start + (st.end - st.start) * (last ? i / last : 0);
+        // Through Lenis when it runs, so smooth scroll never pulls the page back from the jump.
+        if (window.__akLenis) window.__akLenis.scrollTo(top, { immediate: true });
+        else window.scrollTo({ top, behavior: "instant" });
       };
       panel.addEventListener("focus", onFocus);
       cleanups.push(() => panel.removeEventListener("focus", onFocus));
@@ -307,6 +311,7 @@ function gallery(ctx: MomentContext): (() => void) | void {
 
 export function work(ctx: MomentContext): () => void {
   const cleanups: Array<() => void> = [];
+  cleanups.push(wipes(["#skills", "#gallery"]));
   for (const moment of [cases, skillsTree, gallery]) {
     const cleanup = moment(ctx);
     if (cleanup) cleanups.push(cleanup);

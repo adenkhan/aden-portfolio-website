@@ -27,7 +27,12 @@ export interface SiteConfig {
   footer: { copyright: string };
 }
 
+/** How a stat draws its number (r5): a ring to a percentage, or one mark per unit. Real values only. */
+export type StatMeter =
+  { kind: "ring"; percent: number } | { kind: "ticks"; count: number } | { kind: "dots"; count: number };
+
 export interface Stat {
+  meter: StatMeter;
   value: number;
   prefix?: string;
   suffix?: string;

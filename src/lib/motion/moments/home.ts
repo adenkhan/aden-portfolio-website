@@ -1,3 +1,4 @@
+import { SplitText } from "gsap/SplitText";
 import { gsap, ScrollTrigger } from "../eases";
 import { introGate } from "../intro-gate";
 import type { MomentContext } from "../types";
@@ -49,8 +50,17 @@ function countUps(ctx: MomentContext): (() => void) | void {
   const format = (el: HTMLElement, n: number) =>
     `${el.dataset.prefix ?? ""}${Math.round(n).toLocaleString("en-US")}${el.dataset.suffix ?? ""}`;
 
-  const restore = () => counters.forEach((el) => (el.textContent = format(el, Number(el.dataset.count))));
+  // Meters (r5): rings draw to their real percentage, units (ticks, dots) light one by one.
+  const rings = gsap.utils.toArray<SVGCircleElement>("[data-meter-value]");
+  const units = gsap.utils.toArray<SVGElement>("[data-meter-unit]");
+
+  const restore = () => {
+    counters.forEach((el) => (el.textContent = format(el, Number(el.dataset.count))));
+    gsap.set([...rings, ...units], { clearProps: "strokeDasharray,opacity" });
+  };
   for (const el of counters) el.textContent = format(el, 0);
+  gsap.set(rings, { strokeDasharray: "0 100" });
+  gsap.set(units, { opacity: 0.15 });
   ScrollTrigger.create({
     trigger: counters[0].closest(".stats") ?? counters[0],
     start: "top 90%",
@@ -59,15 +69,24 @@ function countUps(ctx: MomentContext): (() => void) | void {
       try {
         sessionStorage.setItem(COUNTED_KEY, "1");
       } catch {}
+      // Hierarchy (r5): on the first screen the H1 is the hero; the meters and counts follow it.
+      const delay = window.scrollY < 10 ? 0.75 : 0;
       for (const el of counters) {
         const target = { value: 0 };
         gsap.to(target, {
           value: Number(el.dataset.count),
           duration: ctx.tier === "lite" ? 0.7 : 0.9,
           ease: "power3.out",
+          delay,
           onUpdate: () => (el.textContent = format(el, target.value)),
         });
       }
+      const duration = ctx.tier === "lite" ? 0.7 : 0.9;
+      for (const ring of rings) {
+        const percent = (ring.closest("[data-percent]") as SVGElement | null)?.dataset.percent ?? "0";
+        gsap.to(ring, { strokeDasharray: `${percent} 100`, duration, delay, ease: "power3.out" });
+      }
+      gsap.to(units, { opacity: 1, duration: 0.2, stagger: duration / 9, delay, ease: "ui-out" });
     },
   });
   // If motion is reverted mid-count (reduced motion switched on), show the real numbers.
@@ -109,13 +128,23 @@ function cardTilt(ctx: MomentContext): (() => void) | void {
  * Scroll moment: red and blue converge into purple as the section scrolls through, and the three
  * words arrive with them (CREATIVE and DATA as the orbs close in, GROWTH on impact).
  */
+const flipFrom = { rotationX: -90, yPercent: 30, opacity: 0, transformOrigin: "50% 100%" };
+const flipTo = { rotationX: 0, yPercent: 0, opacity: 1 };
+
 function teaserCollision(): void {
   const stage = document.querySelector<HTMLElement>("[data-collide]");
   if (!stage) return;
   const red = stage.querySelector("[data-orb='red']");
   const blue = stage.querySelector("[data-orb='blue']");
   const purple = stage.querySelector("[data-orb='purple']");
-  const [creative, data, growth] = gsap.utils.toArray<HTMLElement>("[data-teaser] [data-word]");
+  const words = gsap.utils.toArray<HTMLElement>("[data-teaser] [data-word]");
+  gsap.registerPlugin(SplitText);
+  // Kinetic type (r5): each word's characters flip up in 3D as the orbs close in. The heading keeps
+  // its accessible name from aria-label, so the split characters are never read one by one.
+  gsap.set(words, { perspective: 500 });
+  const [creative, data, growth] = words.map(
+    (word) => SplitText.create(word, { type: "chars", aria: "none" }).chars,
+  );
   // Red sits at 22% and blue at 78% of the stage; both travel to the centre (50%).
   const toCentre = () => stage.clientWidth * 0.28;
   const apart = () => stage.clientWidth * 0.12;
@@ -135,9 +164,11 @@ function teaserCollision(): void {
     .fromTo(blue, { x: apart }, { x: () => -toCentre() }, 0)
     .fromTo(purple, { scale: 0.4, opacity: 0 }, { scale: 1.15, opacity: 1, ease: "power2.in" }, 0.35)
     .to([red, blue], { opacity: 0.3, scale: 0.85 }, 0.6)
-    .fromTo(creative, { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, 0.05)
-    .fromTo(data, { opacity: 0, y: 24 }, { opacity: 1, y: 0 }, 0.2)
-    .fromTo(growth, { opacity: 0, y: 24, scale: 0.9 }, { opacity: 1, y: 0, scale: 1 }, 0.5);
+    .fromTo(creative, flipFrom, { ...flipTo, stagger: 0.03 }, 0.05)
+    .fromTo(data, flipFrom, { ...flipTo, stagger: 0.03 }, 0.2)
+    .fromTo(growth, flipFrom, { ...flipTo, stagger: 0.03 }, 0.5)
+    // Impact: GROWTH swells once as red and blue merge into purple.
+    .to(words[2], { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, transformOrigin: "50% 60%" }, 0.78);
 }
 
 /** Home-only motion. Sets every hidden start state synchronously after the intro gate resolves. */

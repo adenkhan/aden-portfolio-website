@@ -57,6 +57,14 @@ export function startWorld(host: HTMLElement, reduced: boolean): World | null {
     teardown?.();
     teardown = null;
   });
+  // Hand-off (r5): the camera starts flying to the destination's station on click, while the router
+  // fetches the page, so the 3D move and the page transition happen together.
+  document.addEventListener("astro:before-preparation", (event) => {
+    const to = (event as Event & { to?: URL }).to;
+    if (!to || to.origin !== location.origin) return;
+    const page = to.pathname.replace(/^\/|\/$/g, "") || "home";
+    world.setStation(STATIONS[page] ?? "rest");
+  });
 
   // Pause when the tab is hidden or the canvas is not on screen; reduced motion never runs a loop.
   const sync = () => {
