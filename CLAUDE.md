@@ -85,7 +85,7 @@ Read the relevant docs before changing code. Update `docs/DECISIONS.md` whenever
 | `DESIGN.md` | Design system: tokens, type, components, Tailwind @theme block | exists |
 | `docs/design-canvas/` | Three-direction exploration canvas (open index.html) | exists |
 | `docs/MOTION.md` | Motion system: tiers, moments, budget, checklist | exists |
-| `docs/ENGINEERING-PLAN.md` | Build plan and architecture | pending |
+| `docs/ENGINEERING-PLAN.md` | Architecture, folders, data types, budgets, tests, deploy, milestones p08–p22, risks | exists |
 | `docs/SEO.md` | SEO implementation details | pending |
 | `docs/DECISIONS.md` | Running log of decisions | exists |
 

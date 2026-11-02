@@ -121,3 +121,23 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Home's first load has no React island; the CV dialog is a native `<dialog>`; React islands use `client:visible` or `client:idle`; Three.js, tsParticles and lottie-web load lazily. Estimated first load is about 62 KB gzip without islands. The build must check the real size.
 - Why: Keeps first load under the 150 KB gzip target with room for one island. The figures are estimates, not measurements.
 - Source: p04, `docs/MOTION.md` section 4.
+
+## 2026-11-02 — Engineering architecture
+- Decision: Static multi-page Astro with no `<ClientRouter />`; native cross-document view transitions. No required React islands (optional Kokonut/Bklit islands use `client:visible` or `client:media`). All copy in typed `src/data/*.ts`, not content collections. Netlify hosting with GitHub Pages as a static backup.
+- Why: Four real pages for the rubric, a 150 KB first-load budget, and simpler motion lifecycle (no swap events to clean up).
+- Source: p05, `docs/ENGINEERING-PLAN.md` §1 (ADR-001 to ADR-004).
+
+## 2026-11-02 — Site URL placeholder and /thanks route
+- Decision: `site` is `https://adenkhan.netlify.app` until deploy confirms the real origin. A `/thanks` page (noindex, excluded from the sitemap) confirms Netlify form submissions.
+- Why: Canonical, OG and sitemap URLs need an absolute origin from p08 onward; the form needs a landing page.
+- Source: p05, `docs/ENGINEERING-PLAN.md` §4 and §10.
+
+## 2026-11-02 — Lane assignments
+- Decision: Missions 1 both, 2 data, 3 creative, 4 data, 5 data, 6 data, 7 both, 8 creative, 9 creative. Arcs 1 creative, 2 both, 3 data, 4 both. Skill lanes: product both, growth creative, data data, creative creative.
+- Why: Red is storytelling and campaigns, blue is analytics, automation and tooling, purple is where both are needed (DESIGN.md Colors).
+- Source: p05, `docs/ENGINEERING-PLAN.md` §3.
+
+## 2026-11-02 — SEO score floor
+- Decision: Lighthouse SEO ≥ 95 is the pass floor per the owner's p05 budgets; 100 remains the aim from the brief.
+- Source: p05, `docs/ENGINEERING-PLAN.md` §9.
+- Supersedes: "SEO 100" as a hard target in the 2026-11-02 Lighthouse targets entry.
