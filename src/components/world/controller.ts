@@ -200,6 +200,14 @@ function wirePage(world: World, reduced: boolean): () => void {
     on(window, "ak:burst", burst);
   }
 
+  // Rewind to top (r8g): the world's clock runs backwards while the page rewinds; the page's own
+  // scroll-driven states (path, cases, Convergence) unwind with the scroll.
+  on(window, "ak:rewind", (event) => {
+    world.timeScale = (event as CustomEvent<{ on: boolean }>).detail.on ? -3 : 1;
+    world.notifyInput();
+  });
+  cleanups.push(() => (world.timeScale = 1));
+
   // The orbs lean toward a fine pointer; any input keeps the low tier at full frame rate.
   const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
   on(window, "pointermove", (event) => {

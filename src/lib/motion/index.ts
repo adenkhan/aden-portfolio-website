@@ -6,6 +6,7 @@ import { cursor } from "./moments/cursor";
 import { speedLines } from "./moments/speed";
 import { headlines } from "./moments/headline";
 import { pointerGlow } from "./moments/pointer-glow";
+import { rewind } from "./moments/rewind";
 import { getTier, type MotionTier } from "./tier";
 import type { MomentContext } from "./types";
 
@@ -91,7 +92,7 @@ export function initMotion(page: PageId): MotionHandle {
       ]).finally(() => root.classList.remove("motion-pending"));
 
       // Ambient particles now live on the GPU in the persistent world (r3), not in tsParticles.
-      for (const moment of [pointerGlow, cursor, charge, speedLines]) {
+      for (const moment of [pointerGlow, cursor, charge, speedLines, rewind]) {
         const cleanup = moment(ctx);
         if (cleanup) cleanups.push(cleanup);
       }

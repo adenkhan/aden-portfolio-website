@@ -665,3 +665,54 @@ html[data-portal]::view-transition-new(*) {
     text-shadow: none;
   }
 }
+
+/* Rewind to top (r8g, docs/MOTION.md §23): a VHS-rewind overlay while the page rewinds. Scanlines,
+   a bright tracking band rolling down, and a "◀◀ REW" mark. Created by script; never for reduced motion. */
+.vhs {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease;
+}
+
+.vhs.is-on {
+  opacity: 1;
+}
+
+.vhs-lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgb(242 243 250 / 0.07) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+}
+
+.vhs-band {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 10%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(242 243 250 / 0.1) 40%,
+    rgb(242 243 250 / 0.22) 50%,
+    rgb(242 243 250 / 0.1) 60%,
+    transparent
+  );
+  mix-blend-mode: screen;
+}
+
+.vhs-osd {
+  position: absolute;
+  top: max(1.25rem, env(safe-area-inset-top, 0px));
+  left: max(1.25rem, env(safe-area-inset-left, 0px));
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 0.8rem + 1vw, 1.5rem);
+  letter-spacing: 0.1em;
+  color: var(--color-text);
+  text-shadow:
+    -2px 0 var(--color-creative),
+    2px 0 var(--color-data);
+}

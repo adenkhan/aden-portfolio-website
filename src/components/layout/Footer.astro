@@ -5,6 +5,11 @@ import { site } from "@/data/site";
 <footer class="site-footer">
   <div class="container-site footer-inner">
     <p class="copy">{site.footer.copyright}</p>
+    <!-- A plain link to the top (works without JavaScript); with motion it rewinds (r8g). -->
+    <a href="#top" class="to-top" data-rewind>
+      <span aria-hidden="true">◀◀</span>
+      {site.footer.toTop}
+    </a>
     <ul class="links">
       <li>
         <a href={`mailto:${site.email}`}>{site.email}</a>
@@ -44,6 +49,34 @@ import { site } from "@/data/site";
 
   .copy {
     margin: 0;
+  }
+
+  .to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text);
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  .to-top span {
+    font-size: 0.7em;
+    color: var(--color-growth);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .to-top:hover {
+      color: var(--color-growth);
+    }
+  }
+
+  .to-top:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
 
   .links {

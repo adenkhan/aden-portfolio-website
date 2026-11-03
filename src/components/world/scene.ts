@@ -995,6 +995,9 @@ export class World {
     this.lastInput = performance.now();
   }
 
+  /** Clock speed for the shaders' time; negative runs the world backwards (r8g rewind). */
+  timeScale = 1;
+
   notifyInput() {
     this.lastInput = performance.now();
   }
@@ -1286,7 +1289,7 @@ export class World {
     const capped = this.quality.idleCap && idle;
     if (capped && now - this.last < 1000 / 30 - 2) return;
     this.last = now;
-    this.time += dt;
+    this.time += dt * this.timeScale;
     this.update(dt, this.snapNext);
     this.snapNext = false;
     this.draw();

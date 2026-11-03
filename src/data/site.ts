@@ -21,5 +21,5 @@ export const site: SiteConfig = {
   cvLabel: "Download CV",
   // The file always exists: a generated stand-in until the real CV replaces it (docs/ASSETS.md).
   cvPath: "/cv/aden-khan-cv.pdf",
-  footer: { copyright: "© 2026 Aden Khan · Product Marketer · Karachi, Pakistan" },
+  footer: { copyright: "© 2026 Aden Khan · Product Marketer · Karachi, Pakistan", toTop: "Back to top" },
 };

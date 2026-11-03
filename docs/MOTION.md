@@ -699,3 +699,15 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **Glitch.** The first hover of each card glitches its result number once: 420 ms of stepped RGB split, slices and a 3 px jitter, in CSS only, so the scroll-scrubbed count is never touched.
 - **Mobile and touch-only.** None of it; touch has no hover and no cursor. The cards and numbers stay as they are.
 - **Reduced motion.** None of it (the module runs only inside the motion context).
+
+## 23. Rewind to top (r8g)
+
+`src/lib/motion/moments/rewind.ts`; the "Back to top" link is in `Footer.astro`; the world's clock is `World.timeScale`.
+
+- **Control.** The footer has a real `<a href="#top">` "Back to top" (`<body id="top">`), so it works with no JavaScript and with reduced motion. With motion, a capture-phase click handler takes it over (ahead of Lenis's own anchor handling and the router).
+- **Rewind.** `lenis.scrollTo(0, { duration: 1.6, lock: true })` with an ease-in-out cubic, so input is locked until it lands. Focus then moves to `#main` without a jump.
+- **VHS overlay.** Fixed and `aria-hidden`: 1 px scanlines every 3 px, a bright tracking band rolling down the screen (0.7 s per pass), and a "◀◀ REW" mark top left with a red/blue split. Every frame it jitters sideways by up to ±3 px and skews by up to ±1°, scaled by the Lenis speed (full at 60 px a frame).
+- **Chromatic split.** A red/blue `text-shadow` of up to ±6 px, scaled by the same speed, on the headings, stat chips and results in view. It's recomputed only when the rounded value changes. A `filter` on `<main>` or its sections blanked the content (`main` is over 9,000 px tall on Work, past the GPU's texture limit), so filters are not used.
+- **3D.** While rewinding, the world's shader clock runs backwards at 3× (`ak:rewind`, `timeScale = -3`), so the field, dust and orbs replay in reverse. The page's scroll-driven 3D states (About path and nodes, Work cases, the Home Convergence scrub) unwind with the scroll. The speed lines (§17) fire on the way up.
+- **Mobile.** The same rewind and overlay without the chromatic split.
+- **Reduced motion and no JavaScript.** The plain link: an instant jump to the top, with no overlay.

@@ -24,7 +24,7 @@ export interface SiteConfig {
   hudTag: string;
   cvLabel: string;
   cvPath: string;
-  footer: { copyright: string };
+  footer: { copyright: string; toTop: string };
 }
 
 /** How a stat draws its number (r5): a ring to a percentage, or one mark per unit. Real values only. */

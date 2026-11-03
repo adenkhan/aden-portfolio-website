@@ -61,7 +61,7 @@ const pageTransition = { forwards: pageMove, backwards: pageMove };
     <LottieSlots />
     <slot name="head" />
   </head>
-  <body data-page={page}>
+  <body id="top" data-page={page}>
     <World />
     <slot name="before-nav" />
     <SkipLink />

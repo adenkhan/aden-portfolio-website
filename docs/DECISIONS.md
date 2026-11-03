@@ -480,3 +480,10 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: the cursor orb is red and blue with a five-dot trail, pulled toward buttons and cards. Hovering a case card sends noise-jittered lightning along its border, and its result number glitches once (`docs/MOTION.md` §22). Desktop fine pointer only, as the prompt says.
 - Ruling: the glitch is a CSS animation on the result's box, not a text scramble, because on desktop the count is scrubbed by scroll and a scramble would fight it. Cost if wrong: the glitch never changes the digits themselves.
 - Ruling: GSAP Observer drives the orb with pointer and touch types, so hybrid laptops behave the same; touch-only devices still get no orb, since there is nothing to follow.
+
+## 2026-11-03 — r8g: rewind to top
+- Decision: "Back to top" in the footer rewinds the page over 1.6 s under a VHS-rewind overlay, while the 3D world's clock runs backwards (`docs/MOTION.md` §23). It is a plain `#top` link underneath.
+- Ruling: the chromatic split is a text-shadow on the headings and numbers in view, not a filter on the page. A `drop-shadow` filter on `<main>` (9,135 px tall on Work) blanked all the content, and on a pinned section it blanked part of the screen. Cost if wrong: the split shows on text only, not on images or SVG.
+- Ruling: the "Back to top" label sits in the footer (outside the word budgets). The link is captured before Lenis's `anchors` handling, which would otherwise scroll it without the overlay.
+- Also fixed (r8b): jumping past the pinned About arcs (End key, a reload further down, a rewind) now slams every panel; before, panels after the first could stay hidden.
+- Known: under full parallel test load, the r8c portal and r8g rewind tests can time out. Run alone or in their group they pass (two runs of 49 in a row).

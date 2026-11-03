@@ -314,9 +314,11 @@ test.describe("r8f charged cards and orb cursor", () => {
     await page.goto("/work/?world=off");
     await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 3000 });
     await expect(page.locator("[data-cursor-trail]")).toHaveCount(5);
-    await page.locator("[data-cases]").evaluate((s) =>
-      window.__akLenis?.scrollTo(s.getBoundingClientRect().top + window.scrollY, { immediate: true }),
-    );
+    await page
+      .locator("[data-cases]")
+      .evaluate((s) =>
+        window.__akLenis?.scrollTo(s.getBoundingClientRect().top + window.scrollY, { immediate: true }),
+      );
     await page.mouse.move(5, 5);
     await page.waitForTimeout(300);
     const card = page.locator("[data-case-card]").first();
@@ -363,5 +365,56 @@ test.describe("r8f reduced motion", () => {
     await page.goto("/work/");
     await page.locator("[data-case-card]").first().hover();
     await expect(page.locator("[data-cursor-orb], [data-cursor-trail], .charge")).toHaveCount(0);
+  });
+});
+
+test.describe("r8g rewind to top", () => {
+  test("Back to top rewinds under the VHS overlay with the world running backwards, then lands at the top", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/about/?world=force");
+    await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 5000 });
+    await page.evaluate(() => {
+      const w = window as unknown as { __rew: boolean[]; __scale: number[] };
+      w.__rew = [];
+      w.__scale = [];
+      addEventListener("ak:rewind", (e) => w.__rew.push((e as CustomEvent<{ on: boolean }>).detail.on));
+      const tick = () => {
+        if (document.querySelector(".vhs.is-on")) w.__scale.push(window.__akWorld?.world.timeScale ?? 1);
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      window.__akLenis?.scrollTo(document.documentElement.scrollHeight, { immediate: true });
+    });
+    const link = page.locator("[data-rewind]");
+    await link.click();
+    await expect(page.locator(".vhs.is-on")).toHaveCount(1);
+    await expect.poll(() => page.evaluate(() => window.scrollY), { timeout: 5000 }).toBe(0);
+    await expect(page.locator(".vhs.is-on")).toHaveCount(0);
+    const { rew, scale } = await page.evaluate(() => {
+      const w = window as unknown as { __rew: boolean[]; __scale: number[] };
+      return { rew: w.__rew, scale: w.__scale };
+    });
+    expect(rew).toEqual([true, false]);
+    expect(scale.some((s) => s < 0)).toBe(true);
+    expect(await page.evaluate(() => window.__akWorld?.world.timeScale)).toBe(1);
+    await expect(page.locator("#main")).toBeFocused();
+    expect(
+      await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>("main *")].some((el) => el.style.textShadow),
+      ),
+    ).toBe(false);
+  });
+});
+
+test.describe("r8g reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("Back to top is a plain link to the top: no overlay", async ({ page }) => {
+    await page.goto("/about/");
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.locator("[data-rewind]").click();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page.locator(".vhs")).toHaveCount(0);
   });
 });

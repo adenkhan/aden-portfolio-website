@@ -97,11 +97,14 @@ export function about(ctx: MomentContext): () => void {
       start: "center center",
       end: `+=${n * 60}%`,
       pin: true,
+      // Jumping past the pin (End key, a rewind, a reload further down) still slams every panel.
+      onLeave: () => panels.forEach((_, i) => slam(i)),
       onUpdate: (self) => {
         const count = self.progress <= 0 ? 0 : Math.min(n, Math.floor(self.progress * n) + 1);
         for (let i = 0; i < count; i++) slam(i);
       },
     });
+    if (window.scrollY >= pin.end) panels.forEach((_, i) => slam(i));
     ScrollTrigger.create({
       trigger: section,
       start: "top 75%",
