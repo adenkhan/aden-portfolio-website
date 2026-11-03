@@ -59,4 +59,20 @@ Status column: **PASS**, **FAIL** (fixed in this round, rechecked below), **OPEN
 
 ## Final status
 
-Pending the redeploy and recheck of B2, C4, C6, C7 (see the end of this file once rerun).
+Rechecked on the live URL after the redeploy (only the failed checks):
+
+| Item | Recheck | Result |
+|---|---|---|
+| B2 | Poster srcset now 400 / 800 / 1200 w (1200×1500 max); at 2x the 386 px slot loads the 800 px file | PASS |
+| C4 |  JSON-LD:  | PASS |
+| C6 | Education chips, case company line, campaign client line and concept disclaimer are 16 px at 360 px. Only decorative HUD and format chips stay at 13 px | PASS |
+| C7 | Logo link 44×44 px on all four pages at 360 px; no horizontal scroll | PASS |
+
+Still open for the owner: **A5** (set  in Vercel, then send a test message; arrival cannot be confirmed from outside) and **A8** (the assignment lists GitHub Pages, Netlify or Wix as hosts; Vercel is not on that list).
+
+## Verdicts
+
+- **A. Deployment:** live, HTTPS, correct status codes, working links and a clean console; the contact form will not deliver mail until  is set, and Vercel is not one of the three hosts the assignment names.
+- **B. Content and structure:** all four pages have their required content, real creatives, correct stats and a sharp, accessible 1200 px poster.
+- **C. SEO and mobile:** titles, descriptions, H1s, alt text, structured data, mobile layout and axe are clean; Lighthouse SEO and Accessibility are ≥ 96 on every page.
+- **D. Evaluation criteria:** keyboard, reduced motion, throttled phone and the intro (cleared in 1.9 s, Skip in 0.2 s) all pass; design notes are the 13 px labels, the empty right half of /contact/ and the length of /work/.
