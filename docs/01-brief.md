@@ -55,7 +55,7 @@ General aesthetics, never specific franchise assets.
 4. How to reach him, within one click of any page.
 The viewer should also recall that the site "looks like a game HUD", and should not say it was hard to read or slow.
 
-**Grader rubric (4 marks).** All four routes exist with real HTML text; Home has intro, headline and a high-quality image; About has bio, education and goals; Work shows projects and skills; Contact shows email and LinkedIn; each page has keywords in its H1 and content, a meta description and alt text; the site is readable on mobile; and it is live on Netlify (GitHub Pages as backup).
+**Grader rubric (4 marks).** All four routes exist with real HTML text; Home has intro, headline and a high-quality image; About has bio, education and goals; Work shows projects and skills; Contact shows email and LinkedIn; each page has keywords in its H1 and content, a meta description and alt text; the site is readable on mobile; and it is live on a free host (Vercel).
 
 **Lighthouse (mobile, production build).** Performance 85+, Accessibility 95+, Best Practices 95+, SEO 95+ (aim 100). Performance is deliberately a little lower than the others because of the motion layer; the text must still render fast (LCP under 2.5 s, no layout shift from the intro).
 
@@ -78,7 +78,7 @@ Answers to the brainstorming questions, chosen to serve a recruiter at a tech st
 | 10 | Do the stat bars on the avatar show real numbers? | No invented percentages. The four bars (Positioning, Analytics, Automation, Paid growth) are labelled only, or tied to real proof elsewhere. Unexplained ratings read as fake. |
 | 11 | How far do we gamify the language? | Labels and microcopy only (HUD tag, "missions", "open a channel"). Headlines and body stay professional so a recruiter never has to decode them. |
 | 12 | Is purple a third brand colour or a state? | A state. It appears only where creative and data are shown together, which keeps the metaphor honest. |
-| 13 | What is the contact flow? | Email and LinkedIn first, one click from every page. The optional form (Netlify Forms) is secondary and may be left out. |
+| 13 | What is the contact flow? | Email and LinkedIn first, one click from every page. The optional form (the Vercel contact function (api/contact.js)) is secondary and may be left out. |
 | 14 | Does the 3D layer carry content? | No. Three.js and particles are decoration that loads after the page text. All content is in HTML. |
 | 15 | What happens when assets are missing? | Build to placeholder slots and ship. The avatar, screenshots and CV PDF arrive later and must never block a task. |
 
@@ -87,7 +87,7 @@ Logged because they need real input or a later decision. None blocks progress.
 1. Will the owner supply the illustrated avatar as a high-resolution file with a transparent background, and is there a second pose for the CV burst?
 2. Which of the 9 missions can be backed by a real screenshot or ad creative? Missions with no evidence should be flagged on the card, not faked.
 3. Is the phone number in `docs/cv-source.md` meant to stay off the site? (Current plan: yes. The repo is public, so it is already visible there.)
-4. The old portfolio on Vercel (aden-portfolio-creative.vercel.app) is still live. Should it be taken down or redirected once the Netlify site is up?
+4. The old portfolio on Vercel (aden-portfolio-creative.vercel.app) is still live. Should it be taken down or redirected once the Vercel site is up?
 5. Should Contact include the optional form, or email and LinkedIn only?
 6. Is a short voiced or sound element wanted at all? (Current plan: no sound.)
 7. Is the avatar original art the owner made or commissioned, with no resemblance to an existing franchise character? (Needed for the IP rule before launch.)

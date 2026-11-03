@@ -4,7 +4,7 @@ Reviewed: `CLAUDE.md`, `docs/00-design-plan.md`, `docs/01-brief.md`, `DESIGN.md`
 
 ## Pre-mortem (the-fool)
 
-The plan, steelmanned: a recruiter-first static site whose proof leads, with one memorable orb-collision moment, built in 15 milestones and shipped free on Netlify.
+The plan, steelmanned: a recruiter-first static site whose proof leads, with one memorable orb-collision moment, built in 15 milestones and shipped free on a free host.
 
 The five most likely ways it fails, most likely first:
 1. **The motion scope eats the deadline.** The intro and CV burst each had three implementations (Three.js, Lottie, CSS), plus particles, a pointer glow and two versions of the skills tree. The 2D version had to be built anyway. → Build 2D first for everyone; everything else is cut or optional.
@@ -30,7 +30,7 @@ The five most likely ways it fails, most likely first:
 | 11 | Rubric gap | Home "high-quality image" depends on an avatar that has not arrived | ENGINEERING-PLAN | p21 launch gate; if missing, deploy and log the open risk |
 | 12 | Rubric gap | About/Contact H1 keyword | SEO | Already fixed in p06 (H1 sublines); confirmed, no further change |
 | 13 | Rubric gap | GitHub Pages backup would break links (served from a subpath) | ENGINEERING-PLAN | §12 notes `base`, a single link helper from p08, and mailto in place of the form |
-| — | Rubric check | About bio/education/goals, Work projects and skills, Contact email and LinkedIn, meta descriptions, alt text rules, mobile rules, Netlify hosting | all | Present and specified; no change |
+| — | Rubric check | About bio/education/goals, Work projects and skills, Contact email and LinkedIn, meta descriptions, alt text rules, mobile rules, Vercel hosting | all | Present and specified; no change |
 | 14 | Over-scope | Lottie burst: a third burst implementation with no asset | MOTION, ENGINEERING-PLAN | **Cut** |
 | 15 | Over-scope | Avatar pointer glow | MOTION, ENGINEERING-PLAN | **Cut** (also finding 5) |
 | 16 | Over-scope | Skills tree had two implementations (DrawSVG SVG on desktop, scaled divs on mobile) | MOTION, ENGINEERING-PLAN | **Replaced** by one HTML tree with transform-scaled connectors at every width; DrawSVG dropped |
@@ -46,7 +46,7 @@ The five most likely ways it fails, most likely first:
 | 26 | Missing AC | Mission card links could point to ids that do not exist | ENGINEERING-PLAN | p14 criterion added |
 | 27 | Missing AC | 2D intro not required to stand alone | ENGINEERING-PLAN | p11: 2D version passes on its own and is committed before any 3D work |
 | 28 | Missing AC | No IP check before launch | ENGINEERING-PLAN | p19 criterion added |
-| 29 | Risk | Netlify subdomain may be taken; LCP risk; deadline risk; wireframe risk; avatar IP risk not in the register | ENGINEERING-PLAN | Five rows added to the risk register |
+| 29 | Risk | Vercel subdomain may be taken; LCP risk; deadline risk; wireframe risk; avatar IP risk not in the register | ENGINEERING-PLAN | Five rows added to the risk register |
 
 ## Cut order if time or budget runs short
 

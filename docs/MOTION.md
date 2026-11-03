@@ -406,7 +406,7 @@ All in `src/lib/motion/moments/home.ts`, loaded only on Home (dynamic import fro
 
 **Copy-email toast.** A "Copy email" button beside the address (shown only when JavaScript and the Clipboard API are available) writes the address to the clipboard and confirms in a toast with `role="status"`. The toast rises from below in 220 ms and leaves in 150 ms (`--ease-out`, CSS transition, interruptible: a second click restarts the timer rather than queueing). It stays 2.4 s. Reduced motion: no movement. If copying fails, the toast shows the address instead. Sonner was not used: it is React.
 
-**Form.** No animation; errors appear immediately. Documented here because they are part of the Contact experience: native `required`/`type="email"` validation without JavaScript; with JavaScript, inline messages linked by `aria-describedby`, `aria-invalid` on each field, a `role="status"` summary ("Check 3 fields: Name, Email, Message."), focus on the first invalid field, and live re-checking after the first attempt. A valid form posts natively to Netlify, which redirects to `/thanks/`.
+**Form.** No animation; errors appear immediately. Documented here because they are part of the Contact experience: native `required`/`type="email"` validation without JavaScript; with JavaScript, inline messages linked by `aria-describedby`, `aria-invalid` on each field, a `role="status"` summary ("Check 3 fields: Name, Email, Message."), focus on the first invalid field, and live re-checking after the first attempt. A valid form posts natively to Vercel, which redirects to `/thanks/`.
 
 ## 13. The persistent 3D world (r3)
 

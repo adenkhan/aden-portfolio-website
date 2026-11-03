@@ -27,8 +27,6 @@ pnpm-debug.log*
 test-results/
 playwright-report/
 
-# netlify
-.netlify/
 
 # superpowers scratch
 .superpowers/

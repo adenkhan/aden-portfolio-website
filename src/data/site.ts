@@ -1,7 +1,7 @@
 import type { SiteConfig } from "./types";
 
 /** The only place the site origin is written. Prompt 21 replaces it with the live URL. */
-export const SITE_URL = "https://aden-khan-portfolio.netlify.app";
+export const SITE_URL = "https://aden-portfolio-website.vercel.app";
 
 export const site: SiteConfig = {
   name: "Aden Khan",

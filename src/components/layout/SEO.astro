@@ -29,8 +29,8 @@ if (!ogImage) {
   ogImage = new URL(og.src, SITE_URL).href;
 }
 
-// Deploy previews and branch deploys on Netlify are never indexed (docs/SEO.md §8).
-const context = process.env.CONTEXT;
+// Preview deployments on Vercel are never indexed (docs/SEO.md §8).
+const context = process.env.VERCEL_ENV;
 const noindex = Astro.props.noindex || (context !== undefined && context !== "production");
 
 const ldItems = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];

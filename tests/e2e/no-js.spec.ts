@@ -51,12 +51,10 @@ test("mobile menu opens without JavaScript", async ({ page }) => {
   await expect(page.locator(".links-mobile").getByRole("link", { name: "Contact" })).toBeVisible();
 });
 
-test("contact form is a static Netlify form with a honeypot", async ({ page }) => {
+test("contact form is a static form posting to /api/contact, with a honeypot", async ({ page }) => {
   await page.goto("/contact/");
   const form = page.locator('form[name="contact"]');
-  await expect(form).toHaveAttribute("data-netlify", "true");
-  await expect(form).toHaveAttribute("netlify-honeypot", "bot-field");
-  await expect(form).toHaveAttribute("action", "/thanks/");
-  await expect(form.locator('input[name="form-name"]')).toHaveValue("contact");
+  await expect(form).toHaveAttribute("action", "/api/contact");
+  await expect(form.locator('input[name="bot-field"]')).toHaveCount(1);
   for (const label of ["Name", "Email", "Message"]) await expect(form.getByLabel(label)).toBeVisible();
 });

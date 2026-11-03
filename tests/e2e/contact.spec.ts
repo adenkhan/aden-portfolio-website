@@ -3,13 +3,10 @@ import { expect, test } from "@playwright/test";
 
 const EMAIL = "aden.khan613@gmail.com";
 
-test("built HTML carries Netlify's expected form markup", () => {
+test("built HTML posts the form to the Vercel contact function", () => {
   const html = readFileSync("dist/contact/index.html", "utf8");
   expect(html).toMatch(/<form[^>]*name="contact"[^>]*>/);
-  expect(html).toMatch(/<form[^>]*data-netlify="true"/);
-  expect(html).toMatch(/<form[^>]*netlify-honeypot="bot-field"/);
-  expect(html).toMatch(/<form[^>]*action="\/thanks\/"/);
-  expect(html).toMatch(/<input type="hidden" name="form-name" value="contact"/);
+  expect(html).toMatch(/<form[^>]*action="\/api\/contact"/);
   expect(html).toContain('name="bot-field"');
 });
 

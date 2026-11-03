@@ -45,7 +45,7 @@ Location: `d:\IBA\aden\aden-portfolio-website`
 | `postprocessing` | Bloom, glow, chromatic aberration for Three.js. |
 | `@pixiv/three-vrm` | Load VRM (VRoid) 3D anime avatars into Three.js. |
 
-Not installed (needs extra setup): React Three Fiber + drei; Spline; Mixamo and VRoid Studio (external apps whose exported files go in `public/`); Netlify Forms (deployment-time).
+Not installed (needs extra setup): React Three Fiber + drei; Spline; Mixamo and VRoid Studio (external apps whose exported files go in `public/`); the Vercel contact function (api/contact.js) (deployment-time).
 
 Dev server (per `AGENTS.md`): `astro dev --background`, then `astro dev status | logs | stop`.
 
@@ -247,7 +247,7 @@ Gmail, Google Calendar and Google Drive connectors need authorising in your clau
 | [Anthropic cookbook: prompting for frontend aesthetics](https://github.com/anthropics/claude-cookbooks/blob/main/coding/prompting_for_frontend_aesthetics.ipynb) | Notebook on getting non-generic UI from Claude. | Writing the design prompt. | Reading, not installed. |
 | [docs.astro.build](https://docs.astro.build) | Astro docs. | Routing, islands, styling. | Reference. |
 
-Library-list links from your notes (all free): GSAP, Lenis, Lottie/LottieFiles, Rive, tsParticles, Three.js, React Three Fiber + drei, postprocessing, VRoid Studio + three-vrm, Mixamo, Spline. Recommended stack: Astro + GSAP + Three.js, deployed to Netlify or GitHub Pages.
+Library-list links from your notes (all free): GSAP, Lenis, Lottie/LottieFiles, Rive, tsParticles, Three.js, React Three Fiber + drei, postprocessing, VRoid Studio + three-vrm, Mixamo, Spline. Recommended stack: Astro + GSAP + Three.js, deployed to Vercel or GitHub Pages.
 
 ---
 
@@ -260,4 +260,4 @@ Library-list links from your notes (all free): GSAP, Lenis, Lottie/LottieFiles, 
 5. Add components from Kokonut UI / Bklit; animation with GSAP, Lenis, Motion.
 6. Polish with `impeccable`, `baseline-ui`, `animation-performance`.
 7. Test with `playwright-skill` / `ui-test`; fix with `fixing-accessibility` and `fixing-metadata`.
-8. Edit copy with `no-ai-slop`; run `superpowers:verification-before-completion`; deploy (Netlify, GitHub Pages or `deploy-to-vercel`).
+8. Edit copy with `no-ai-slop`; run `superpowers:verification-before-completion`; deploy (Vercel, GitHub Pages or `deploy-to-vercel`).

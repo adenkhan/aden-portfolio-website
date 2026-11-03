@@ -40,7 +40,7 @@ The 19 creatives replaced every gallery placeholder; the placeholder slots with 
 
 ## The VRoid avatar (r9)
 
-- **Model:** `public/models/avatar.vrm` (VRM 1.0, 14 expressions, MToon, about 41k triangles, 16 MB). The owner's file: never modified, re-exported or compressed. The site loads it lazily after first paint and keeps it for the whole visit. `netlify.toml` serves `/models/*` as `model/gltf-binary` so the CDN compresses it.
+- **Model:** `public/models/avatar.vrm` (VRM 1.0, 14 expressions, MToon, about 41k triangles, 16 MB). The owner's file: never modified, re-exported or compressed. The site loads it lazily after first paint and keeps it for the whole visit. `vercel.json` serves `/models/*` as `model/gltf-binary` so the CDN compresses it.
 - **Look rule:** her MToon materials are untouched, and she is lit like VRoid Studio: one white key light plus a white ambient, set in `src/components/three/avatar/look.ts`. `node scripts/render-avatar.mjs tune <dir> '[[key, ambient], …]'` matched her cheek to VRoid's own thumbnail inside the VRM: rgb(244 212 187) against rgb(244 212 185). See `docs/screens/round4/look-compare.png`.
 - **Re-render the stills** after changing the look or framing: `node scripts/render-avatar.mjs all` (poster and the four social cards) and `node scripts/render-avatar.mjs look` (the comparison images).
 - **Expressions the site uses:** happy, surprised, angry, relaxed and blink. The loader warns in the console if the model lacks one.

@@ -123,12 +123,12 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Source: p04, `docs/MOTION.md` section 4.
 
 ## 2026-11-02 — Engineering architecture
-- Decision: Static multi-page Astro with no `<ClientRouter />`; native cross-document view transitions. No required React islands (optional Kokonut/Bklit islands use `client:visible` or `client:media`). All copy in typed `src/data/*.ts`, not content collections. Netlify hosting with GitHub Pages as a static backup.
+- Decision: Static multi-page Astro with no `<ClientRouter />`; native cross-document view transitions. No required React islands (optional Kokonut/Bklit islands use `client:visible` or `client:media`). All copy in typed `src/data/*.ts`, not content collections. Vercel hosting.
 - Why: Four real pages for the rubric, a 150 KB first-load budget, and simpler motion lifecycle (no swap events to clean up).
 - Source: p05, `docs/ENGINEERING-PLAN.md` §1 (ADR-001 to ADR-004).
 
 ## 2026-11-02 — Site URL placeholder and /thanks route
-- Decision: `site` is `https://adenkhan.netlify.app` until deploy confirms the real origin. A `/thanks` page (noindex, excluded from the sitemap) confirms Netlify form submissions.
+- Decision: `site` is `https://aden-portfolio-website.vercel.app` until deploy confirms the real origin. A `/thanks` page (noindex, excluded from the sitemap) confirms Vercel form submissions.
 - Why: Canonical, OG and sitemap URLs need an absolute origin from p08 onward; the form needs a landing page.
 - Source: p05, `docs/ENGINEERING-PLAN.md` §4 and §10.
 
@@ -143,9 +143,9 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Supersedes: "SEO 100" as a hard target in the 2026-11-02 Lighthouse targets entry.
 
 ## 2026-11-02 — Site URL constant
-- Decision: `SITE_URL = "https://aden-khan-portfolio.netlify.app"` in `src/data/site.ts`, the only place the origin is written. Prompt 21 replaces it with the live URL.
+- Decision: `SITE_URL = "https://aden-portfolio-website.vercel.app"` in `src/data/site.ts`, the only place the origin is written. Prompt 21 replaces it with the live URL.
 - Source: p06, owner's value; `docs/SEO.md` §1.
-- Supersedes: the `https://adenkhan.netlify.app` placeholder in the "Site URL placeholder and /thanks route" entry.
+- Supersedes: the `https://aden-portfolio-website.vercel.app` placeholder in the "Site URL placeholder and /thanks route" entry.
 
 ## 2026-11-02 — H1 sublines on About and Contact
 - Decision: Keep "The origin arc: from campaigns to products" and "Open a channel" word for word, and add a visible second line inside each H1: "About Aden Khan, product marketer" and "Contact Aden Khan, product marketer".
@@ -202,7 +202,7 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Source: p07, finding 10.
 
 ## 2026-11-02 — p07: new acceptance criteria and risks
-- Decision: Add criteria for self-hosted fonts (p08), H1 sublines, wireframes and the availability line (p09), a standalone 2D intro (p11), recruiter test and avatar opacity (p13), mission link ids and the single skills tree (p14), TBT/INP (p17), an IP grep and avatar originality confirmation (p19), and an avatar launch gate (p21). Add risk rows for LCP, deadline, Netlify subdomain, wireframe and avatar IP. Document the GitHub Pages base-path requirement.
+- Decision: Add criteria for self-hosted fonts (p08), H1 sublines, wireframes and the availability line (p09), a standalone 2D intro (p11), recruiter test and avatar opacity (p13), mission link ids and the single skills tree (p14), TBT/INP (p17), an IP grep and avatar originality confirmation (p19), and an avatar launch gate (p21). Add risk rows for LCP, deadline, Vercel subdomain, wireframe and avatar IP. Document the GitHub Pages base-path requirement.
 - Why: Findings 11, 13, 21–29.
 - Source: p07.
 
@@ -214,7 +214,7 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Because a stand-in CV always exists, CV buttons always link to the PDF. `cvAvailable()` from the plan is dropped; `npm run assets:check` reports whether the CV is still the stand-in.
 - Decision: The Home teaser's first sentence ("Creative × Data = Growth.") is the H2; the paragraph holds the remaining three sentences, so the phrase is not printed twice.
 - Decision: Mission cards show the nine mission thumbnails; gallery images have no captions yet (captions that describe placeholder images would be false). Captions come with real screenshots in p14.
-- Decision: The Contact page shows a short note and the email address where the form will go ("The contact form arrives in a later update. Until then, email works best:"). p15 replaces it with the Netlify form.
+- Decision: The Contact page shows a short note and the email address where the form will go ("The contact form arrives in a later update. Until then, email works best:"). p15 replaces it with the Vercel form.
 - Decision: Placeholder detection compares file SHA-256 hashes against `src/data/placeholder-hashes.json`, written by `scripts/generate-placeholders.mjs`, which never overwrites an existing file unless `--force` is passed.
 - Decision: `<Picture>` uses AVIF and WebP with a WebP fallback (not the source PNG), which cut the avatar fallback from up to 561 KB to a few KB.
 - Decision: Prettier skips Markdown (`*.md`), so docs tables keep their hand formatting.
@@ -226,10 +226,10 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: Missions carry `tags` but no separate `problem` or `action` fields. The sources have no problem or action copy beyond the mission title (the goal) and the result sentence (what was done and what it achieved); writing new text would break "do not invent". Tags are short labels taken from the mission copy and the skills list.
 - Decision: Stats moved to `src/data/stats.ts`; the CV path moved to `site.cvPath`.
 - Decision: The Home avatar uses Astro `<Image>` (WebP, widths 360/560/840, 1200×1500 intrinsic size, eager, `fetchpriority="high"`), as asked. Other images keep `<Picture>` with AVIF and WebP.
-- Decision: The contact form is a static Netlify form (`data-netlify="true"`, `netlify-honeypot="bot-field"`, hidden `form-name`, `action="/thanks/"`) with labelled Name, Email and Message fields and an email fallback line above it ("Prefer email? Write to …").
+- Decision: The contact form is a static Vercel form (`data-vercel="true"`, `honeypot="bot-field"`, hidden `form-name`, `action="/thanks/"`) with labelled Name, Email and Message fields and an email fallback line above it ("Prefer email? Write to …").
 - Decision: Links inside paragraphs are underlined site-wide. Lighthouse flagged the Contact links as relying on colour alone (1.74:1 against the surrounding text).
 - Decision: Playwright's web server runs `astro preview --force` so a stale preview server cannot block the suite.
-- Result: Lighthouse mobile (simulated throttling, local preview), Performance / Accessibility / Best Practices / SEO: Home 99/100/100/100 (LCP 1.7 s, CLS 0, TBT 0 ms); About 100/100/100/100 (LCP 1.5 s); Work 99/100/100/100 (LCP 1.9 s); Contact 100/100/100/100 (LCP 1.5 s, CLS 0.004). Local scores, not the live site; p21 re-runs them on Netlify.
+- Result: Lighthouse mobile (simulated throttling, local preview), Performance / Accessibility / Best Practices / SEO: Home 99/100/100/100 (LCP 1.7 s, CLS 0, TBT 0 ms); About 100/100/100/100 (LCP 1.5 s); Work 99/100/100/100 (LCP 1.9 s); Contact 100/100/100/100 (LCP 1.5 s, CLS 0.004). Local scores, not the live site; p21 re-runs them on Vercel.
 - Source: p09.
 
 ## 2026-11-02 — p10 global motion layer
@@ -290,7 +290,7 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 ## 2026-11-02 — p15 Contact
 - Decision: The terminal "types" every channel (overrides MOTION.md moment 6's prompt-only rule at the owner's request). Links and their real text are in the HTML from the start; only `aria-hidden` copies animate.
 - Decision: No Sonner. It is a React library; a tiny CSS toast with `role="status"` does the job without a React island.
-- Decision: Form validation keeps the browser's native validation without JavaScript and replaces it with inline, linked, announced errors when JavaScript runs (`form.noValidate` set by script). A valid form submits natively so Netlify's handling and the `/thanks/` redirect are unchanged.
+- Decision: Form validation keeps the browser's native validation without JavaScript and replaces it with inline, linked, announced errors when JavaScript runs (`form.noValidate` set by script). A valid form submits natively so Vercel's handling and the `/thanks/` redirect are unchanged.
 - Decision: The `/thanks/` page reuses the terminal look with the growth purple as the success colour and repeats the email address as the fallback. Its line makes no claim about reply time (none in `docs/cv-source.md`).
 - Source: p15, `docs/MOTION.md` §12.
 
@@ -363,7 +363,7 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: **`<ClientRouter />` adopted (ADR-001 superseded)** so the world's host persists (`transition:persist`). Consequences:
   - Component scripts re-initialise through `src/lib/page.ts`.
   - BaseLayout restores the motion gate on `astro:after-swap`.
-  - The Netlify form opts out with `data-astro-reload` and posts natively.
+  - The Vercel form opts out with `data-astro-reload` and posts natively.
   - Our cross-document view-transition CSS was replaced by the router's default fade.
 - Decision: one world, stations per route, as specified in `docs/MOTION.md` §13:
   - Home: the orbs orbit the avatar card and lean toward the cursor; the 3D intro plays; a scroll-scrubbed collision runs over CREATIVE · DATA · GROWTH.
@@ -508,7 +508,7 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: Work keeps her hidden (the prompt allows it); the case visuals and the takeover own the screen.
 - Ruling: optional `.vrma` clips live in `src/assets/anim/`, not `public/models/anim/`, so the build lists them and the browser never requests missing files. Added `@pixiv/three-vrm-animation` 3.5.5 (lazy, only loaded when a clip exists).
 - Bug found and fixed: GSAP adds a `_gsap` key to a tweened object, so iterating the pose weights' entries threw every frame and froze the world. Poses now iterate a fixed list (regression test in `tests/e2e/r9.spec.ts`).
-- Compression check: the live URL (`https://aden-khan-portfolio.netlify.app`) returns 404 on every path, because the site has not been deployed (deploying needs a Netlify sign-in). `netlify.toml` already sets `Content-Type: model/gltf-binary` for `/models/*`. Re-run `curl -sI -H "Accept-Encoding: br, gzip" <live-url>/models/avatar.vrm` after the first deploy.
+- Compression check: the live URL (`https://aden-portfolio-website.vercel.app`) returns 404 on every path, because the site has not been deployed (deploying needs a Vercel sign-in). `vercel.json` already sets `Content-Type: model/gltf-binary` for `/models/*`. Re-run `curl -sI -H "Accept-Encoding: br, gzip" <live-url>/models/avatar.vrm` after the first deploy.
 - Ruling (performance, §4a): loading the model while the page settled cost 1.3–2.5 s of Total Blocking Time. Lighthouse fell to 64–69 on desktop and 58–59 on mobile Home and Work. The effect stays; its start moved: the first interaction, or 6 s after load and idle, with the parse split into chunks and the shaders compiled with `compileAsync`. The poster is the same image, so nothing visible waits. Cost if wrong: on a slow phone, the first scroll may hitch while she loads. Lighthouse no longer sees her cost; it is deferred, not removed.
 - Lighthouse after r9 (local production preview), performance / accessibility / best practices / SEO:
 
@@ -530,3 +530,8 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: the owner's Move text for case 3 (word for word) takes the case to 73 visible words and wraps to two lines on desktop. The owner's copy wins over the 60-word budget and the one-line rule, so case 3 is a logged exception in `copy.spec.ts`. Cost if wrong: one case reads denser than the others.
 - Ruling: each fan is one button, not one per post. Axe flagged the overlapping posts as targets too close together (WCAG 2.5.8). The click still opens the post that was clicked.
 - Metadata: a new /work description (143 characters), a collage Open Graph card (`scripts/render-og-work.mjs`) and JSON-LD: an ItemList of CreativeWork (name, caption, cover URL, the Person as creator, the client as `about`) plus the tool as a SoftwareApplication. Validated in `tests/e2e/r10.spec.ts`.
+
+## 2026-11-03 — r11: Vercel is the host
+- Decision (owner): the site stays on Vercel (`https://aden-portfolio-website.vercel.app`). Every Netlify reference is removed: `netlify.toml` became `vercel.json` (same cache, security and model headers), `netlify-cli` is uninstalled, `SITE_URL` is the Vercel URL, and preview noindex reads `VERCEL_ENV`. This replaces the earlier rule "do not deploy to Vercel" and the GitHub Pages backup.
+- Ruling: Netlify Forms do not exist on Vercel, so the contact form posts natively to the Vercel function `api/contact.js` (honeypot kept), which emails the message through Resend and redirects to /thanks/. It needs `RESEND_API_KEY` (and optionally `CONTACT_TO`, default the site email) in the Vercel project settings; without it the visitor sees a "could not be sent, email instead" page. Cost if wrong: no messages arrive until the key is set.
+- Risk, flagged: the assignment rubric lists GitHub Pages, Netlify or Wix as hosts. Vercel is not on that list, so the deployment mark may be at risk. The owner decided to stay on Vercel.

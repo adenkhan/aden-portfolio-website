@@ -6,7 +6,7 @@
 
 **Architecture:** Astro static output (multi-page, no client router). Pages are `.astro` components fed by typed data files; interactivity is small bundled `<script>` modules, not React, unless a component can only exist in React. Motion is one module (`src/lib/motion`) that boots per page. ~~3D is a lazy chunk used only by the intro and the CV burst.~~ Round 2: 3D is a core, persistent WebGL scene behind every page (see "Round 2 rules" and §6).
 
-**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy; core from Round 2), custom GLSL, @react-three/fiber, @react-three/drei and @react-three/postprocessing (allowed from r1; installed by the prompt that first uses them), @tsparticles/slim 4.5.0, Playwright, Netlify.
+**Tech stack:** Astro 7.4.4, Tailwind v4.3.3, React 19.3.1 (islands only), GSAP 3.15.0 (+ ScrollTrigger, SplitText, ScrambleText, CustomEase), Lenis 1.3.27, three 0.187.0 + postprocessing 6.39.6 (lazy; core from Round 2), custom GLSL, @react-three/fiber, @react-three/drei and @react-three/postprocessing (allowed from r1; installed by the prompt that first uses them), @tsparticles/slim 4.5.0, Playwright, Vercel.
 
 **Spec:** `docs/00-design-plan.md` (copy, SEO table, wireframe), `docs/01-brief.md` (success criteria), `DESIGN.md` (tokens, components), `docs/MOTION.md` (motion), `CLAUDE.md` (non-negotiables). Read the relevant one before each milestone.
 
@@ -29,7 +29,7 @@ Copied from the spec; every milestone includes them.
   - The first paint shows real HTML text.
   - Before r1 the targets were mobile Performance ≥ 85, with lazy chunks counted in the 150 KB.
 - Word budgets (Round 2), counting visible words in `<main>`: Home ≤ 80, About ≤ 160, Work ≤ 60 per case study, Contact ≤ 40. Each fact appears once on the site; BBA/IBA only in the About education chip (plus meta and JSON-LD).
-- Deploy to Netlify (GitHub Pages as backup). Never Vercel.
+- Deploy to Vercel (owner decision, r11).
 - Definition of done (CLAUDE.md §7): `astro check` and `npm run build` pass, no console errors, checked at 375px and 1440px, reduced motion checked, docs updated, one commit per milestone (`pNN: <name>`).
 
 ## Round 2 rules (r1, 2026-11-02)
@@ -69,7 +69,7 @@ graph TD
   Motion -- "full tier, after first paint (optional)" --> Three["components/three/*-scene.ts<br/>three + postprocessing"]
   Motion -- "stretch goal, requestIdleCallback" --> Particles["tsParticles slim"]
   Pages -- "client:visible (optional)" --> Islands["React islands<br/>Kokonut / Bklit only"]
-  Build["astro build"] --> Dist["dist/ static files"] --> Netlify["Netlify CDN + Forms"]
+  Build["astro build"] --> Dist["dist/ static files"] --> Vercel["Vercel CDN + Forms"]
 ```
 
 **Default: `.astro` components with zero JavaScript.** Interactivity that a few lines of DOM code can do (mobile menu, CV dialog, gallery buttons, count-ups, motion) lives in bundled `<script>` tags inside the `.astro` component or in `src/lib/motion`. Astro bundles and defers these as modules.
@@ -82,7 +82,7 @@ graph TD
 | Hero, CharacterCard, StatsStrip, Teaser | `.astro` | none | Content; motion attaches from `lib/motion` |
 | CvDialog | `.astro` with native `<dialog>` | none | Native focus trap and Esc; keeps Home free of React (budget) |
 | OriginArc, MissionGrid, SkillsTree, CreativeGallery | `.astro` | none | Content; scroll-snap gallery needs no JS |
-| TerminalPanel, ContactForm | `.astro` | none | Netlify Forms needs a static HTML form in the built output |
+| TerminalPanel, ContactForm | `.astro` | none | the Vercel contact function (api/contact.js) needs a static HTML form in the built output |
 | IntroOverlay | `.astro` + inline head script (`IntroGate`) | none | Must run before first paint; an island would hydrate too late |
 | `ui/button.tsx` (shadcn, existing) | React, static | none | Only if reused; renders to HTML with no JS |
 | Optional Kokonut component chosen in p16 | React island | `client:visible` | Registry component exists only in React; below the fold, so hydrate on view |
@@ -92,13 +92,13 @@ graph TD
 `client:load` and `client:idle` are not used: nothing above the fold needs React, and idle hydration would still count toward first load on Home.
 
 ### Architecture decisions (ADR summaries)
-**ADR-001 Static multi-page Astro, no `<ClientRouter />`.** Accepted. Context: the rubric needs four real pages; `docs/MOTION.md` chose native cross-document view transitions. Alternatives: Astro's ClientRouter (SPA-like transitions, persistent state) was rejected because it adds JS, forces every script to handle `astro:page-load` and `astro:before-swap` re-init and cleanup, and complicates Lenis, ScrollTrigger and the session-gated intro. Consequence: each navigation is a full document load; motion boots fresh per page; the browser crossfades with `@view-transition { navigation: auto; }`; unsupported browsers navigate instantly. **Superseded in r3:** `<ClientRouter />` is adopted so the 3D world persists across pages (`transition:persist`). Pages are still separate routes and documents for no-JS visitors and search engines. Component scripts re-initialise through `src/lib/page.ts` (`onPage`: run now and on every `astro:page-load`, clean up on `astro:before-swap`); BaseLayout restores the motion gate on `astro:after-swap`; the Netlify form opts out with `data-astro-reload`.
+**ADR-001 Static multi-page Astro, no `<ClientRouter />`.** Accepted. Context: the rubric needs four real pages; `docs/MOTION.md` chose native cross-document view transitions. Alternatives: Astro's ClientRouter (SPA-like transitions, persistent state) was rejected because it adds JS, forces every script to handle `astro:page-load` and `astro:before-swap` re-init and cleanup, and complicates Lenis, ScrollTrigger and the session-gated intro. Consequence: each navigation is a full document load; motion boots fresh per page; the browser crossfades with `@view-transition { navigation: auto; }`; unsupported browsers navigate instantly. **Superseded in r3:** `<ClientRouter />` is adopted so the 3D world persists across pages (`transition:persist`). Pages are still separate routes and documents for no-JS visitors and search engines. Component scripts re-initialise through `src/lib/page.ts` (`onPage`: run now and on every `astro:page-load`, clean up on `astro:before-swap`); BaseLayout restores the motion gate on `astro:after-swap`; the Vercel form opts out with `data-astro-reload`.
 
 **ADR-002 No required React islands.** Accepted. Context: 150 KB first-load budget, about 45–60 KB of which React would take. Alternative: building sections in React for convenience. Consequence: interactivity is vanilla TypeScript; React appears only for registry components, always deferred. **Round 2 (r1): relaxed.** The persistent 3D scene may use React Three Fiber in a lazily loaded root; entry JS still stays under 150 KB. **r3:** not needed. The world is plain Three.js, so there are still no React islands.
 
 **ADR-003 Copy in typed TypeScript, not content collections.** Accepted. Context: four pages, fixed copy, no Markdown authoring. Alternative: Astro content collections with Zod. Rejected as more machinery than the content needs; plain `as const` objects with interfaces give type safety and one place to edit.
 
-**ADR-004 Netlify hosting.** Accepted. Required by the rubric (Vercel not allowed); Netlify Forms gives a free contact form. GitHub Pages stays as a static backup (no forms there; the mailto fallback covers it).
+**ADR-004 Vercel hosting.** Accepted (owner decision, r11). The contact form posts to the Vercel function `api/contact.js`, which emails through Resend (`RESEND_API_KEY`).
 
 ## 2. Folder structure
 
@@ -146,7 +146,7 @@ scripts/
 docs/
   00-design-plan.md  01-brief.md  cv-source.md  MOTION.md  ENGINEERING-PLAN.md
   SEO.md  DECISIONS.md  SKILLS-AND-TOOLS.md  design-canvas/
-DESIGN.md  CLAUDE.md  AGENTS.md  netlify.toml  playwright.config.ts  .prettierrc
+DESIGN.md  CLAUDE.md  AGENTS.md  vercel.json  playwright.config.ts  .prettierrc
 ```
 
 ## 3. Data layer
@@ -254,8 +254,8 @@ interface Props {
 ```
 Outputs: `<title>`, meta description, canonical link, Open Graph (`og:type website`, `og:title`, `og:description`, `og:url`, `og:image`, `og:image:width/height`, `og:site_name`), Twitter `summary_large_image`, theme-color `#0B0D1A`, and one `<script type="application/ld+json">` per item (`set:html={JSON.stringify(item)}`).
 
-- **Site URL:** one constant, `SITE_URL = "https://aden-khan-portfolio.netlify.app"` in `src/data/site.ts`, imported by `astro.config.mjs` as `site`. p21 replaces it with the live URL and records it in `DECISIONS.md`. `trailingSlash: "always"`, `build.format: "directory"`.
-- **Preview indexing:** `<SEO>` adds `noindex, nofollow` when `process.env.CONTEXT` is set and is not `production` (Netlify deploy previews and branch deploys).
+- **Site URL:** one constant, `SITE_URL = "https://aden-portfolio-website.vercel.app"` in `src/data/site.ts`, imported by `astro.config.mjs` as `site`. p21 replaces it with the live URL and records it in `DECISIONS.md`. `trailingSlash: "always"`, `build.format: "directory"`.
+- **Preview indexing:** `<SEO>` adds `noindex, nofollow` when `process.env.CONTEXT` is set and is not `production` (Vercel deploy previews and branch deploys).
 - **Per-page OG images:** `og/home.png`, `og/about.png`, `og/work.png`, `og/contact.png` (1200×630, p18), falling back to `og/default.png`. Full tag list and alt text in `docs/SEO.md` §6.
 - **Sitemap:** `@astrojs/sitemap` with `filter: (p) => !/\/(thanks|404)\/?$/.test(p)`.
 - **robots.txt:** `src/pages/robots.txt.ts` returns `User-agent: *`, `Allow: /`, `Sitemap: <site>/sitemap-index.xml`.
@@ -314,7 +314,7 @@ export function initMotion(page: PageId): MotionHandle;
 
 | Metric | Target | How it is checked |
 |---|---|---|
-| Lighthouse Performance (Round 2) | desktop ≥ 75, mobile ≥ 65 (was mobile ≥ 85) | `npx lighthouse <url> --preset=desktop` and `--form-factor=mobile`, against the Netlify preview, each route |
+| Lighthouse Performance (Round 2) | desktop ≥ 75, mobile ≥ 65 (was mobile ≥ 85) | `npx lighthouse <url> --preset=desktop` and `--form-factor=mobile`, against the Vercel preview, each route |
 | Lighthouse SEO / Accessibility / Best Practices | ≥ 95 each | same run, all categories |
 | LCP | < 2.5 s | Lighthouse (lab) on mobile throttling |
 | CLS | < 0.1 | Lighthouse; plus no shift from the intro, fonts, count-ups |
@@ -325,7 +325,7 @@ Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor
 
 ## 10. Forms
 
-- `ContactForm.astro`: `<form name="contact" method="POST" action="/thanks" data-netlify="true" netlify-honeypot="bot-field">` with a hidden `form-name` input, a visually hidden `bot-field` (`aria-hidden`, `tabindex="-1"`, `autocomplete="off"`), and labelled fields: name, email, message. All required, native validation, error text next to the field.
+- `ContactForm.astro`: `<form name="contact" method="POST" action="/thanks" data-vercel="true" honeypot="bot-field">` with a hidden `form-name` input, a visually hidden `bot-field` (`aria-hidden`, `tabindex="-1"`, `autocomplete="off"`), and labelled fields: name, email, message. All required, native validation, error text next to the field.
 - `/thanks` page: "Message received" heading, link back, `noindex`.
 - Mailto fallback: the email address is always shown as text and as a `mailto:` link above the form, so contact works on GitHub Pages, with JS off, and if the form fails.
 - The form is the optional part from the design plan; the terminal panel with email, LinkedIn, GitHub and CV links is the required part.
@@ -340,13 +340,13 @@ Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor
 - `no-js.spec.ts`: context with `javaScriptEnabled: false`: H1, nav, all copy and contact links visible; no overlay.
 - `intro.spec.ts`: first visit shows overlay and Skip within the first frame; Esc removes it; reload in the same session shows no overlay; `sessionStorage` throwing (init script) means no overlay and no errors; Back navigation restores without overlay.
 - `cv-dialog.spec.ts`: clicking Download CV opens the dialog with focus inside; Esc closes and returns focus; with `cvPdf` as a placeholder, no link points to a missing file.
-- `form.spec.ts`: the built `contact` HTML contains `data-netlify="true"`, the honeypot and `form-name`.
+- `form.spec.ts`: the built `contact` HTML contains `data-vercel="true"`, the honeypot and `form-name`.
 - Scripts: `"test": "playwright test"`, `"check": "astro check"`, `"budget": "node scripts/check-budget.mjs"`, `"verify": "npm run check && npm run build && npm run budget && npm test"`.
 
 ## 12. Deployment
 
-- GitHub repo `adenkhan/aden-portfolio-website` (public) connected to Netlify through the Netlify UI (needs the owner's sign-in; this is the one manual step).
-- `netlify.toml`:
+- GitHub repo `adenkhan/aden-portfolio-website` (public) connected to Vercel through the Vercel UI (needs the owner's sign-in; this is the one manual step).
+- `vercel.json`:
 ```toml
 [build]
   command = "npm run build"
@@ -363,10 +363,10 @@ Note: `docs/01-brief.md` set SEO at 100; that stays the aim, and 95 is the floor
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 ```
-- `package.json` `engines.node` is `>=22.23.4` (from the scaffold); Netlify's `NODE_VERSION = "22"` resolves to the latest 22.x. If the build complains, pin `NODE_VERSION` to an exact 22.x that satisfies it.
-- Deploy previews on every branch and pull request (Netlify default once connected). `main` deploys production.
-- `netlify-cli` (dev dependency) for `npx netlify dev` (forms locally) and `npx netlify deploy --build` (draft deploy) when the owner is signed in.
-- Backup: GitHub Pages via the official Astro action, documented in p21, not enabled unless Netlify fails. A project site is served from `/aden-portfolio-website/`, so the backup build needs `base: "/aden-portfolio-website/"`, every internal link must use `import.meta.env.BASE_URL`, and the Netlify form is replaced by the mailto link. Build links through one helper from p08 so the backup stays a config change.
+- `package.json` `engines.node` is `>=22.23.4` (from the scaffold); Vercel's `NODE_VERSION = "22"` resolves to the latest 22.x. If the build complains, pin `NODE_VERSION` to an exact 22.x that satisfies it.
+- Deploy previews on every branch and pull request (Vercel default once connected). `main` deploys production.
+- `vercel-cli` (dev dependency) for `npx vercel dev` (forms locally) and `npx vercel deploy --build` (draft deploy) when the owner is signed in.
+- No backup host: the owner chose Vercel and does not want to migrate.
 
 ## 13. Milestones (prompts p08–p22)
 
@@ -374,7 +374,7 @@ Each milestone: goal, main files, acceptance criteria (Given/When/Then and EARS)
 
 ### p08 — Scaffold
 Goal: project skeleton, tokens, fonts, data layer, test harness.
-Files: `astro.config.mjs` (site, sitemap), `styles/global.css` (DESIGN.md `@theme`; shadcn variables `--background`, `--foreground`, `--primary` and friends mapped to DESIGN tokens; geist removed), `styles/fonts.css`, `layouts/BaseLayout.astro`, `components/layout/*`, `data/*.ts` (all copy), six empty pages, `playwright.config.ts`, `tests/e2e/smoke.spec.ts`, `scripts/check-budget.mjs`, `.prettierrc`, `netlify.toml`.
+Files: `astro.config.mjs` (site, sitemap), `styles/global.css` (DESIGN.md `@theme`; shadcn variables `--background`, `--foreground`, `--primary` and friends mapped to DESIGN tokens; geist removed), `styles/fonts.css`, `layouts/BaseLayout.astro`, `components/layout/*`, `data/*.ts` (all copy), six empty pages, `playwright.config.ts`, `tests/e2e/smoke.spec.ts`, `scripts/check-budget.mjs`, `.prettierrc`, `vercel.json`.
 - [ ] Install the dependencies in §15.
 - [ ] Given a fresh clone, when `npm ci && npm run verify` runs, then type check, build, budget and smoke tests pass.
 - [ ] The system shall expose every string the design plan §6 fixes from `src/data`, verbatim (spot-check 10 strings by grep against the design plan).
@@ -437,11 +437,11 @@ Goal: arc panel scroll reveal, skills-tree connectors (HTML, transform-scaled, o
 Verify: `npm run verify`; manual pass at 375 and 1440. Commit: `p14: about and work`.
 
 ### p15 — Contact
-Goal: terminal panel, prompt scramble, Netlify form, `/thanks`.
+Goal: terminal panel, prompt scramble, Vercel form, `/thanks`.
 - [ ] Email, LinkedIn, GitHub and CV links are visible and clickable at first paint (no typing animation).
-- [ ] The built `contact/index.html` contains `data-netlify="true"`, `form-name`, and the honeypot.
-- [ ] Given JS disabled, when the form is submitted on Netlify, then the browser lands on `/thanks`.
-Verify: `npx playwright test form`; `npx netlify dev` submit test if signed in. Commit: `p15: contact`.
+- [ ] The built `contact/index.html` contains `data-vercel="true"`, `form-name`, and the honeypot.
+- [ ] Given JS disabled, when the form is submitted on Vercel, then the browser lands on `/thanks`.
+Verify: `npx playwright test form`; `npx vercel dev` submit test if signed in. Commit: `p15: contact`.
 
 ### p16 — Design audit
 Goal: run `impeccable` critique and audit, `baseline-ui`, `web-design-guidelines` against DESIGN.md; fix findings; decide on optional Kokonut/Bklit islands.
@@ -478,8 +478,8 @@ Goal: complete the suite in §11 (responsive, reduced motion, a11y, no-JS, intro
 Verify: `npm run verify`. Commit: `p20: tests`.
 
 ### p21 — Deploy
-Goal: Netlify connected, production live, URL recorded.
-- [ ] Given a push to `main`, when Netlify builds, then the site is live over HTTPS and every route returns 200.
+Goal: Vercel connected, production live, URL recorded.
+- [ ] Given a push to `main`, when Vercel builds, then the site is live over HTTPS and every route returns 200.
 - [ ] `Astro.site`, canonical URLs, OG URLs and the sitemap use the live origin.
 - [ ] A branch push produces a deploy preview.
 - [ ] Lighthouse mobile run on the live URL meets §9; results summarised in `DECISIONS.md`.
@@ -499,7 +499,7 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 | 3D hurts mobile performance | High | High | Round 2: lower quality, never remove. Use DPR caps, reduced counts, cheaper shaders, half-resolution postprocessing and a 30 fps idle cap on `lite`; pause off-screen; lazy chunks; the 2D version only without usable WebGL; gate on Lighthouse mobile ≥ 65. (Before r1: 3D was a `full`-only enhancement, kept only if budgets held.) | R3+ |
 | Intro hides the hero and delays LCP | Medium | High | Hidden states set after first paint and under the overlay only; avatar never at opacity 0; LCP measured with a cold session | p11, p13, p17 |
 | Motion scope misses the deadline | High | High | Round 2: the effect list is not cut. Scope is controlled by quality levels and by building the persistent scene first, so page visuals reuse it. The p07 cut order in `docs/audits/docs-review.md` is void. | all |
-| Netlify subdomain `aden-khan-portfolio` already taken | Medium | Low | `SITE_URL` is one constant; p21 picks the next free name and updates it | p21 |
+| Vercel subdomain `aden-khan-portfolio` already taken | Medium | Low | `SITE_URL` is one constant; p21 picks the next free name and updates it | p21 |
 | Avatar not original (IP) | Low | High | Owner confirms the avatar is original art they own before launch | p19 |
 | Motion makes text unreadable or delays it | Medium | High | H1s never hidden in HTML; no typing of real content; reduced-motion and no-JS tests | p10, p20 |
 | Rubric gap: Home "high-quality image" expects a photo | Medium | Medium | Owner chose the illustrated avatar (known risk, brief decision 9). Mitigate with a high-resolution avatar and strong alt text | p09, p21 |
@@ -508,11 +508,11 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 | Scope creep from 140+ installed skills and extra effects | High | Medium | MOTION.md section 3 is the cut list; anything new needs a DECISIONS entry | all |
 | Design plan doc too thin for rubric item 1 (wireframe was text only) | Medium | Medium | `docs/02-wireframes.md` adds per-page wireframes at mobile and desktop | p07 |
 | SplitText or ScrambleText hurting accessibility | Low | Medium | `aria: "auto"`; `revert()` on matchMedia revert; axe and screen-reader spot check | p13, p18 |
-| Netlify Forms not detected | Low | Medium | Static form in built HTML with `form-name`; mailto fallback always visible | p15, p21 |
+| the Vercel contact function (api/contact.js) not detected | Low | Medium | Static form in built HTML with `form-name`; mailto fallback always visible | p15, p21 |
 | Lenis interfering with keyboard, anchors or nested scroll | Medium | Low | `anchors: true`, `data-lenis-prevent` on gallery and dialog, not created for reduced motion | p10, p14 |
 | Cross-document view transitions unsupported in some browsers | Medium | Low | Progressive enhancement: instant navigation | p10 |
 | Phone number leak | Low | Medium | Never in `src/data`; smoke test greps built HTML for the number | p08, p20 |
-| Netlify sign-in needed | Certain | Low | The only manual step; agent stops and asks per CLAUDE.md autonomy rule | p21 |
+| Vercel sign-in needed | Certain | Low | The only manual step; agent stops and asks per CLAUDE.md autonomy rule | p21 |
 
 ## 15. New dependencies (do not install until p08)
 
@@ -529,6 +529,6 @@ Verify: ffprobe output in the commit message body. Commit: `p22: bonus reel`.
 | `@axe-core/playwright` | devDependency | not installed | 4.14.0 |
 | `prettier` | devDependency | not installed | 3.9.10 |
 | `prettier-plugin-astro` | devDependency | not installed | 1.1.2 |
-| `netlify-cli` | devDependency | not installed | 27.16.1 |
+| `vercel-cli` | devDependency | not installed | 27.16.1 |
 
 To remove in p08: `@fontsource-variable/geist` (installed by shadcn, unused). Already installed and used by this plan: astro, @astrojs/react, react, react-dom, tailwindcss, @tailwindcss/vite, gsap, lenis, motion, shadcn. Installed for optional or stretch work: three, @types/three, postprocessing (3D enhancement), @tsparticles/engine, @tsparticles/slim (particles stretch goal). Installed but unused: `lottie-web` (cut in p07), `@rive-app/canvas` (no `.riv` file), `@pixiv/three-vrm` (no 3D avatar planned). Leave them installed; unused packages add nothing to the bundle.

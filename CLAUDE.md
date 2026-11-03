@@ -8,7 +8,7 @@ It is also a **graded university assignment (4 marks)**:
 1. Design plan doc with purpose, audience and wireframe (`docs/00-design-plan.md`).
 2. Home (professional intro, headline, high-quality image), About (bio, education, career goals), Portfolio/Skills page, Contact page (email and LinkedIn).
 3. SEO: keywords in headings and content, meta descriptions, image alt text, mobile-friendly and readable.
-4. Live on a free host: GitHub Pages, Netlify or Wix.
+4. Live on a free host (the owner chose Vercel).
 
 Facts about Aden come only from `docs/cv-source.md`. Never invent roles, numbers or dates.
 
@@ -56,7 +56,7 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - Mobile first. Works at 360px wide with no horizontal scroll.
 - The hero image is the original illustrated avatar (no photo, by the owner's choice).
 - IP rule: no characters, logos, names or named techniques from any anime or other franchise. The red-orb plus blue-orb collision is an original effect and is never labelled with a franchise term. The rule covers the site's own design and animations, not the owner's past work shown as portfolio pieces (the Good Liar concept posters, r10; `docs/DECISIONS.md`). Even there, never use franchise names in alt text, file names, headings or meta tags.
-- Deploy target is Netlify, with GitHub Pages as backup. **Do not deploy to Vercel**; the rubric does not allow it.
+- Deploy target is Vercel (owner decision, r11), live at https://aden-portfolio-website.vercel.app. The contact form posts to the Vercel function `api/contact.js` (needs `RESEND_API_KEY` in the project environment). Do not migrate to another host.
 
 ## 4a. Round 2 rules (from r1, 2026-11-02)
 The p16 site was too text heavy, repetitive and flat. Evidence: `docs/audits/round2-baseline.md`. These rules override any older rule in any doc that conflicts with them, including `docs/01-brief.md` ("loud in two places"), `DESIGN.md` glow and motif limits, and the p07 cut list.

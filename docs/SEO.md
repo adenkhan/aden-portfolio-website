@@ -7,7 +7,7 @@ Source of truth for metadata, headings, alt text and on-page copy. Implemented b
 Everything below reads from one constant in `src/data/site.ts`:
 
 ```ts
-export const SITE_URL = "https://aden-khan-portfolio.netlify.app"; // prompt 21 replaces this with the live URL
+export const SITE_URL = "https://aden-portfolio-website.vercel.app"; // prompt 21 replaces this with the live URL
 ```
 `astro.config.mjs` imports it for `site`, so canonical, `og:url`, `og:image`, the sitemap and robots.txt all follow it. No other file hard-codes the origin.
 
@@ -152,18 +152,18 @@ One JSON-LD block per page (§10 change 4), only for content the page renders.
   "@graph": [
     {
       "@type": "WebSite",
-      "@id": "https://aden-khan-portfolio.netlify.app/#website",
-      "url": "https://aden-khan-portfolio.netlify.app/",
+      "@id": "https://aden-portfolio-website.vercel.app/#website",
+      "url": "https://aden-portfolio-website.vercel.app/",
       "name": "Aden Khan, Product Marketer",
       "inLanguage": "en",
-      "publisher": { "@id": "https://aden-khan-portfolio.netlify.app/#person" }
+      "publisher": { "@id": "https://aden-portfolio-website.vercel.app/#person" }
     },
     {
       "@type": "Person",
-      "@id": "https://aden-khan-portfolio.netlify.app/#person",
+      "@id": "https://aden-portfolio-website.vercel.app/#person",
       "name": "Aden Khan",
       "jobTitle": "Product Marketer",
-      "url": "https://aden-khan-portfolio.netlify.app/",
+      "url": "https://aden-portfolio-website.vercel.app/",
       "email": "mailto:aden.khan613@gmail.com",
       "address": { "@type": "PostalAddress", "addressLocality": "Karachi", "addressCountry": "PK" },
       "alumniOf": { "@type": "CollegeOrUniversity", "name": "Institute of Business Administration, Karachi" },
@@ -183,14 +183,14 @@ Work and Contact have no JSON-LD. Nothing invents ratings, employers' details or
 ## 8. Canonical, indexing, sitemap, robots, icons
 
 - **Canonical:** absolute, built from `SITE_URL` + the path with a trailing slash (`/`, `/about/`, `/work/`, `/contact/`). One `<link rel="canonical">` per page, emitted only by `<SEO>`.
-- **Deploy previews and branch deploys:** `noindex, nofollow` unless Netlify's build `CONTEXT` is `production` (§10 change 3). Canonical still points to production.
-- **GitHub Pages backup:** if ever used, its pages keep the Netlify canonical, so the two hosts never compete.
+- **Deploy previews and branch deploys:** `noindex, nofollow` unless Vercel's build `CONTEXT` is `production` (§10 change 3). Canonical still points to production.
+- **GitHub Pages backup:** if ever used, its pages keep the Vercel canonical, so the two hosts never compete.
 - **Sitemap:** `@astrojs/sitemap` emits `sitemap-index.xml` with `/`, `/about/`, `/work/`, `/contact/` only.
 - **robots.txt:** generated from `SITE_URL`:
 ```
 User-agent: *
 Allow: /
-Sitemap: https://aden-khan-portfolio.netlify.app/sitemap-index.xml
+Sitemap: https://aden-portfolio-website.vercel.app/sitemap-index.xml
 ```
 - **Icons:** `favicon.ico` (32×32), `favicon.svg` (scales, works in dark tabs), `apple-touch-icon.png` (180×180). No web manifest: the site is not installable, and a half-filled manifest is worse than none.
 - **Theme:** `<meta name="theme-color" content="#0B0D1A">` and `<meta name="color-scheme" content="dark">` (dark-only design).
@@ -220,8 +220,8 @@ Other anchors: `/work/#missions`, `/work/#skills`, `/work/#gallery`, `/about/#ed
 Reviewed against the `fixing-metadata` priorities before any code exists. Changes made:
 
 1. **H1s without a keyword (correctness).** `CLAUDE.md` requires one H1 per page containing a target keyword. About ("The origin arc: from campaigns to products") and Contact ("Open a channel") had none. Added a visible subline inside each H1 ("About Aden Khan, product marketer"; "Contact Aden Khan, product marketer") and kept the given phrase word for word. Hidden keywords were rejected.
-2. **Trailing slash consistency (canonical).** Astro's default directory output serves `/about/`, and Netlify redirects `/about` to it. Without a fixed rule, canonical and `og:url` could disagree with the served URL. Set `trailingSlash: "always"` and build every canonical with the slash.
-3. **Preview indexing (indexing).** Netlify deploy previews are public URLs with the same content. Added `noindex, nofollow` for any build whose `CONTEXT` is not `production`.
+2. **Trailing slash consistency (canonical).** Astro's default directory output serves `/about/`, and Vercel redirects `/about` to it. Without a fixed rule, canonical and `og:url` could disagree with the served URL. Set `trailingSlash: "always"` and build every canonical with the slash.
+3. **Preview indexing (indexing).** Vercel deploy previews are public URLs with the same content. Added `noindex, nofollow` for any build whose `CONTEXT` is not `production`.
 4. **One structured-data block per page (structured data).** The engineering plan had separate `Person` and `WebSite` blocks on Home. Merged into one `@graph` and gave `Person` an `@id` so About's `ProfilePage` can reference it instead of repeating it.
 5. **Mission card links (internal linking).** The spec asked for links but named no targets. Defined stable anchors and a mission-to-arc map.
 6. **Missing defaults (correctness).** `/thanks/` and `/404` had no title or description. Added them, both `noindex`.

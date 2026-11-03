@@ -9,7 +9,7 @@ Three jobs:
 - Prove impact: show real results, such as a 72% cut in customer acquisition cost at Sadiq.ai and an SEO tool shipped at 10Pearls.
 - Stand out: an anime-tech visual identity with motion graphics that makes the portfolio memorable.
 
-Assignment rubric (graded, 4 marks): (1) design plan doc with purpose, audience and wireframe; (2) Home with professional intro, headline and high-quality image, About with bio, education and career goals, Portfolio/Skills page, Contact page with email and LinkedIn; (3) SEO: keywords in headings and content, meta descriptions, image alt text, mobile-friendly and readable; (4) live on a free host: GitHub Pages, Netlify or Wix.
+Assignment rubric (graded, 4 marks): (1) design plan doc with purpose, audience and wireframe; (2) Home with professional intro, headline and high-quality image, About with bio, education and career goals, Portfolio/Skills page, Contact page with email and LinkedIn; (3) SEO: keywords in headings and content, meta descriptions, image alt text, mobile-friendly and readable; (4) live on a free host (the owner chose Vercel).
 
 ## 2. Target audience and message
 Core message: a product marketer who understands both the customer and the data, and can build the tools to connect them.
@@ -94,4 +94,4 @@ Mobile: viewport meta, stack below 768px, body text ≥ 16px, high contrast, tap
 - Footer: © 2026 Aden Khan · Product Marketer · Karachi, Pakistan
 
 ## 7. Tech stack and deployment
-Astro (static pages) + React islands + Tailwind v4; GSAP (ScrollTrigger, SplitText, DrawSVG; all plugins free for commercial use since 2025) + Lenis; Three.js + postprocessing for the orbs; tsParticles; optional Rive or Lottie avatar animation. Hosting: Netlify (free), GitHub Pages as backup. Never Vercel: not an approved host for the assignment.
+Astro (static pages) + React islands + Tailwind v4; GSAP (ScrollTrigger, SplitText, DrawSVG; all plugins free for commercial use since 2025) + Lenis; Three.js + postprocessing for the orbs; tsParticles; optional Rive or Lottie avatar animation. Hosting: Vercel (free; owner decision, r11).

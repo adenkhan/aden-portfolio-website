@@ -9,7 +9,7 @@ const { form } = contact;
     {contact.messageHeading}
   </h2>
 
-  <!-- Netlify Forms reads this static form at deploy time (docs/ENGINEERING-PLAN.md §10). -->
+  <!-- Posts natively to the Vercel function api/contact.js, which emails it and redirects to /thanks/. -->
   <!--
     Without JavaScript the browser's own validation (required, type="email") applies. With it, the
     script below switches to inline errors linked by aria-describedby and a live summary.
@@ -17,9 +17,7 @@ const { form } = contact;
   <form
     name="contact"
     method="POST"
-    action="/thanks/"
-    data-netlify="true"
-    netlify-honeypot="bot-field"
+    action="/api/contact"
     data-astro-reload
     data-contact-form
     data-error-name={form.errors.name}
@@ -122,7 +120,7 @@ const { form } = contact;
       const invalid = fields.filter((field) => !check(field));
       if (!invalid.length) {
         status.textContent = "";
-        // Valid: the world fires its burst at the button, then the form posts natively to Netlify,
+        // Valid: the world fires its burst at the button, then the form posts natively to /api/contact,
         // which redirects to /thanks/ (data-astro-reload keeps the client router out of it).
         // Show progress and stop a second press while the request is in flight.
         event.preventDefault();
