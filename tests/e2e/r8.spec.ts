@@ -305,3 +305,63 @@ test.describe("r8e reduced motion", () => {
     await expect(page.locator("[data-tree-chip]").first()).toBeVisible();
   });
 });
+
+test.describe("r8f charged cards and orb cursor", () => {
+  test("desktop: the orb trails and is pulled to cards; a hovered card crackles; its result glitches once", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/work/?world=off");
+    await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 3000 });
+    await expect(page.locator("[data-cursor-trail]")).toHaveCount(5);
+    await page.locator("[data-cases]").evaluate((s) =>
+      window.__akLenis?.scrollTo(s.getBoundingClientRect().top + window.scrollY, { immediate: true }),
+    );
+    await page.mouse.move(5, 5);
+    await page.waitForTimeout(300);
+    const card = page.locator("[data-case-card]").first();
+    const box = (await card.boundingBox())!;
+    const px = box.x + box.width * 0.85;
+    const py = box.y + box.height * 0.5;
+    await page.mouse.move(px, py, { steps: 8 });
+    const lead = card.locator("[data-mission-result] .lead");
+    await expect(lead).toHaveClass(/is-glitch/);
+    await expect(card.locator(".charge.is-on")).toHaveCount(1);
+    // The bolt crackles: its outline is re-rolled while hovered.
+    const d1 = await card.locator(".charge path").first().getAttribute("d");
+    await page.waitForTimeout(150);
+    expect(await card.locator(".charge path").first().getAttribute("d")).not.toBe(d1);
+    // Pulled toward the card's centre: the orb settles between the pointer and the centre.
+    await page.waitForTimeout(500);
+    const orbX = await page
+      .locator("[data-cursor-orb]")
+      .evaluate((o) => new DOMMatrix(getComputedStyle(o).transform).m41);
+    expect(orbX).toBeLessThan(px - 5);
+    expect(orbX).toBeGreaterThan(box.x + box.width / 2);
+    // Leave and come back: no second glitch.
+    await expect(lead).not.toHaveClass(/is-glitch/);
+    await page.mouse.move(5, 5, { steps: 3 });
+    await expect(page.locator(".charge")).toHaveCount(0);
+    await page.mouse.move(px, py, { steps: 4 });
+    await page.waitForTimeout(100);
+    await expect(lead).not.toHaveClass(/is-glitch/);
+  });
+
+  test("phone width: no orb, no charge", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/work/");
+    await expect(page.locator("[data-cursor-orb]")).toHaveCount(0);
+    await page.locator("[data-case-card]").first().hover();
+    await expect(page.locator(".charge")).toHaveCount(0);
+  });
+});
+
+test.describe("r8f reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("no orb, no trail, no charge", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/work/");
+    await page.locator("[data-case-card]").first().hover();
+    await expect(page.locator("[data-cursor-orb], [data-cursor-trail], .charge")).toHaveCount(0);
+  });
+});

@@ -475,3 +475,8 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: two rows of skill words drift in opposite directions, flip with the scroll direction, speed up with scroll velocity and tilt slightly in 3D. Hovering a word pauses its row and lights its lane's 3D cluster (`docs/MOTION.md` §21).
 - Ruling: the marquee is built from the skills tree's chips, and the chips are hidden on screen (kept for screen readers) while it runs, so no skill is shown twice (§4a "say each fact once"). Cost if wrong: with motion on, the tree shows lane names only and the skills live in the marquee.
 - Ruling: velocity is measured from `scrollY` deltas, so native touch scrolling on phones speeds the rows too; direction prefers `lenis.direction`. The world's skills trigger now spans the whole skills section, so the band counts as part of it.
+
+## 2026-11-03 — r8f: charged cards and orb cursor
+- Decision: the cursor orb is red and blue with a five-dot trail, pulled toward buttons and cards. Hovering a case card sends noise-jittered lightning along its border, and its result number glitches once (`docs/MOTION.md` §22). Desktop fine pointer only, as the prompt says.
+- Ruling: the glitch is a CSS animation on the result's box, not a text scramble, because on desktop the count is scrubbed by scroll and a scramble would fight it. Cost if wrong: the glitch never changes the digits themselves.
+- Ruling: GSAP Observer drives the orb with pointer and touch types, so hybrid laptops behave the same; touch-only devices still get no orb, since there is nothing to follow.

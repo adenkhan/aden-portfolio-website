@@ -686,3 +686,16 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **Mobile.** A 28 px/s drift, a boost of up to 600 px/s, no rotateZ, an 8° tilt, thinner outlines. Velocity comes from native touch scrolling too. Touch has no hover, so the rows never pause.
 - **Reduced motion.** No marquee; the chips show in the tree as before.
 - **No JavaScript.** The tree with its chips.
+
+## 22. Charged cards and the magnetic orb cursor (r8f)
+
+`src/lib/motion/moments/cursor.ts` (orb, trail, magnets) and `charge.ts` (case cards). Desktop only: fine pointer, full tier, at least 768 px wide.
+
+- **Orb.** The r5 companion becomes two charges in one: a small orb, red on one side and blue on the other, meeting in purple, with red and blue glows. Over anything interactive it opens into a hollow red-to-blue ring (a conic gradient masked to 1.5 px). The system cursor stays.
+- **Trail.** Five dots, alternately red and blue, follow with growing lag (`quickTo`, 0.32–0.6 s), each smaller and fainter than the last.
+- **Magnets.** The orb is pulled from the pointer toward the centre of what it is over: 40% for buttons (including the CV, open and close buttons) and 10% for case cards. `.btn` still leans up to 6 px toward the pointer (r5).
+- **Input.** GSAP Observer (`type: "pointer,touch"`) reads moves, so a touchscreen laptop moves the orb the same way a mouse does.
+- **Charged card.** Hovering a case card adds an SVG over its border with two bolts: short dashes (16% of the outline) of a closed path whose vertices sit every 12 px, nudged ±2.6 px off the border. The shape is re-rolled every 55 ms so the bolts crackle. Red crawls clockwise and blue the other way, a full lap in 1.1 s. The SVG fades in over 200 ms and is removed when the pointer leaves.
+- **Glitch.** The first hover of each card glitches its result number once: 420 ms of stepped RGB split, slices and a 3 px jitter, in CSS only, so the scroll-scrubbed count is never touched.
+- **Mobile and touch-only.** None of it; touch has no hover and no cursor. The cards and numbers stay as they are.
+- **Reduced motion.** None of it (the module runs only inside the motion context).
