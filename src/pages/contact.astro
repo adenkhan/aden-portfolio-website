@@ -4,9 +4,10 @@ import TerminalPanel from "@/components/sections/contact/TerminalPanel.astro";
 import PageTitle from "@/components/ui/PageTitle.astro";
 import { contact } from "@/data/timeline";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { contactJsonLd } from "@/lib/jsonld";
 ---
 
-<BaseLayout page="contact">
+<BaseLayout page="contact" jsonLd={contactJsonLd()}>
   <header class="container-site page-head">
     <!-- The avatar's station on Contact (r9): she waves as the page enters view. -->
     <div class="avatar-anchor" aria-hidden="true" data-avatar-anchor="contact"></div>

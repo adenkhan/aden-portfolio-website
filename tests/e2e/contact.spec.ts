@@ -14,10 +14,10 @@ test("keyboard only: empty submit announces errors, focuses the first field, the
   page,
 }) => {
   let posted = "";
-  await page.route("**/thanks/", async (route) => {
+  await page.route("**/api/contact*", async (route) => {
     if (route.request().method() === "POST") {
       posted = route.request().postData() ?? "";
-      await route.fulfill({ status: 200, contentType: "text/html", body: "<h1>Message received</h1>" });
+      await route.fulfill({ status: 303, headers: { location: "/thanks/" } });
     } else await route.continue();
   });
   await page.goto("/contact/");

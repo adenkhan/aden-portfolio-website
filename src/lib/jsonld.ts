@@ -79,3 +79,13 @@ export function workJsonLd(
     ],
   };
 }
+
+/** Contact: ContactPage whose main entity is the Person defined on Home. */
+export function contactJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    url: `${SITE_URL}/contact/`,
+    mainEntity: { "@id": personId },
+  };
+}
