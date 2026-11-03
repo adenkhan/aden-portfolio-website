@@ -676,26 +676,21 @@ const fan = (i: number, n: number) => {
     margin: 0;
   }
 
+  /* The image is laid over the row's own box, so it can never be taller than the room above the caption. */
   .lb-image {
-    display: grid;
-    place-items: center;
+    position: relative;
     min-height: 0;
   }
 
-  .lb-image :global(picture),
+  .lb-image :global(picture) {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+
   .lb-image :global(img) {
     display: block;
-    max-width: min(90vw, 1200px);
-    max-height: 100%;
-    width: auto;
-    height: auto;
-  }
-
-  .lb-image :global(picture) {
-    height: 100%;
-  }
-
-  .lb-image :global(img) {
+    width: 100%;
     height: 100%;
     object-fit: contain;
   }
