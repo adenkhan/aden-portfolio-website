@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="5577" viewBox="0 0 1440 5577" font-family="Inter, Arial, sans-serif">
+<g id="work">
+<rect id="frame" x="0" y="0" width="1440" height="5577" fill="#FFFFFF" stroke="#BDBDBD" stroke-width="1"/>
+<g id="3d-world-canvas">
+<rect x="0" y="0" width="1440" height="900" fill="#F3F3F3" stroke="#E2E2E2" stroke-width="1"/><path d="M0 0 L1440 900 M1440 0 L0 900" stroke="#E2E2E2" stroke-width="1" fill="none"/>
+<text x="1424" y="884" font-size="12" fill="#9E9E9E" text-anchor="end">3D world canvas (fixed, behind the page)</text>
+<g id="motion-3d-world-persistent-scene-ca"><rect x="1" y="1" width="1438" height="898" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="16" y="16" width="329.6" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="24" y="29" font-size="11" font-weight="500" fill="#6D28D9">3D world: persistent scene, camera flies per page</text></g>
+</g>
+<g id="nav">
+<text x="152.5" y="45" font-size="27.9" font-weight="700" fill="#424242">AK</text>
+<text x="902.4" y="40" font-size="16" font-weight="500" fill="#424242">Home</text>
+<text x="975.3" y="40" font-size="16" font-weight="500" fill="#424242">About</text>
+<text x="1049.4" y="40" font-size="16" font-weight="500" fill="#424242">Work</text>
+<text x="1117.8" y="40" font-size="16" font-weight="500" fill="#424242">Contact</text>
+<rect x="1213.4" y="14" width="59.1" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1243" y="41.6" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">CV</text>
+</g>
+<g id="page-header">
+<text x="152.5" y="181.1" font-size="51.7" font-weight="700" fill="#212121">Product marketing missions</text>
+<g id="motion-kinetic-type"><rect x="153.5" y="122" width="1118" height="70" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="152.5" y="101" width="92.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="160.5" y="114" font-size="11" font-weight="500" fill="#6D28D9">kinetic type</text></g>
+</g>
+<g id="case-studies">
+<rect x="136.5" y="233" width="1152" height="705.6" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="246" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="273.6" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="267.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="330.4" font-size="36.1" font-weight="700" fill="#212121">Cut the cost of growth</text>
+<rect x="185.5" y="348.9" width="62.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="379.6" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 379.6 L1255.5 739.6 M1255.5 379.6 L169.5 739.6" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="563.6" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1161.9" y="749.9" width="93.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="175.9" y="790.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="787.8" width="284.8" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="824.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="821.8" width="682.6" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="878.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="866" width="113" height="24" rx="12" fill="#DDDDDD"/><rect x="321" y="878.4" width="289.6" height="15.1" rx="7.6" fill="#DDDDDD"/>
+<rect x="136.5" y="962.6" width="1152" height="701.2" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="975.6" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="1003.2" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="997.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="1059.4" font-size="36.8" font-weight="700" fill="#212121">Let the robots do the busywork</text>
+<rect x="185.5" y="1077.9" width="62.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="1109.2" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 1109.2 L1255.5 1469.2 M1255.5 1109.2 L169.5 1469.2" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="1293.2" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1161.9" y="1478.9" width="93.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="175.9" y="1520.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="1517.8" width="269.8" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="1554.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="1551.8" width="562" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="1605.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="1595" width="585" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="136.5" y="1687.8" width="1152" height="701.2" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="1700.8" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="1728.4" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="1722.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="1785.4" font-size="35.6" font-weight="700" fill="#212121">An SEO writer’s cockpit</text>
+<rect x="185.5" y="1803.9" width="62.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="1834.3" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 1834.3 L1255.5 2194.3 M1255.5 1834.3 L169.5 2194.3" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="2018.3" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1161.9" y="2203.9" width="93.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="175.9" y="2245.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="2242.8" width="422.9" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="2279.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="2276.8" width="780.5" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="2330.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="2320" width="699.9" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="136.5" y="2412.9" width="1152" height="705.6" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="2425.9" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="2453.5" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="2447.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="2510.4" font-size="36" font-weight="700" fill="#212121">Open doors in U.S. proptech</text>
+<rect x="185.5" y="2528.9" width="46.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="2559.5" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 2559.5 L1255.5 2919.5 M1255.5 2559.5 L169.5 2919.5" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="2743.5" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1161.9" y="2929.9" width="93.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="175.9" y="2970.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="2967.8" width="421.7" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="3004.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="3001.8" width="343.3" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="3058.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="3046" width="68.1" height="24" rx="12" fill="#DDDDDD"/><rect x="275.5" y="3058.4" width="314" height="15.1" rx="7.6" fill="#DDDDDD"/>
+<rect x="136.5" y="3142.5" width="1152" height="705.6" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="3155.5" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="3183.1" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="3177.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="3239.4" font-size="38.3" font-weight="700" fill="#212121">Make founders notice</text>
+<rect x="185.5" y="3257.9" width="117" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="3289.1" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 3289.1 L1255.5 3649.1 M1255.5 3289.1 L169.5 3649.1" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="3473.1" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1161.9" y="3658.9" width="93.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="175.9" y="3700.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="3697.8" width="485.7" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="3733.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="3730.8" width="616" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="3787.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="3775" width="116.3" height="24" rx="12" fill="#DDDDDD"/><rect x="324.3" y="3787.4" width="222" height="15.1" rx="7.6" fill="#DDDDDD"/>
+<rect x="136.5" y="3872.1" width="1152" height="680.8" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1231.5" y="3885.1" width="44" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1253.5" y="3912.7" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">◻</text>
+<rect x="169.5" y="3906.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="169.5" y="3969.4" font-size="36.6" font-weight="700" fill="#212121">Fund the club</text>
+<rect x="185.5" y="3987.9" width="273" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="169.5" y="4018.7" width="1086" height="360" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M169.5 4018.7 L1255.5 4378.7 M1255.5 4018.7 L169.5 4378.7" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="4202.7" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="175.9" y="4405.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="4402.8" width="367.8" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="4438.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="4435.8" width="437.9" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="175.9" y="4492.6" width="7.2" height="6.7" rx="3.4" fill="#DDDDDD"/>
+<rect x="201.5" y="4480" width="169.9" height="24" rx="12" fill="#DDDDDD"/><rect x="377.9" y="4492.4" width="408.8" height="15.1" rx="7.6" fill="#DDDDDD"/>
+<g id="motion-desktop-pinned-horizontal-se"><rect x="1" y="194" width="1423" height="4357.9" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="0" y="173" width="336" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="8" y="186" font-size="11" font-weight="500" fill="#6D28D9">desktop: pinned horizontal sequence, 3D formations</text></g>
+<g id="motion-flip-takeover"><rect x="1232.5" y="247" width="42" height="42" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="1231.5" y="226" width="99.2" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="1239.5" y="239" font-size="11" font-weight="500" fill="#6D28D9">Flip takeover</text></g>
+</g>
+<g id="skills-tree">
+<text x="152.5" y="4674.1" font-size="20.8" font-weight="700" fill="#212121">Product marketing</text>
+<rect x="152.5" y="4692.4" width="111.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="165.5" y="4705.9" width="85.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="272.3" y="4692.4" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="285.3" y="4705.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="152.5" y="4736.5" width="150.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="165.5" y="4750.9" width="124.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="152.5" y="4780.7" width="127.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="165.5" y="4794.9" width="101.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="440.5" y="4674.1" font-size="23.3" font-weight="700" fill="#212121">Growth</text>
+<rect x="440.5" y="4692.4" width="57.2" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="453.5" y="4705.9" width="31.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="505.7" y="4692.4" width="72.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="518.7" y="4705.9" width="46.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="586.5" y="4692.4" width="88.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="599.5" y="4705.9" width="62.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="440.5" y="4736.5" width="104" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="453.5" y="4750.9" width="78" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="552.5" y="4736.5" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="565.5" y="4750.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="728.5" y="4674.1" font-size="21.3" font-weight="700" fill="#212121">Data &amp; automation</text>
+<rect x="728.5" y="4692.4" width="96.2" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="741.5" y="4705.9" width="70.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="832.7" y="4692.4" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="845.7" y="4705.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="890.1" y="4692.4" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="903.1" y="4705.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="728.5" y="4736.5" width="127.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="741.5" y="4750.9" width="101.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="863.9" y="4736.5" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="876.9" y="4750.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="728.5" y="4780.7" width="80.6" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="741.5" y="4794.9" width="54.6" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="817.1" y="4780.7" width="49.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="830.1" y="4794.9" width="23.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="874.5" y="4780.7" width="72.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="887.5" y="4794.9" width="46.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<text x="1016.5" y="4674.1" font-size="19.5" font-weight="700" fill="#212121">Creative</text>
+<rect x="1016.5" y="4692.4" width="65" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1029.5" y="4705.9" width="39" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="1089.5" y="4692.4" width="96.2" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1102.5" y="4705.9" width="70.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="1193.7" y="4692.4" width="72.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1206.7" y="4705.9" width="46.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="1016.5" y="4736.5" width="65" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="1029.5" y="4750.9" width="39" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<g id="motion-velocity-marquee-3d-clusters"><rect x="153.5" y="4617.9" width="1118" height="198.1" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="152.5" y="4596.9" width="208" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="160.5" y="4609.9" font-size="11" font-weight="500" fill="#6D28D9">velocity marquee + 3D clusters</text></g>
+</g>
+<g id="creative-drops">
+<text x="152.5" y="4924.4" font-size="36.5" font-weight="700" fill="#212121">Creative drops</text>
+<rect x="152.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M152.5 4972.9 L452.5 5347.9 M452.5 4972.9 L152.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="302.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="468.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M468.5 4972.9 L768.5 5347.9 M768.5 4972.9 L468.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="618.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="784.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M784.5 4972.9 L1084.5 5347.9 M1084.5 4972.9 L784.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="934.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1100.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M1100.5 4972.9 L1400.5 5347.9 M1400.5 4972.9 L1100.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="1250.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1416.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M1416.5 4972.9 L1716.5 5347.9 M1716.5 4972.9 L1416.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="1566.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="1732.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M1732.5 4972.9 L2032.5 5347.9 M2032.5 4972.9 L1732.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="1882.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="2048.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M2048.5 4972.9 L2348.5 5347.9 M2348.5 4972.9 L2048.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="2198.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<rect x="2364.5" y="4972.9" width="300" height="375" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M2364.5 4972.9 L2664.5 5347.9 M2664.5 4972.9 L2364.5 5347.9" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="2514.5" y="5164.4" font-size="12" fill="#757575" text-anchor="middle">visual</text>
+<g id="motion-drag-inertia-tilt"><rect x="113.5" y="4817.9" width="1198" height="553" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="112.5" y="4796.9" width="144" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="120.5" y="4809.9" font-size="11" font-weight="500" fill="#6D28D9">drag + inertia, tilt</text></g>
+</g>
+<g id="footer">
+<rect x="152.5" y="5518.2" width="359.2" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="679" y="5500.9" width="109.5" height="44" rx="0" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="733.7" y="5527.5" font-size="13" font-weight="600" fill="#212121" text-anchor="middle">◀◀Back to top</text>
+<text x="955.7" y="5526.5" font-size="14" font-weight="500" fill="#424242">aden.khan613@gmail.com</text>
+<text x="1147.1" y="5526.5" font-size="13.1" font-weight="500" fill="#424242">LinkedIn</text>
+<text x="1226.1" y="5526.5" font-size="14" font-weight="500" fill="#424242">GitHub</text>
+<g id="motion-vhs-rewind-to-top"><rect x="680" y="5501.9" width="107.5" height="42" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="679" y="5480.9" width="124.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="687" y="5493.9" font-size="11" font-weight="500" fill="#6D28D9">VHS rewind to top</text></g>
+</g>
+</g></svg>

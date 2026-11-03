@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" font-family="Inter, Arial, sans-serif">
+<g id="cv-dialog-page">
+<rect id="frame" x="0" y="0" width="1440" height="900" fill="#FFFFFF" stroke="#BDBDBD" stroke-width="1"/>
+
+<g id="page-behind" opacity="0.5">
+<g id="home-behind">
+
+<g id="nav">
+<text x="152.5" y="45" font-size="27.9" font-weight="700" fill="#424242">AK</text>
+<text x="902.4" y="40" font-size="16" font-weight="500" fill="#424242">Home</text>
+<text x="975.3" y="40" font-size="16" font-weight="500" fill="#424242">About</text>
+<text x="1049.4" y="40" font-size="16" font-weight="500" fill="#424242">Work</text>
+<text x="1117.8" y="40" font-size="16" font-weight="500" fill="#424242">Contact</text>
+<rect x="1213.4" y="14" width="59.1" height="44" rx="22" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="1243" y="41.6" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">CV</text>
+</g>
+<g id="hero">
+<text x="152.5" y="212.9" font-size="70.4" font-weight="700" fill="#212121">Aden Khan,</text><text x="152.5" y="300.9" font-size="70.4" font-weight="700" fill="#212121">Product</text><text x="152.5" y="389.9" font-size="73.4" font-weight="700" fill="#212121">Marketer</text>
+<rect x="152.5" y="435.7" width="382.7" height="9.7" rx="4.8" fill="#DDDDDD"/>
+<rect x="152.5" y="487.4" width="174.6" height="48" rx="24" fill="#616161" stroke="#616161" stroke-width="1"/><text x="239.8" y="517" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">See the missions</text>
+<rect x="339.1" y="487.4" width="128.3" height="48" rx="24" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="403.2" y="517" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">Get my CV</text>
+<rect x="152.5" y="582.5" width="643.2" height="148" rx="0" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="152.5" y="670.2" width="100.5" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="194.5" y="622" width="113" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="327.5" y="670.2" width="94.8" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="369.5" y="622" width="116.3" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="505.8" y="670.2" width="127.1" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="558.1" y="622" width="103.6" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="681.7" y="670.2" width="70.7" height="7.6" rx="3.8" fill="#DDDDDD"/><rect x="681.7" y="691.2" width="72.6" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="734.1" y="622" width="26.6" height="24" rx="12" fill="#DDDDDD"/>
+<rect x="852.5" y="137" width="420" height="600.7" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="869.5" y="158.9" width="226.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="869.5" y="184.2" width="386" height="482.5" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M869.5 184.2 L1255.5 666.7 M1255.5 184.2 L869.5 666.7" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="1062.5" y="429.4" font-size="12" fill="#757575" text-anchor="middle">3D avatar</text>
+</g>
+<g id="convergence-teaser">
+<rect x="152.5" y="865.7" width="1120" height="224" fill="#E6E6E6" stroke="#B0B0B0" stroke-width="1"/><path d="M152.5 865.7 L1272.5 1089.7 M1272.5 865.7 L152.5 1089.7" stroke="#B0B0B0" stroke-width="1" fill="none"/><text x="712.5" y="981.7" font-size="12" fill="#757575" text-anchor="middle">Convergence stage (3D)</text>
+</g>
+</g></g>
+<rect id="backdrop" x="0" y="0" width="1440" height="900" fill="#000000" fill-opacity="0.35"/>
+<g id="cv-dialog-layer"><rect id="dialog-panel" x="432.5" y="174.625" width="560" height="550.734375" rx="12" fill="#FFFFFF" stroke="#616161" stroke-width="1.5"/>
+<g id="cv-dialog">
+
+<g id="dialog-content">
+<text x="457.5" y="225.1" font-size="20.7" font-weight="700" fill="#212121">Aden Khan, CV</text>
+<rect x="892.5" y="199.6" width="75" height="44" rx="4" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="930" y="227.2" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">Close</text>
+<rect x="457.5" y="257.9" width="280.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="457.5" y="292.4" width="510" height="244.9" rx="0" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="457.5" y="316.8" width="63.5" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="457.5" y="342.2" width="210.7" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="819.3" y="314.9" width="148.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="457.5" y="376.8" width="90" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="457.5" y="402.2" width="188.5" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="819.3" y="374.9" width="148.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="457.5" y="436.8" width="59.8" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="457.5" y="462.2" width="186.2" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="819.3" y="434.9" width="148.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="457.5" y="496.8" width="152.5" height="8.4" rx="4.2" fill="#DDDDDD"/>
+<rect x="457.5" y="522.2" width="131.3" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="819.3" y="494.9" width="148.2" height="7.1" rx="3.6" fill="#CFCFCF"/>
+<rect x="457.5" y="563.2" width="477.8" height="7.6" rx="3.8" fill="#DDDDDD"/><rect x="457.5" y="584.2" width="112.3" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="457.5" y="613.2" width="375.8" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="457.5" y="652.4" width="159.8" height="48" rx="24" fill="#616161" stroke="#616161" stroke-width="1"/><text x="537.4" y="682" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">Download PDF</text>
+<rect x="629.3" y="652.4" width="169.7" height="48" rx="24" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="714.1" y="682" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">Open in new tab</text>
+</g>
+</g><g id="motion-dialog-scales-in-from-the-cv"><rect x="433.5" y="175.6" width="558" height="548.7" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="432.5" y="154.6" width="284.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="440.5" y="167.6" font-size="11" font-weight="500" fill="#6D28D9">dialog scales in from the CV button; burst</text></g></g>
+</g></svg>
