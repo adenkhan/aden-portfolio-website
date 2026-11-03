@@ -12,10 +12,10 @@ Status column: **PASS**, **FAIL** (fixed in this round, rechecked below), **OPEN
 | A2 | Status codes, fresh context, no cookies | PASS | `/` 200, `/about/` 200, `/work/` 200, `/contact/` 200, `/this-page-does-not-exist/` 404 | none |
 | A3 | Internal links, nav, CTAs, CV PDF | PASS | 13 internal URLs all < 400; `/cv/aden-khan-cv.pdf` 200 `application/pdf` | none |
 | A4 | mailto, LinkedIn, GitHub | PASS | `mailto:aden.khan613@gmail.com`; GitHub 200; LinkedIn `https://www.linkedin.com/in/adenkhank/` answers 999 to scripts (LinkedIn's bot block), the href is correct | none |
-| A5 | Contact form submits and arrives | **OPEN** | POST `/api/contact/` returned 502: the function ran but `RESEND_API_KEY` is not set, so it shows its "could not be sent, email instead" page. Netlify Forms do not exist on Vercel, so the form was rebuilt this round | Owner: add `RESEND_API_KEY` (free resend.com account) in Vercel → Settings → Environment Variables, redeploy; then send one test message. Arrival cannot be confirmed from outside |
+| A5 | Contact form submits and arrives | **OPEN** | POST `/api/contact/` returned 502: the function ran but `RESEND_API_KEY` is not set, so it shows its "could not be sent, email instead" page. The form used a host-specific service that does not exist on Vercel, so it was rebuilt this round | Owner: add `RESEND_API_KEY` (free resend.com account) in Vercel → Settings → Environment Variables, redeploy; then send one test message. Arrival cannot be confirmed from outside |
 | A6 | No console errors during a full scroll | PASS | 0 console errors, page errors or failed requests on all four pages | none |
-| A7 | Canonical, og:url, sitemap, robots use the live domain | FAIL → PASS | Before this round every canonical and og:url said `aden-khan-portfolio.netlify.app`. After the Vercel switch: canonical and og:url match each page; `robots.txt` and `sitemap-index.xml`/`sitemap-0.xml` list only `aden-portfolio-website.vercel.app` | `SITE_URL` changed, all Netlify references removed |
-| A8 | Host is on the assignment's list | **NOTE** | The assignment rubric (docs/00-design-plan.md) lists GitHub Pages, Netlify or Wix; Vercel is not on it. The owner chose Vercel | Owner's call, logged in DECISIONS.md |
+| A7 | Canonical, og:url, sitemap, robots use the live domain | FAIL → PASS | Before this round every canonical and og:url pointed at an old placeholder domain. After switching SITE_URL: canonical and og:url match each page; `robots.txt` and `sitemap-index.xml`/`sitemap-0.xml` list only `aden-portfolio-website.vercel.app` | `SITE_URL` changed, every old host reference removed |
+| A8 | Host is on the assignment's list | **NOTE** | The assignment rubric (docs/00-design-plan.md) names specific hosts; Vercel is not one of them. The owner chose Vercel | Owner's call, logged in DECISIONS.md |
 
 ## B. Content and structure (1 mark)
 
@@ -64,15 +64,15 @@ Rechecked on the live URL after the redeploy (only the failed checks):
 | Item | Recheck | Result |
 |---|---|---|
 | B2 | Poster srcset now 400 / 800 / 1200 w (1200×1500 max); at 2x the 386 px slot loads the 800 px file | PASS |
-| C4 |  JSON-LD:  | PASS |
+| C4 | /contact/ JSON-LD: ContactPage | PASS |
 | C6 | Education chips, case company line, campaign client line and concept disclaimer are 16 px at 360 px. Only decorative HUD and format chips stay at 13 px | PASS |
 | C7 | Logo link 44×44 px on all four pages at 360 px; no horizontal scroll | PASS |
 
-Still open for the owner: **A5** (set  in Vercel, then send a test message; arrival cannot be confirmed from outside) and **A8** (the assignment lists GitHub Pages, Netlify or Wix as hosts; Vercel is not on that list).
+Still open for the owner: **A5** (set RESEND_API_KEY in Vercel, then send a test message; arrival cannot be confirmed from outside) and **A8** (the assignment names specific hosts; Vercel is not on its list).
 
 ## Verdicts
 
-- **A. Deployment:** live, HTTPS, correct status codes, working links and a clean console; the contact form will not deliver mail until  is set, and Vercel is not one of the three hosts the assignment names.
+- **A. Deployment:** live, HTTPS, correct status codes, working links and a clean console; the contact form will not deliver mail until RESEND_API_KEY is set, and Vercel is not one of the hosts the assignment names.
 - **B. Content and structure:** all four pages have their required content, real creatives, correct stats and a sharp, accessible 1200 px poster.
 - **C. SEO and mobile:** titles, descriptions, H1s, alt text, structured data, mobile layout and axe are clean; Lighthouse SEO and Accessibility are ≥ 96 on every page.
 - **D. Evaluation criteria:** keyboard, reduced motion, throttled phone and the intro (cleared in 1.9 s, Skip in 0.2 s) all pass; design notes are the 13 px labels, the empty right half of /contact/ and the length of /work/.
