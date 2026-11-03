@@ -414,3 +414,25 @@ html.has-cursor .cursor-orb {
     transform: translateY(20px);
   }
 }
+
+/* Speed lines on fast scroll (r8a): radial streaks around the edges only; opacity and scale come
+   from the smoothed scroll velocity (--v on this element). Created by script, never for reduced motion. */
+.speed-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.speed-overlay svg {
+  width: 100%;
+  height: 100%;
+}
+
+.speed-overlay line {
+  stroke: var(--color-text);
+  stroke-opacity: 0.35;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}

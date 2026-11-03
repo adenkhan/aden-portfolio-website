@@ -491,6 +491,7 @@ export class World {
           uMorph: { value: start ? 0 : 1 },
           uSize: { value: 36 * this.dpr() },
           uOpacity: { value: start ? 0 : 0.7 },
+          uStretch: { value: 0 },
         },
         blending: AdditiveBlending,
         depthWrite: false,
@@ -1201,6 +1202,10 @@ export class World {
       field.visible = this.fieldMorph > 0.01;
     }
     this.dust.material.uniforms.uTime.value = t;
+    // Fast scroll (r8a): the particles stretch into streaks, easing back when scrolling stops.
+    const stretch = Math.min(1, Math.max(0, (Math.abs(this.vel) - 8) / 32));
+    this.dust.material.uniforms.uStretch.value = stretch;
+    if (this.field) this.field.material.uniforms.uStretch.value = stretch;
 
     this.formations.forEach((f, i) => {
       const u = f.material.uniforms;

@@ -2,6 +2,7 @@ import type { PageId } from "@/data/types";
 import { gsap, registerCore } from "./eases";
 import { startLenis } from "./lenis";
 import { cursor } from "./moments/cursor";
+import { speedLines } from "./moments/speed";
 import { headlines } from "./moments/headline";
 import { pointerGlow } from "./moments/pointer-glow";
 import { getTier, type MotionTier } from "./tier";
@@ -89,7 +90,7 @@ export function initMotion(page: PageId): MotionHandle {
       ]).finally(() => root.classList.remove("motion-pending"));
 
       // Ambient particles now live on the GPU in the persistent world (r3), not in tsParticles.
-      for (const moment of [pointerGlow, cursor]) {
+      for (const moment of [pointerGlow, cursor, speedLines]) {
         const cleanup = moment(ctx);
         if (cleanup) cleanups.push(cleanup);
       }

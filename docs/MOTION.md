@@ -621,3 +621,15 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 **Reduced motion.** No intro and no scrub. The Home still is a single frame of the merged purple sphere.
 
 **Recordings** (1440 px, software-rendered here, so the frame rate is lower than on a GPU): `docs/screens/round3/convergence-autoplay-1440.webm` and `convergence-scrubbed-1440.webm`.
+
+## 17. Speed lines on fast scroll (r8a)
+
+`src/lib/motion/moments/speed.ts`; the world reads the same velocity.
+
+- **Velocity.** Every frame (`gsap.ticker`), Lenis velocity is smoothed (×0.15 per frame) into a 0–1 amount: 0 below |v| 8, full at |v| 40. It's written as `--v` on the overlay element only. Writing it to `<html>` would restyle the whole page each frame (animation-performance).
+- **Speed lines.** A fixed SVG overlay of radial streaks starting at 62–74% of the half-diagonal, so they cover the edges, never the reading area. Opacity is 0.9 × the amount, scaled up to 1.06. The streaks are 35% text colour, 1.2 px, `aria-hidden`, and take no pointer events.
+- **Headings.** \`main h1\` and visible \`h2\` skew in the scroll direction: skewY = −v × 0.08, clamped ±4°, applied only past the threshold, through GSAP transforms.
+- **3D world.** Dust and field particles squeeze sideways and lengthen into vertical streaks (\`uStretch\`, the same threshold and range).
+- **Rest.** Everything eases back to 0 as the velocity decays; there's no timer.
+- **Mobile.** 20 streaks instead of 40, skew clamped ±2°. Touch scrolling is native, so the effect appears only when Lenis reports velocity.
+- **Reduced motion.** Not created (the module runs only inside the motion context).

@@ -171,6 +171,7 @@ export const FIELD_VERTEX = /* glsl */ `
 uniform float uTime;
 uniform float uMorph;
 uniform float uSize;
+uniform float uStretch;
 attribute vec3 aStart;
 attribute vec3 aColour;
 attribute float aSeed;
@@ -181,7 +182,7 @@ void main() {
   vec3 p = mix(aStart, position, m);
   p += vec3(sin(uTime * 0.3 + aSeed * 40.0), cos(uTime * 0.25 + aSeed * 30.0), 0.0) * 0.08 * m;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  gl_PointSize = uSize * (0.4 + aSeed) / -mv.z;
+  gl_PointSize = uSize * (0.4 + aSeed) * (1.0 + uStretch * 2.5) / -mv.z;
   vColour = aColour;
   vAlpha = 0.35 + 0.65 * fract(aSeed * 7.31);
   gl_Position = projectionMatrix * mv;
@@ -190,10 +191,14 @@ void main() {
 
 export const FIELD_FRAGMENT = /* glsl */ `
 uniform float uOpacity;
+uniform float uStretch;
 varying vec3 vColour;
 varying float vAlpha;
 void main() {
-  float d = length(gl_PointCoord - 0.5) * 2.0;
+  // Fast scroll (r8a): points squeeze sideways into vertical streaks.
+  vec2 c = gl_PointCoord - 0.5;
+  c.x *= 1.0 + uStretch * 5.0;
+  float d = length(c) * 2.0;
   float a = smoothstep(1.0, 0.2, d) * vAlpha * uOpacity;
   gl_FragColor = vec4(vColour * a, 1.0);
 }

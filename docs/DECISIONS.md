@@ -447,3 +447,8 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: the pinned teaser is at least a full screen tall while pinned. As the last section, its pin end was otherwise unreachable and the collision never completed.
 - Verification: `npm run verify` passes, 105 tests (new: the pinned scrub collides; resting mid-pin snaps to an end). Recordings are in `docs/screens/round3/`.
 - Source: r7.
+
+## 2026-11-03 — r8a: speed lines
+- Decision: fast scroll fades manga speed lines in around the edges, skews headings in the scroll direction and stretches the 3D particles into streaks; all of it settles at rest (`docs/MOTION.md` §17).
+- Ruling: the smoothed velocity is `--v` on the overlay, not on `<html>`. Headings skew through GSAP transforms instead of a CSS variable, because an inherited variable changing every frame would restyle the whole page (animation-performance). Cost if wrong: none visible.
+- Ruling (owner, r8): faster checks per feature (type check, build, the feature's own tests, one screenshot). The full suite and Lighthouse run once after r8g.
