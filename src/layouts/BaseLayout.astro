@@ -76,10 +76,14 @@ const pageTransition = { forwards: pageMove, backwards: pageMove };
       import { initMotion, type MotionHandle } from "@/lib/motion";
       import type { PageId } from "@/data/types";
       import { onPage } from "@/lib/page";
+      import { installPortal } from "@/lib/motion/portal";
 
       // Motion boots per page. With the client router a page can arrive without a reload, so it
       // re-runs on astro:page-load and tears down on astro:before-swap (docs/ENGINEERING-PLAN.md §5).
       let handle: MotionHandle | null = null;
+      // Portal transitions (r8c) span page swaps, so they are installed once, after the per-page boot
+      // (their astro:page-load handler must run after the new page's smooth scroll exists).
+      queueMicrotask(installPortal);
       onPage(() => {
         handle = initMotion((document.body.dataset.page ?? "home") as PageId);
         return () => {

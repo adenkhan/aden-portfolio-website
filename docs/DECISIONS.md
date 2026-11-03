@@ -459,3 +459,8 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: the pin uses the same idle snap as the r7 teaser instead of `lenis/snap`, with beats at the middle of each panel's step plus the end of the pin. The pin turns on only when the grid fits on screen; otherwise it falls back to the phone behaviour. Cost if wrong: on a very short desktop window, no pin.
 - Ruling: slams are one-way (scrolling back up does not hide panels), so the lit-node count only grows. Cost if wrong: nodes don't unlight on the way back up.
 - The About test no longer expects "no pin"; the phone test does.
+
+## 2026-11-03 — r8c: portal transitions
+- Decision: router navigations go through a purple orb that grows from the click, covers the swap and collapses into the new H1, which decodes (`docs/MOTION.md` §19). This replaces the r5 lift-and-rise page animation for motion users; reduced motion keeps the plain swap.
+- Ruling: while the portal is open, `main` loses its view-transition name and every view-transition animation is off. Leaving the named page snapshot made Chromium paint a second copy of the orb. Cost if wrong: none; the swap is hidden by the orb.
+- Ruling: the orb is opaque, so the camera flight shows only after it opens; the flight (about 1.2 s) outlasts the grow (0.5 s). Cost if wrong: less of the flight is visible.

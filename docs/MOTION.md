@@ -651,3 +651,14 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **Mobile and short screens.** No pin and no snap. Each panel slams when its top reaches 70% of the screen, from scale 1.06 with no tilt. The ink blot is a smooth radial gradient (no turbulence filter to rasterise). Flash, burst, shake and node lighting are kept.
 - **Reduced motion.** No pin, no slam: the panels are in place, every node is lit and the world is a still frame.
 - **No JavaScript.** Panels, chips and text are plain HTML; the ink, burst and flash only exist as script-set states.
+
+## 19. Portal page transitions (r8c)
+
+`src/lib/motion/portal.ts` (installed once, it spans page swaps), `headline.ts` (the decode); the world controller starts the camera flight on the same `astro:before-preparation` event.
+
+- **Grow.** On a router navigation a purple orb, a `clip-path: circle()` with a radial gradient (light core, deep violet, bright rim), grows from the click point over the screen. It starts from the link's centre when there was no recent pointer, for example with the keyboard. It takes 0.5 s (`power2.in`). The router's loader waits for both the fetch and the grow. Lenis is stopped.
+- **Swap.** Behind the orb the page swaps with no view-transition animation and no named page snapshot (`html[data-portal]`). Only the root is captured, so the orb never doubles. Meanwhile the 3D camera flies to the next station; it is still moving when the orb opens.
+- **Arrive.** The page is at the top: Lenis `scrollTo(0, { immediate: true })`, then stopped. The orb collapses (0.6 s, `power3.inOut`), moving its centre into the new H1. The H1's text decodes with ScrambleText (0.75 s, from 0.25 s), and the H1 keeps its real accessible name through an `aria-label` while it decodes. The second line rises after. When the orb closes, Lenis starts again.
+- **Mobile.** The same moment, 20% shorter. Touch has no hover, so the origin is the tap point.
+- **Reduced motion.** No orb: the router's plain swap with no animation (global.css).
+- **No JavaScript.** Ordinary page loads.

@@ -121,3 +121,66 @@ test.describe("r8b reduced motion", () => {
     ).toBe("0");
   });
 });
+
+const portalRadius = (page: Page) =>
+  page.evaluate(() => {
+    const orb = document.querySelector<HTMLElement>("[data-portal].portal");
+    return orb?.classList.contains("is-open") ? parseFloat(orb.style.getPropertyValue("--r")) : -1;
+  });
+
+test.describe("r8c portal transitions", () => {
+  test("a nav click grows the orb from the click, swaps under it, collapses into the new H1 and decodes it", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/about/");
+    await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 3000 });
+    await page.evaluate(() => window.scrollTo(0, 600));
+    // Record the orb's radius every frame from the click until it closes.
+    await page.evaluate(() => {
+      const w = window as unknown as { __r: number[]; __lenisStopped: boolean[] };
+      w.__r = [];
+      w.__lenisStopped = [];
+      const tick = () => {
+        const orb = document.querySelector<HTMLElement>(".portal.is-open");
+        if (orb) {
+          w.__r.push(parseFloat(orb.style.getPropertyValue("--r")));
+          w.__lenisStopped.push(!!window.__akLenis?.isStopped);
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    // The nav hides while scrolled down; scrolling up a little brings it back, as a reader would.
+    await page.mouse.wheel(0, -120);
+    const link = page.locator("header nav a[href='/work/']").first();
+    await link.click();
+    await expect(page).toHaveURL(/\/work\/$/);
+    // While open, the orb covered the screen at its peak, and Lenis was stopped.
+    await expect.poll(() => portalRadius(page), { timeout: 4000 }).toBe(-1);
+    // The client router keeps window, so the per-frame record survives the swap.
+    const { r, stopped } = await page.evaluate(() => {
+      const w = window as unknown as { __r: number[]; __lenisStopped: boolean[] };
+      return { r: w.__r, stopped: w.__lenisStopped };
+    });
+    expect(Math.max(...r)).toBeGreaterThan(Math.hypot(1440, 900) / 2);
+    expect(r.at(-1)).toBeLessThan(40);
+    expect(stopped.every(Boolean)).toBe(true);
+    expect(await page.evaluate(() => Math.round(window.scrollY))).toBe(0);
+    expect(await page.evaluate(() => document.documentElement.hasAttribute("data-portal"))).toBe(false);
+    expect(await page.evaluate(() => window.__akLenis?.isStopped)).toBe(false);
+    // The decode ends on the real text (it was scrambled while the orb collapsed).
+    await expect(page.locator("main h1")).toHaveText("Product marketing missions");
+    await expect(page.locator("main h1")).not.toHaveAttribute("aria-label");
+  });
+});
+
+test.describe("r8c reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("navigation is the plain swap: no portal orb", async ({ page }) => {
+    await page.goto("/about/");
+    await page.locator("header nav a[href='/work/']").first().click();
+    await expect(page).toHaveURL(/\/work\/$/);
+    await expect(page.locator(".portal")).toHaveCount(0);
+  });
+});

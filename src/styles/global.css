@@ -436,3 +436,40 @@ html.has-cursor .cursor-orb {
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
 }
+
+/* Portal page transition (r8c, docs/MOTION.md §19): a purple orb (clip-path circle) grows from the
+   click point over the screen, then collapses into the new page's H1. Created by script; never for
+   reduced motion. */
+.portal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  visibility: hidden;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    #efe6ff 0,
+    #a77cff calc(var(--r) * 0.3),
+    #4b23a8 calc(var(--r) * 0.82),
+    #8e63f0 calc(var(--r) * 0.96),
+    #d9c7ff var(--r)
+  );
+  clip-path: circle(var(--r) at var(--x) var(--y));
+}
+
+.portal.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Behind the orb the page swaps at once: while the portal is open the page has no named snapshot of
+   its own (only the root, which holds the orb) and no view-transition animation. */
+html[data-portal] main {
+  view-transition-name: none !important;
+}
+
+html[data-portal]::view-transition-group(*),
+html[data-portal]::view-transition-old(*),
+html[data-portal]::view-transition-new(*) {
+  animation: none !important;
+}
