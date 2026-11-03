@@ -148,6 +148,8 @@ export interface WorkCopy {
   illustrative: string;
   /** Screen-reader label for the horizontal case-study sequence on desktop. */
   sequenceLabel: string;
+  /** Screen-reader labels for the full-screen case view (r8d). */
+  takeover: { open: string; close: string; dialog: string };
 }
 
 export interface ContactCopy {

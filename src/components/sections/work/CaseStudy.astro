@@ -31,7 +31,19 @@ const count = study.count;
   tabindex="0"
   aria-labelledby={titleId}
 >
-  <div class="card">
+  <div class="card" data-case-card>
+    <!-- Full-screen case view (r8d): icon-only, revealed by script (it needs JavaScript). -->
+    <button
+      type="button"
+      class="open"
+      data-case-open
+      hidden
+      aria-label={`${work.takeover.open} ${study.title}`}
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" />
+      </svg>
+    </button>
     <header class="head">
       <p class="index" aria-hidden="true">
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -105,6 +117,7 @@ const count = study.count;
   }
 
   .card {
+    position: relative;
     display: grid;
     gap: 1rem;
     padding: 1.25rem;
@@ -113,9 +126,59 @@ const count = study.count;
     border-radius: var(--radius-md);
   }
 
+  .open {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-text-muted);
+    background-color: transparent;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    transition:
+      color var(--duration-hover) ease,
+      border-color var(--duration-hover) ease,
+      transform var(--duration-press) ease-out;
+  }
+
+  .open[hidden] {
+    display: none;
+  }
+
+  .open svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .open:hover {
+      color: var(--lane-colour);
+      border-color: var(--lane-colour);
+    }
+  }
+
+  .open:active {
+    transform: scale(0.94);
+  }
+
+  .open:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
   .head {
     display: grid;
     gap: 0.25rem;
+    padding-right: 3rem;
   }
 
   .index {

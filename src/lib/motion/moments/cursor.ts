@@ -68,7 +68,10 @@ export function cursor(ctx: MomentContext): (() => void) | void {
     const button = (event.target as Element | null)?.closest<HTMLElement>(".btn");
     if (button) gsap.to(button, { scale: 0.97, duration: 0.1, ease: "ui-out" });
   };
-  const lift = () => gsap.to(".btn", { scale: 1, duration: 0.16, ease: "ui-out", overwrite: "auto" });
+  const lift = () => {
+    const buttons = document.querySelectorAll(".btn");
+    if (buttons.length) gsap.to(buttons, { scale: 1, duration: 0.16, ease: "ui-out", overwrite: "auto" });
+  };
 
   document.addEventListener("pointermove", move, { passive: true });
   document.addEventListener("pointerdown", press, { passive: true });

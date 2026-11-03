@@ -63,6 +63,7 @@ export const work: WorkCopy = {
   caseLabels: { company: "Company", problem: "Problem", move: "Move", result: "Result" },
   illustrative: "illustrative",
   sequenceLabel: "Case studies, scroll to move through them",
+  takeover: { open: "Open full screen:", close: "Close case", dialog: "Case study" },
 };
 
 export const contact: ContactCopy = {

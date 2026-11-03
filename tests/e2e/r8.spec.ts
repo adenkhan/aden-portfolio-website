@@ -184,3 +184,68 @@ test.describe("r8c reduced motion", () => {
     await expect(page.locator(".portal")).toHaveCount(0);
   });
 });
+
+test.describe("r8d case takeover", () => {
+  test("open morphs the case to full screen; Escape morphs it back; the hash deep-links", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/work/");
+    await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 3000 });
+    const first = page.locator("[data-case-study]").first();
+    const open = first.locator("[data-case-open]");
+    await expect(open).toBeVisible();
+    const title = await first.locator("h3").innerText();
+    await open.click();
+    const dialog = page.locator("[data-case-takeover]");
+    await expect(dialog).toHaveAttribute("open", "");
+    await expect(dialog.locator("[data-case-card] h3")).toHaveText(title);
+    await expect(page).toHaveURL(/#case-cut-the-cost-of-growth$/);
+    expect(await page.evaluate(() => window.__akLenis?.isStopped)).toBe(true);
+    // Full screen once the morph lands, the visual the largest element.
+    await expect
+      .poll(() =>
+        dialog.locator("[data-case-card]").evaluate((c) => Math.round(c.getBoundingClientRect().width)),
+      )
+      .toBeGreaterThan(1100);
+    await expect(dialog.locator("[data-case-close]")).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).not.toHaveAttribute("open", "");
+    await expect(first.locator("[data-case-card]")).toHaveCount(1);
+    await expect(page).toHaveURL(/\/work\/$/);
+    expect(await page.evaluate(() => window.__akLenis?.isStopped)).toBe(false);
+    await expect(open).toBeFocused();
+  });
+
+  test("deep link opens that case directly", async ({ page }) => {
+    await page.goto("/work/#case-fund-the-club");
+    const dialog = page.locator("[data-case-takeover]");
+    await expect(dialog).toHaveAttribute("open", "");
+    await expect(dialog.locator("[data-case-card]")).toHaveCount(1);
+    await expect(page.locator("#mission-fund-the-club [data-case-card]")).toHaveCount(0);
+    await dialog.locator("[data-case-close]").click();
+    await expect(page.locator("#mission-fund-the-club [data-case-card]")).toHaveCount(1);
+  });
+
+  test("phone: the takeover opens and closes", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/work/");
+    const item = page.locator("[data-case-study]").nth(2);
+    await item.locator("[data-case-open]").click();
+    await expect(page.locator("[data-case-takeover]")).toHaveAttribute("open", "");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
+    await page.locator("[data-case-close]").click();
+    await expect(item.locator("[data-case-card]")).toHaveCount(1);
+  });
+});
+
+test.describe("r8d reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("opens at once, no morph", async ({ page }) => {
+    await page.goto("/work/");
+    await page.locator("[data-case-open]").first().click();
+    const card = page.locator("[data-case-takeover] [data-case-card]");
+    await expect(card).toHaveCount(1);
+    expect(await card.evaluate((c) => getComputedStyle(c).transform)).toBe("none");
+  });
+});

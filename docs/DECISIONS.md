@@ -464,3 +464,9 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: router navigations go through a purple orb that grows from the click, covers the swap and collapses into the new H1, which decodes (`docs/MOTION.md` §19). This replaces the r5 lift-and-rise page animation for motion users; reduced motion keeps the plain swap.
 - Ruling: while the portal is open, `main` loses its view-transition name and every view-transition animation is off. Leaving the named page snapshot made Chromium paint a second copy of the orb. Cost if wrong: none; the swap is hidden by the orb.
 - Ruling: the orb is opaque, so the camera flight shows only after it opens; the flight (about 1.2 s) outlasts the grow (0.5 s). Cost if wrong: less of the flight is visible.
+
+## 2026-11-03 — r8d: case takeover
+- Decision: the case card itself moves into a modal `<dialog>` and Flip morphs it to full screen, then back (`docs/MOTION.md` §20). Moving the card instead of copying it keeps every fact said once.
+- Ruling: the open control is an icon-only button inside the card rather than "click anywhere on the card", which keeps a real, focusable control and adds no visible words to the case's word budget. Cost if wrong: a smaller target than the whole card.
+- Ruling: GSAP tweens are awaited through `onComplete`, never a bare `.then()`: a thenable timeline resolved with itself never settled and left the dialog stuck open. Close requests during the open morph are queued.
+- Also fixed: the cursor's press-release no longer warns "GSAP target .btn not found" on pages without buttons.

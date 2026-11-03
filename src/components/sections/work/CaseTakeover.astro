@@ -1,0 +1,248 @@
+---
+import { work } from "@/data/timeline";
+---
+
+<!--
+  Full-screen case view (r8d, docs/MOTION.md §20). One modal <dialog> for the page: opening a case
+  moves that case's own card into it (nothing is duplicated) and Flip morphs it from its place in the
+  list to full screen, the visual as the hero. The dialog is in the top layer, so it escapes the pinned
+  sequence's transform; it scrolls on its own (data-lenis-prevent) while Lenis is stopped. Closing
+  morphs the card back. Deep link: /work/#case-<slug>.
+-->
+<dialog class="takeover" aria-label={work.takeover.dialog} data-case-takeover data-lenis-prevent>
+  <button type="button" class="close" data-case-close aria-label={work.takeover.close}>
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3 3l10 10M13 3 3 13"></path>
+    </svg>
+  </button>
+  <div class="slot" data-case-slot></div>
+</dialog>
+
+<script>
+  import { onPage } from "@/lib/page";
+
+  const HASH = /^#case-([\w-]+)$/;
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  onPage(() => {
+    const dialog = document.querySelector<HTMLDialogElement>("[data-case-takeover]");
+    const slot = dialog?.querySelector<HTMLElement>("[data-case-slot]");
+    if (!dialog || !slot) return;
+    const cases = [...document.querySelectorAll<HTMLElement>("[data-case-study]")];
+    const slugOf = (item: HTMLElement) => item.id.replace(/^mission-/, "");
+    let open: { item: HTMLElement; card: HTMLElement; trigger: HTMLElement | null } | null = null;
+    let busy = false;
+    // A close asked for while the open morph runs is kept and done when it lands.
+    let closeAsked = false;
+    const flip = () =>
+      Promise.all([import("gsap"), import("gsap/Flip")]).then(([{ gsap }, { Flip }]) => {
+        gsap.registerPlugin(Flip);
+        return Flip;
+      });
+    const setHash = (hash: string) =>
+      history.replaceState(history.state, "", `${location.pathname}${location.search}${hash}`);
+
+    const show = async (item: HTMLElement, trigger: HTMLElement | null, animate = true) => {
+      const card = item.querySelector<HTMLElement>("[data-case-card]");
+      if (!card || busy || open) return;
+      busy = true;
+      open = { item, card, trigger };
+      const Flip = animate && !reduced() ? await flip() : null;
+      const state = Flip?.getState(card);
+      // The list keeps the card's space while it is away (no layout shift, pins stay measured).
+      item.style.minHeight = `${item.offsetHeight}px`;
+      slot.append(card);
+      dialog.dataset.lane = item.dataset.lane ?? "";
+      window.__akLenis?.stop();
+      dialog.showModal();
+      dialog.scrollTop = 0;
+      setHash(`#case-${slugOf(item)}`);
+      if (Flip && state) {
+        const small = innerWidth < 768;
+        await new Promise((done) =>
+          Flip.from(state, {
+            duration: small ? 0.45 : 0.6,
+            ease: "ui-in-out",
+            scale: false,
+            onComplete: done,
+          }),
+        );
+      }
+      dialog.querySelector<HTMLElement>("[data-case-close]")?.focus();
+      busy = false;
+      if (closeAsked) hide();
+    };
+
+    const hide = async () => {
+      if (!open) return;
+      closeAsked = busy;
+      if (busy) return;
+      busy = true;
+      const { item, card, trigger } = open;
+      const Flip = !reduced() ? await flip() : null;
+      const state = Flip?.getState(card);
+      dialog.close();
+      item.append(card);
+      item.style.minHeight = "";
+      setHash("");
+      window.__akLenis?.start();
+      open = null;
+      if (Flip && state) {
+        const small = innerWidth < 768;
+        // Above the list while it lands (the sequence clips its own overflow).
+        card.style.zIndex = "40";
+        await new Promise((done) =>
+          Flip.from(state, {
+            duration: small ? 0.4 : 0.5,
+            ease: "ui-in-out",
+            scale: false,
+            onComplete: done,
+          }),
+        );
+        card.style.zIndex = "";
+      }
+      (trigger ?? item).focus({ preventScroll: true });
+      busy = false;
+    };
+
+    const onOpen = (event: Event) => {
+      const button = (event.target as Element).closest<HTMLElement>("[data-case-open]");
+      const item = button?.closest<HTMLElement>("[data-case-study]");
+      if (button && item) show(item, button);
+    };
+    const onCancel = (event: Event) => {
+      // Escape: morph back instead of the dialog's instant close.
+      event.preventDefault();
+      hide();
+    };
+    const onClose = () => hide();
+    // A close the page could not intercept (a repeated Escape) still returns the card.
+    const onNativeClose = () => {
+      if (open) hide();
+    };
+    const onBackdrop = (event: MouseEvent) => {
+      if (event.target === dialog) hide();
+    };
+    const fromHash = () => {
+      const slug = HASH.exec(location.hash)?.[1];
+      const item = slug ? cases.find((c) => slugOf(c) === slug) : undefined;
+      if (item) show(item, null, false);
+    };
+
+    cases.forEach((item) => item.querySelector<HTMLElement>("[data-case-open]")?.removeAttribute("hidden"));
+    document.addEventListener("click", onOpen);
+    dialog.addEventListener("cancel", onCancel);
+    dialog.addEventListener("close", onNativeClose);
+    dialog.querySelector("[data-case-close]")?.addEventListener("click", onClose);
+    dialog.addEventListener("click", onBackdrop);
+    window.addEventListener("hashchange", fromHash);
+    fromHash();
+
+    return () => {
+      document.removeEventListener("click", onOpen);
+      dialog.removeEventListener("cancel", onCancel);
+      dialog.removeEventListener("close", onNativeClose);
+      dialog.removeEventListener("click", onBackdrop);
+      window.removeEventListener("hashchange", fromHash);
+      if (open) {
+        open.item.append(open.card);
+        open.item.style.minHeight = "";
+        dialog.close();
+        window.__akLenis?.start();
+      }
+    };
+  });
+</script>
+
+<style>
+  .takeover {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))
+      max(2rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    color: var(--color-text);
+    background-color: var(--color-bg-base);
+    border: 0;
+  }
+
+  .takeover::backdrop {
+    background-color: rgb(5 6 15 / 0.7);
+  }
+
+  .slot {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* The card as the full-screen case: the visual is the hero, the captions read below it. */
+  .slot > :global([data-case-card]) {
+    min-height: calc(100svh - 3rem);
+    align-content: start;
+  }
+
+  .takeover .slot :global(.stage) {
+    aspect-ratio: auto;
+    height: clamp(260px, 58svh, 640px);
+  }
+
+  .slot :global([data-case-open]) {
+    display: none;
+  }
+
+  /* The full case always shows the real result, whatever the scroll-scrubbed count reached: the
+     ticker's reserved final value (its ::after) is shown in place of the counting digits. */
+  .slot :global(.ticker > span) {
+    visibility: hidden;
+  }
+
+  .slot :global(.ticker::after) {
+    visibility: visible;
+  }
+
+  .close {
+    position: fixed;
+    top: max(1rem, env(safe-area-inset-top, 0px));
+    right: max(1rem, env(safe-area-inset-right, 0px));
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-text);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform var(--duration-press) ease-out;
+  }
+
+  .close:active {
+    transform: scale(0.94);
+  }
+
+  .close:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .close svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+  }
+
+  @media (width >= 48rem) {
+    .takeover {
+      padding: 2rem 2.5rem 3rem;
+    }
+  }
+</style>

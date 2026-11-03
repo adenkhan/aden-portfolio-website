@@ -662,3 +662,15 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **Mobile.** The same moment, 20% shorter. Touch has no hover, so the origin is the tap point.
 - **Reduced motion.** No orb: the router's plain swap with no animation (global.css).
 - **No JavaScript.** Ordinary page loads.
+
+## 20. Case-study takeover (r8d)
+
+`src/components/sections/work/CaseTakeover.astro` (the dialog and its script), with an open button on each case card (`CaseStudy.astro`).
+
+- **Open.** Each case card has an icon-only open button (no visible words, labelled for screen readers). Clicking it moves that card into a modal `<dialog>` (top layer, so it escapes the pinned sequence's transform). GSAP Flip morphs it from its place to full screen in 0.6 s (`ui-in-out`, size and position, no scale). The card's visual is the hero (up to 58svh tall), the captions read below it, and the result shows its real final value even if the scrubbed count had not finished.
+- **Scroll.** Lenis stops; the dialog scrolls on its own (`data-lenis-prevent`, `overscroll-behavior: contain`). The list keeps the card's height while it is away.
+- **Close.** The close button, Escape or a backdrop click morphs the card back into the list (0.5 s), then focus returns to the open button. A close asked for during the open morph waits for it to land.
+- **Deep link.** `/work/#case-<slug>` opens that case directly, with no morph. Opening sets the hash (`replaceState`, so the router's history stays clean) and closing clears it.
+- **Mobile.** The same takeover, morphs 25% shorter; there is no horizontal scroll at 375 px.
+- **Reduced motion.** The dialog opens and closes at once, with no morph.
+- **No JavaScript.** The open buttons stay hidden and the case studies are the plain stack.
