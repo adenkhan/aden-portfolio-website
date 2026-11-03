@@ -2,6 +2,68 @@ import { ScrollTrigger } from "@/lib/motion/eases";
 import { detectTier } from "./quality";
 import { resolveWorld } from "./ready";
 import { World, type Station } from "./scene";
+import type { Avatar } from "@/components/three/avatar/avatar";
+
+/** The avatar (r9): loaded once after first paint, kept for the whole visit. */
+let avatar: Avatar | null = null;
+let avatarHooks: (() => void) | null = null;
+
+/**
+ * Loads the VRoid avatar into the world once the page has painted and gone idle. Its code and the
+ * 16 MB model are lazy (never first-load). Progress shows in [data-avatar-progress] when the page has
+ * one. Not for reduced motion: the poster stays.
+ */
+function scheduleAvatar(world: World) {
+  const start = () =>
+    import("@/components/three/avatar/avatar").then(async ({ loadAvatar }) => {
+      const lite = world.debug.tier === "low" || innerWidth < 768;
+      const progress = (share: number) =>
+        document
+          .querySelectorAll<HTMLElement>("[data-avatar-progress]")
+          .forEach((el) => el.style.setProperty("--p", String(share)));
+      avatar = await loadAvatar(world, lite, progress);
+      document.documentElement.dataset.avatar = avatar ? "live" : "poster";
+      if (avatar) await hookAvatar(world);
+      world.notifyInput();
+    });
+  // Start on the visitor's first interaction, or 6 s after the page has loaded and gone idle, whichever
+  // comes first. Parsing 16 MB and compiling her shaders costs the main thread about two seconds in
+  // total (split into chunks); doing it while the page is still settling would block its first input.
+  // The poster is the same image meanwhile, so nothing visible waits on it.
+  const INTERACTIONS = ["pointerdown", "pointermove", "wheel", "touchstart", "keydown", "scroll"];
+  let started = false;
+  const go = () => {
+    if (started) return;
+    started = true;
+    INTERACTIONS.forEach((type) => removeEventListener(type, go));
+    void start();
+  };
+  INTERACTIONS.forEach((type) => addEventListener(type, go, { passive: true, once: true }));
+  const later = () =>
+    "requestIdleCallback" in window ? requestIdleCallback(go, { timeout: 8000 }) : setTimeout(go, 600);
+  const afterLoad = () => setTimeout(later, 6000);
+  if (document.readyState === "complete") afterLoad();
+  else addEventListener("load", afterLoad, { once: true });
+}
+
+/** `?avatar=off` (kept for the session) leaves the poster in place: for tests and review. */
+function avatarWanted(): boolean {
+  try {
+    const param = new URLSearchParams(location.search).get("avatar");
+    if (param) sessionStorage.setItem("ak.avatar", param);
+    return (param ?? sessionStorage.getItem("ak.avatar")) !== "off";
+  } catch {
+    return true;
+  }
+}
+
+async function hookAvatar(world: World) {
+  avatarHooks?.();
+  avatarHooks = null;
+  if (!avatar) return;
+  const { avatarPageHooks } = await import("@/components/three/avatar/hooks");
+  avatarHooks = avatarPageHooks(avatar, world);
+}
 
 const STATIONS: Record<string, Station> = { home: "home", about: "about", work: "work", contact: "contact" };
 
@@ -38,6 +100,7 @@ export function startWorld(host: HTMLElement, reduced: boolean): World | null {
     return null;
   }
   host.dataset.state = reduced ? "static" : "ready";
+  if (!reduced && avatarWanted()) scheduleAvatar(world);
   world.stillMode = reduced;
   host.dataset.quality = world.debug.tier;
   window.__akWorld = {
@@ -54,6 +117,7 @@ export function startWorld(host: HTMLElement, reduced: boolean): World | null {
   };
   setupPage();
   document.addEventListener("astro:page-load", setupPage);
+  document.addEventListener("astro:page-load", () => void hookAvatar(world));
   document.addEventListener("astro:before-swap", () => {
     teardown?.();
     teardown = null;

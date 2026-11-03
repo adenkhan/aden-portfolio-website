@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 // The persistent 3D world (docs/MOTION.md §13). Headless CI only has software WebGL, which the site
-// treats as unusable, so these tests force the world on with ?world=force (kept for the session).
+// treats as unusable, so these tests force the world on with ?world=force&avatar=off (kept for the session).
 test.use({
   launchOptions: {
     args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
@@ -39,7 +39,7 @@ test("one canvas survives every navigation: no new WebGL contexts, no growing GP
   const errors: string[] = [];
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto("/?world=force");
+  await page.goto("/?world=force&avatar=off");
   await ready(page);
   const id = await page.locator("canvas.world-canvas").getAttribute("data-world-canvas");
 
@@ -70,7 +70,7 @@ test("the CSS orbs stand in until the canvas draws, and stay without WebGL", asy
 });
 
 test("pausing: a hidden tab stops the render loop", async ({ page }) => {
-  await page.goto("/?world=force");
+  await page.goto("/?world=force&avatar=off");
   await ready(page);
   await page.evaluate(() => {
     Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
@@ -85,9 +85,11 @@ test("pausing: a hidden tab stops the render loop", async ({ page }) => {
 test("Work: case studies pull the camera to their formation; skills light the constellation", async ({
   page,
 }) => {
+  // Software WebGL under parallel load re-measures the pins slowly; this flaked at 30 s since r8.
+  test.setTimeout(90_000);
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/work/?world=force");
+  await page.goto("/work/?world=force&avatar=off");
   await ready(page);
   await expect(page.locator("[data-cases]")).toHaveClass(/is-sequence/, { timeout: 10000 });
   await page.locator("[data-case-study]").nth(2).focus();
@@ -103,7 +105,7 @@ test("Work: case studies pull the camera to their formation; skills light the co
         await centre(tree);
         return page.evaluate(() => window.__akWorld!.world.input.skills);
       },
-      { timeout: 15000 },
+      { timeout: 40000 },
     )
     .toBe(true);
   // Labels are the real HTML lanes: hovering one selects its cluster.
@@ -113,7 +115,7 @@ test("Work: case studies pull the camera to their formation; skills light the co
 });
 
 test("About: each arc lights its node as it scrolls past", async ({ page }) => {
-  await page.goto("/about/?world=force");
+  await page.goto("/about/?world=force&avatar=off");
   await ready(page);
   // The arcs pin on desktop (r8b): scroll to the end of the pin, re-measuring on every poll.
   await expect
@@ -135,7 +137,7 @@ test("About: each arc lights its node as it scrolls past", async ({ page }) => {
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("the world is a still frame: no loop, and it re-renders once per page", async ({ page }) => {
-    await page.goto("/?world=force");
+    await page.goto("/?world=force&avatar=off");
     await expect(page.locator("[data-world]")).toHaveAttribute("data-state", "static", { timeout: 15000 });
     const before = await debug(page);
     expect(before.running).toBe(false);

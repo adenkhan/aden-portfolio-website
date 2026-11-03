@@ -11,6 +11,8 @@ interface Props {
   /** Absolute URL of a 1200×630 image. Defaults to the generated OG image. */
   ogImage?: string;
   ogImageAlt?: string;
+  /** Page id: picks that page's rendered social card (r9) when one exists. */
+  page?: string;
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
@@ -20,7 +22,10 @@ const canonical = Astro.props.canonical ?? new URL(Astro.url.pathname, SITE_URL)
 
 let ogImage = Astro.props.ogImage;
 if (!ogImage) {
-  const og = await getImage({ src: getImageFor("ogDefault"), width: 1200, height: 630, format: "png" });
+  const key = ["home", "about", "work", "contact"].includes(Astro.props.page ?? "")
+    ? (`og-${Astro.props.page}` as const)
+    : "ogDefault";
+  const og = await getImage({ src: getImageFor(key), width: 1200, height: 630, format: "png" });
   ogImage = new URL(og.src, SITE_URL).href;
 }
 

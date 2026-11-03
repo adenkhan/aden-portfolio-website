@@ -8,6 +8,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
 <BaseLayout page="contact">
   <header class="container-site page-head">
+    <!-- The avatar's station on Contact (r9): she waves as the page enters view. -->
+    <div class="avatar-anchor" aria-hidden="true" data-avatar-anchor="contact"></div>
     <PageTitle page="contact" reveal />
     <p class="measure intro">
       {contact.line.slice(0, contact.line.lastIndexOf(" ") + 1)}
@@ -22,7 +24,25 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
 <style>
   .page-head {
+    position: relative;
     padding-top: 3rem;
+  }
+
+  .avatar-anchor {
+    position: absolute;
+    top: 0.25rem;
+    right: 1rem;
+    width: 2.2rem;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+  }
+
+  @media (width >= 64rem) {
+    .avatar-anchor {
+      top: 1.5rem;
+      right: 2.5rem;
+      width: 13rem;
+    }
   }
 
   .intro {

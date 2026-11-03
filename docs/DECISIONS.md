@@ -500,3 +500,24 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
   | Contact | 89 / 100 / 100 / 100 | 86 / 100 / 100 / 100 |
 
   Every page meets the R1 budgets (desktop ≥ 75, mobile ≥ 65, SEO and accessibility ≥ 95). Headless Lighthouse has only software WebGL, so these runs use the static world. The r3 open risk stands: forced-3D mobile Home scored 55.
+
+## 2026-11-03 — r9: avatar
+- Decision: the owner's VRoid model replaces the placeholder avatar everywhere. The hero poster and the four social cards are rendered from it (`scripts/render-avatar.mjs`). The live model draws in the persistent world with procedural animation, casts the Convergence and appears on Home, About and Contact (`docs/MOTION.md` §24, `docs/ASSETS.md`).
+- Look rule: no VRoid Studio screenshot was supplied, so the reference is the thumbnail VRoid Studio rendered into the VRM at export. The light was tuned until her cheek matched it within 2 levels.
+- Ruling: she renders in her own scene and camera into a scissored viewport of the world's canvas over a DOM anchor, not inside the world camera. This makes her framing identical to the poster (no jump) and keeps the world's postprocessing off her MToon look. During a cast, the orbs and lightning are drawn again on top. Cost if wrong: no lens distortion on her.
+- Ruling: Work keeps her hidden (the prompt allows it); the case visuals and the takeover own the screen.
+- Ruling: optional `.vrma` clips live in `src/assets/anim/`, not `public/models/anim/`, so the build lists them and the browser never requests missing files. Added `@pixiv/three-vrm-animation` 3.5.5 (lazy, only loaded when a clip exists).
+- Bug found and fixed: GSAP adds a `_gsap` key to a tweened object, so iterating the pose weights' entries threw every frame and froze the world. Poses now iterate a fixed list (regression test in `tests/e2e/r9.spec.ts`).
+- Compression check: the live URL (`https://aden-khan-portfolio.netlify.app`) returns 404 on every path, because the site has not been deployed (deploying needs a Netlify sign-in). `netlify.toml` already sets `Content-Type: model/gltf-binary` for `/models/*`. Re-run `curl -sI -H "Accept-Encoding: br, gzip" <live-url>/models/avatar.vrm` after the first deploy.
+- Ruling (performance, §4a): loading the model while the page settled cost 1.3–2.5 s of Total Blocking Time. Lighthouse fell to 64–69 on desktop and 58–59 on mobile Home and Work. The effect stays; its start moved: the first interaction, or 6 s after load and idle, with the parse split into chunks and the shaders compiled with `compileAsync`. The poster is the same image, so nothing visible waits. Cost if wrong: on a slow phone, the first scroll may hitch while she loads. Lighthouse no longer sees her cost; it is deferred, not removed.
+- Lighthouse after r9 (local production preview), performance / accessibility / best practices / SEO:
+
+  | Page | Desktop | Mobile |
+  |---|---|---|
+  | Home | 90 / 100 / 100 / 100 | 77 / 100 / 100 / 100 |
+  | About | 90 / 100 / 100 / 100 | 79 / 100 / 100 / 100 |
+  | Work | 93 / 100 / 100 / 100 | 65 / 100 / 100 / 100 |
+  | Contact | 88 / 100 / 100 / 100 | 87 / 100 / 100 / 100 |
+
+  Work mobile sits exactly at its 65 floor.
+- Tests: forced-world tests that do not need the avatar pass `?avatar=off`, so they don't parse 16 MB in software WebGL. The flaky Work world test (since r8) gets 40 s to settle.

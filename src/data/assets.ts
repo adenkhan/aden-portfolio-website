@@ -31,13 +31,14 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 export const assetSlots: AssetSlot[] = [
   {
+    // Rendered from the owner's VRoid model by scripts/render-avatar.mjs (r9), never hand-edited.
     id: "avatar",
-    path: "src/assets/avatar/avatar.png",
+    path: "src/assets/avatar/avatar.webp",
     width: 1200,
     height: 1500,
-    format: "png",
-    alt: "Illustrated anime avatar of Aden Khan, product marketer",
-    usedOn: ["/ (hero, character-select card)"],
+    format: "webp",
+    alt: "3D anime avatar of Aden Khan, product marketer",
+    usedOn: ["/ (hero poster: the LCP image under the live 3D model)"],
   },
   {
     id: "ogDefault",
@@ -46,8 +47,20 @@ export const assetSlots: AssetSlot[] = [
     height: 630,
     format: "png",
     alt: "Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple",
-    usedOn: ["og:image on every page until per-page images exist (prompt 18)"],
+    usedOn: ["og:image on /thanks/ and the 404"],
   },
+  // Per-page social cards rendered from the VRoid model (r9, scripts/render-avatar.mjs og). No text.
+  ...(["home", "about", "work", "contact"] as const).map(
+    (page): AssetSlot => ({
+      id: `og-${page}`,
+      path: `src/assets/og/${page}.png`,
+      width: 1200,
+      height: 630,
+      format: "png",
+      alt: "Aden Khan's 3D anime avatar beside red and blue orbs meeting on a navy background",
+      usedOn: [`og:image on /${page === "home" ? "" : `${page}/`}`],
+    }),
+  ),
   ...missionAlt.map((alt, i): AssetSlot => ({
     id: `mission-${pad(i + 1)}`,
     path: `src/assets/work/mission-${pad(i + 1)}.webp`,

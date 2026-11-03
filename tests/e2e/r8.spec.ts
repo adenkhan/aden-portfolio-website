@@ -256,11 +256,13 @@ const trackX = (page: Page, row: number) =>
     .evaluate((t) => new DOMMatrix(getComputedStyle(t).transform).m41);
 
 test.describe("r8e velocity marquee", () => {
+  // Forces the 3D world in software WebGL, which since r9 also parses the 16 MB avatar: slow under load.
+  test.setTimeout(90_000);
   test("rows drift in opposite directions, flip with scroll direction, pause and light a lane on hover", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/work/?world=force");
+    await page.goto("/work/?world=force&avatar=off");
     const band = page.locator("[data-marquee]");
     await expect(band).toHaveCount(1);
     await expect(band.locator(".marquee-row")).toHaveCount(2);
@@ -373,7 +375,7 @@ test.describe("r8g rewind to top", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/about/?world=force");
+    await page.goto("/about/?world=force&avatar=off");
     await expect(page.locator("html")).not.toHaveClass(/motion-pending/, { timeout: 5000 });
     await page.evaluate(() => {
       const w = window as unknown as { __rew: boolean[]; __scale: number[] };

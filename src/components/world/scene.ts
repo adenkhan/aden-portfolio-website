@@ -234,6 +234,26 @@ export interface WorldDebug {
  * (BaseLayout mounts its host with transition:persist). Stations move the camera and cast;
  * nothing is rebuilt on navigation, so there is exactly one WebGL context per visit.
  */
+/**
+ * Something drawn on top of the world each frame with the same renderer (no second canvas): the
+ * avatar (r9). It is updated after the world and rendered after the composer.
+ */
+export interface WorldOverlay {
+  update(dt: number, world: World): void;
+  render(renderer: WebGLRenderer): void;
+}
+
+/** Where the Convergence happens on screen this frame, for the avatar to stand behind it (r9). */
+export interface ConvergenceView {
+  mode: "intro" | "scroll";
+  /** Timeline time in seconds (0–3.5), so poses line up with the beats. */
+  time: number;
+  /** Centre and a size, in viewport pixels. */
+  x: number;
+  y: number;
+  size: number;
+}
+
 export class World {
   readonly input: WorldInput = {
     hero: null,
@@ -293,6 +313,15 @@ export class World {
   private readonly convTl = buildTimeline(this.conv);
   private convMode: "off" | "intro" | "scroll" = "off";
   private convStage: StageGeometry | null = null;
+  /** The avatar overlay (r9), if loaded. */
+  overlay: WorldOverlay | null = null;
+  /** Viewport positions of her hands during a cast (r9): the orbs ignite there and leave into the spiral. */
+  readonly hands: { red: { x: number; y: number } | null; blue: { x: number; y: number } | null } = {
+    red: null,
+    blue: null,
+  };
+  private convView: ConvergenceView | null = null;
+  private readonly handTmp = new Vector3();
   private convHandlers: { reveal: () => void; complete: () => void } | null = null;
   private convRevealed = false;
   private readonly lightning: Lightning;
@@ -901,6 +930,18 @@ export class World {
         .addScaledVector(e3, Math.sin(angle) * Math.sin(c.phi) * radius);
     this.red.target.copy(at(theta));
     this.blue.target.copy(at(theta + Math.PI));
+    // Cast by the avatar (r9): the orbs start in her palms and leave them as the spiral winds up.
+    const leave = Math.min(1, Math.max(0, c.theta / 3));
+    if (leave < 1) {
+      for (const [orb, hand] of [
+        [this.red, this.hands.red],
+        [this.blue, this.hands.blue],
+      ] as const) {
+        if (!hand) continue;
+        this.anchor(hand.x, hand.y, DEPTH, this.handTmp);
+        orb.target.lerpVectors(this.handTmp, orb.target, leave * leave * (3 - 2 * leave));
+      }
+    }
     this.red.targetScale = this.blue.targetScale = c.summon * (1 - c.merge) * size;
     this.red.opacity = this.blue.opacity = Math.min(1, c.summon * 1.2);
     this.red.setCharge(c.charge);
@@ -1164,9 +1205,27 @@ export class World {
       let r0 = mobile ? 0.9 : 1.7;
       if (this.convMode === "intro" && this.convStage) {
         this.anchor(this.convStage.x, this.convStage.y, DEPTH, centre);
+        const g = this.convStage;
+        this.convView = {
+          mode: "intro",
+          time: this.convTl.time(),
+          x: g.x,
+          y: g.y,
+          size: Math.min(g.width, g.height),
+        };
       } else {
         const rect = this.rectAnchor(input.teaser, centre);
         if (rect) r0 = Math.min(2.2, Math.max(0.8, rect.width * upp * 0.32));
+        const box = input.teaser?.getBoundingClientRect();
+        this.convView = box
+          ? {
+              mode: "scroll",
+              time: this.convTl.time(),
+              x: box.left + box.width / 2,
+              y: box.top + box.height / 2,
+              size: Math.min(box.width, innerHeight),
+            }
+          : null;
       }
       this.applyConvergence(dt, centre, r0, mobile ? 0.6 : 1);
       if (this.convMode === "intro" && !this.convRevealed && this.convTl.time() >= 3.25) {
@@ -1174,6 +1233,7 @@ export class World {
         this.convHandlers?.reveal();
       }
     } else {
+      this.convView = null;
       this.red.setCharge(0);
       this.blue.setCharge(0);
       this.purple.setCharge(merge);
@@ -1271,12 +1331,43 @@ export class World {
 
   private draw() {
     this.composer.render();
+    this.overlay?.render(this.renderer);
     this.frames++;
+  }
+
+  /** Compiles an overlay's materials ahead of its first frame, in parallel where the GPU allows (r9). */
+  compileOverlay(scene: Scene, camera: PerspectiveCamera): Promise<unknown> {
+    return this.renderer.compileAsync(scene, camera);
+  }
+
+  /** The Convergence on screen this frame, or null when it is not running (r9). */
+  get convergence(): ConvergenceView | null {
+    return this.convView;
+  }
+
+  /** The station the camera is at or flying to. */
+  get currentStation(): Station {
+    return this.station;
+  }
+
+  /**
+   * Draws the orbs and lightning again on top of the avatar during a cast, so the vortex stays in
+   * front of her chest (she is drawn after the composer). Depth is cleared; no postprocessing.
+   */
+  redrawCast(renderer: WebGLRenderer): void {
+    if (this.convMode === "off") return;
+    const auto = renderer.autoClear;
+    renderer.autoClear = false;
+    renderer.clearDepth();
+    for (const object of [this.red.group, this.blue.group, this.purple.group, this.lightning.group])
+      if (object.visible) renderer.render(object, this.camera);
+    renderer.autoClear = auto;
   }
 
   /** One frame with everything snapped to its target: the reduced-motion still and paused updates. */
   renderStill() {
     this.update(0, true);
+    this.overlay?.update(0, this);
     this.draw();
     this.snapNext = false;
   }
@@ -1291,6 +1382,7 @@ export class World {
     this.last = now;
     this.time += dt * this.timeScale;
     this.update(dt, this.snapNext);
+    this.overlay?.update(dt, this);
     this.snapNext = false;
     this.draw();
     this.governor.sample(now, capped);

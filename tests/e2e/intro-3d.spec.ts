@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const overlay = "[data-intro]";
 
-// Software WebGL (SwiftShader) in headless CI, so the world is forced on (?world=force). Real devices
+// Software WebGL (SwiftShader) in headless CI, so the world is forced on (?world=force&avatar=off). Real devices
 // use their GPU; on software-only devices the 2D intro runs, which intro.spec.ts covers.
 test.use({
   launchOptions: {
@@ -13,7 +13,7 @@ test.use({
 test("the intro plays through the persistent world, then hands the canvas back to the page", async ({
   page,
 }) => {
-  await page.goto("/?world=force&intro=replay");
+  await page.goto("/?world=force&avatar=off&intro=replay");
   // Software rendering is slow; the under-3 s timing is checked in intro.spec.ts.
   await expect(page.locator(overlay)).toHaveCount(0, { timeout: 15000 });
   test.skip(

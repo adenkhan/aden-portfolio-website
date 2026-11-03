@@ -10,6 +10,8 @@ const arcs = isWorstCase() ? worstArcs : about.arcs;
   <h2 id="arcs-title" class="sr-only">
     {about.arcsHeading}
   </h2>
+  <!-- The avatar's station on About (r9): she stands beside the panels and glances at each slam. -->
+  <div class="avatar-anchor" aria-hidden="true" data-avatar-anchor="side"></div>
   <ol class="panels">
     {arcs.map((arc) => (
       <ArcPanel arc={arc} />
@@ -19,7 +21,19 @@ const arcs = isWorstCase() ? worstArcs : about.arcs;
 
 <style>
   .block {
+    position: relative;
     padding-block: 4rem 0;
+  }
+
+  /* Empty and absolutely placed, so it never moves the layout; phones get a small figure in the
+     section's top padding. */
+  .avatar-anchor {
+    position: absolute;
+    top: 0.25rem;
+    right: 1rem;
+    width: 2.8rem;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
   }
 
   .panels {
@@ -33,6 +47,19 @@ const arcs = isWorstCase() ? worstArcs : about.arcs;
   @media (width >= 48rem) {
     .panels {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .panels {
+      margin-right: 13rem;
+    }
+
+    .avatar-anchor {
+      top: calc(50% + 2rem);
+      right: 2.5rem;
+      width: 12rem;
+      translate: 0 -50%;
     }
   }
 </style>

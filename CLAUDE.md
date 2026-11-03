@@ -30,7 +30,8 @@ shadcn registries: `@kokonutui`, `@bklit` (see `components.json`). shadcn MCP is
 | three / @types/three | 0.187.0 (core: the persistent 3D world behind every page, r3; plain Three.js + custom GLSL) |
 | postprocessing | 6.39.6 |
 | @react-three/fiber, @react-three/drei, @react-three/postprocessing | allowed from r1; not installed (r3 chose plain Three.js, see `docs/DECISIONS.md`) |
-| @pixiv/three-vrm | 3.5.5 |
+| @pixiv/three-vrm | 3.5.5 (the owner's VRoid avatar, r9) |
+| @pixiv/three-vrm-animation | 3.5.5 (optional .vrma clips, lazy) |
 | shadcn (CLI, dev) | 4.23.0 |
 
 Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astro.config.mjs`).
@@ -41,7 +42,7 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - Build: `npm run build` · Preview: `npm run preview`
 - Type check: `npm run check` · Format: `npm run format` · Tests: `npm test` (Playwright, builds and previews first)
 - Budget: `npm run budget` (first-load JS per page) · All gates: `npm run verify`
-- 3D world switches (per session): `?world=force` runs it even on software WebGL (tests, review), `?world=off` keeps the CSS orbs, `?quality=high|medium|low` pins a tier. Debug handle: `window.__akWorld.debug`.
+- 3D world switches (per session): `?world=force` runs it even on software WebGL (tests, review), `?world=off` keeps the CSS orbs, `?quality=high|medium|low` pins a tier. `?avatar=off` keeps the avatar poster (no 16 MB model). Debug handle: `window.__akWorld.debug`.
 - Assets: `npm run assets:check` (which slots are still placeholders), `npm run assets:generate` (recreate missing placeholders). See `docs/ASSETS.md`.
 - Add components: `npx shadcn@latest add @kokonutui/<name>` or `@bklit/<name>`
 

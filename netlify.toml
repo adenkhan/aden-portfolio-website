@@ -18,3 +18,11 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "DENY"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# The VRoid avatar (r9). A known model type so Netlify's CDN compresses it (an unknown .vrm is served
+# as application/octet-stream, uncompressed), and a day of caching for a 16 MB file that rarely changes.
+[[headers]]
+  for = "/models/*"
+  [headers.values]
+    Content-Type = "model/gltf-binary"
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"

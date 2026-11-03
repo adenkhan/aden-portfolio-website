@@ -711,3 +711,28 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **3D.** While rewinding, the world's shader clock runs backwards at 3× (`ak:rewind`, `timeScale = -3`), so the field, dust and orbs replay in reverse. The page's scroll-driven 3D states (About path and nodes, Work cases, the Home Convergence scrub) unwind with the scroll. The speed lines (§17) fire on the way up.
 - **Mobile.** The same rewind and overlay without the chromatic split.
 - **Reduced motion and no JavaScript.** The plain link: an instant jump to the top, with no overlay.
+
+## 24. The avatar (r9)
+
+`src/components/three/avatar/{look.ts, rig.ts, avatar.ts, hooks.ts}`, loaded by the world controller. The owner's VRoid model draws with the persistent world's renderer (no second canvas). Each frame it goes into a scissored viewport over its page's DOM anchor (`[data-avatar-anchor]`), after the world and with its own VRoid-style light.
+
+- **Loading.** Loading starts on the visitor's first interaction (pointer, wheel, touch, key or scroll), or 6 s after the page has loaded and gone idle, whichever comes first. The lazy avatar chunk loads `/models/avatar.vrm` with `VRMLoaderPlugin`, `removeUnnecessaryVertices` and `combineSkeletons` (split into chunks with yields between them), turns off frustum culling and compiles her shaders with `compileAsync`. A hairline under the Home poster shows progress. She is kept across page swaps. `?avatar=off` keeps the poster for the session (tests, review).
+- **Poster swap.** The Home poster (`avatar.webp`) is the LCP image, rendered from the model with the same `frame()` camera (20°, 2.8 m, head to hips). The live model draws into the poster's own box, the card lets the canvas through, and the poster fades out over 400 ms. Measured: the same head position and scale (`docs/screens/round4/swap-*.png`).
+- **Idle.** Breathing on spine and chest, a slow hip sway, soft finger curl, small head tilts. Arms relaxed (never a T-pose). Blinks every 2–6 s, one in five a double blink.
+- **Eyes and head.** `vrm.lookAt` follows the cursor on desktop and drifts gently on touch; she glances at About panels as they slam in.
+- **Poses.** idle, wave, point, cast-ready, cast-charge, cast-release: rotations of normalized bones, blended by GSAP, or crossfaded `.vrma` clips when present (docs/ASSETS.md).
+- **Expressions.** Eased weights. Happy when the pointer finds a stat or a button, and after a form submit; surprised on the collision flash; a focused look while casting (angry 0.25 plus relaxed 0.35). The default is neutral; open-mouth expressions stay brief.
+- **Physics.** The scroll velocity tilts and strengthens the spring bones' gravity, so hair and skirt swing on fast scrolls and settle at rest. A radial vortex wind whips her hair during the Convergence.
+- **Convergence cast.** On Home she stands behind the vortex, her chest at its centre. Poses follow the timeline's time, so the scroll scrub reverses her.
+  - **Summon:** cast-ready; the red orb ignites in her right palm and the blue in her left. The world places the orbs at her hands' screen positions.
+  - **Spiral:** the orbs leave her hands as the spiral winds up.
+  - **Charge:** cast-charge, the camera dollies toward her face, the focused look peaks, and red and blue rims light her from behind only, so her skin keeps its colour.
+  - **Release:** palms thrust forward as the purple surges; a brief purple rim, then her normal light. The orbs and lightning are drawn again over her, so the vortex stays in front.
+- **Stations.**
+  - **Home:** the character card. She points at "See the missions" on hover; the CV button gives a mini cast with its burst from her hand.
+  - **About:** beside the pinned panels (a small figure on phones), glancing at each slam.
+  - **Work:** hidden; the case visuals own the screen.
+  - **Contact:** beside the title; she waves on entry and smiles on submit.
+  - **Between pages:** she floats from one station's box to the next over 0.9 s, under the portal.
+- **Performance.** Phones and the low tier drop her MToon outlines. She is not updated or drawn while her box is off screen.
+- **Reduced motion, no WebGL, no JavaScript or a failed load.** The poster only; the model is never downloaded. The canvas stays `aria-hidden`; all meaning is in the HTML.

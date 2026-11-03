@@ -183,7 +183,13 @@ export interface PageSeo {
   noindex?: boolean;
 }
 
-export type AssetKey = "avatar" | "ogDefault" | "cvPdf" | `mission-${string}` | `gallery-${string}`;
+export type AssetKey =
+  | "avatar"
+  | "ogDefault"
+  | `og-${string}`
+  | "cvPdf"
+  | `mission-${string}`
+  | `gallery-${string}`;
 
 export interface AssetSlot {
   id: AssetKey;

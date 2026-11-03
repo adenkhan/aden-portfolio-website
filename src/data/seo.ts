@@ -8,7 +8,7 @@ export const seo: Record<PageId, PageSeo> = {
     description:
       "Aden Khan is a product marketer in Karachi blending storytelling, analytics and automation to drive adoption and growth for tech products.",
     h1: "Aden Khan, Product Marketer",
-    ogImageAlt: "Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple",
+    ogImageAlt: "3D anime avatar of Aden Khan, product marketer, beside red and blue orbs meeting in purple",
   },
   about: {
     id: "about",
@@ -17,7 +17,7 @@ export const seo: Record<PageId, PageSeo> = {
     description:
       "IBA Karachi BBA Marketing student focused on tech product marketing, product analytics and go-to-market. Background, education and goals.",
     h1: "Origin arc of a product marketer",
-    ogImageAlt: "The origin arc: Aden Khan's path from campaigns to products",
+    ogImageAlt: "3D anime avatar of Aden Khan, product marketer, in a red glow",
   },
   work: {
     id: "work",
@@ -26,7 +26,7 @@ export const seo: Record<PageId, PageSeo> = {
     description:
       "Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more.",
     h1: "Product marketing missions",
-    ogImageAlt: "Product marketing missions completed by Aden Khan",
+    ogImageAlt: "3D anime avatar of Aden Khan, product marketer, in a blue glow",
   },
   contact: {
     id: "contact",
@@ -36,7 +36,7 @@ export const seo: Record<PageId, PageSeo> = {
       "Hiring for product marketing? Reach Aden Khan by email or LinkedIn. Open to internships and full-time roles from mid-2027.",
     h1: "Open a channel",
     h1Sub: "Contact Aden Khan, product marketer",
-    ogImageAlt: "Open a channel: contact Aden Khan, product marketer",
+    ogImageAlt: "3D anime avatar of Aden Khan, product marketer, in a purple glow",
   },
   thanks: {
     id: "thanks",

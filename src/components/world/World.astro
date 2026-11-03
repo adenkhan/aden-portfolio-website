@@ -5,11 +5,24 @@
  * Until the canvas has drawn (and always without WebGL or JavaScript) the CSS orbs below stand in,
  * so the background is never blank. Decorative: real content is the HTML above it.
  */
+// Optional avatar animation clips (r9, docs/ASSETS.md): any src/assets/anim/<pose>.vrma replaces that
+// procedural pose. Found at build time, so the browser never probes for files that are not there.
+const clips = import.meta.glob<string>("/src/assets/anim/*.vrma", {
+  query: "?url",
+  import: "default",
+  eager: true,
+});
+const vrma = JSON.stringify(
+  Object.fromEntries(
+    Object.entries(clips).map(([path, url]) => [path.split("/").pop()!.replace(".vrma", ""), url]),
+  ),
+);
 ---
 
 <div
   class="world"
   data-world
+  data-vrma={vrma}
   transition:persist="world"
   transition:name="world"
   transition:animate="none"

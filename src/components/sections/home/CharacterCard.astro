@@ -20,7 +20,7 @@ const barLanes = ["both", "data", "data", "creative"] as const;
 const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
 ---
 
-<figure class="card" data-pointer-glow-host data-reveal="card">
+<figure class="card" data-pointer-glow-host data-reveal="card" data-avatar-clear>
   <span class="glow-clip" aria-hidden="true">
     <span class="glow" data-pointer-glow></span>
   </span>
@@ -30,8 +30,11 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
       {site.hudTag}
     </span>
   </p>
-  <div class="avatar">
+  <!-- The live 3D model (r9) is drawn into this box by the world, framed exactly like the poster,
+       which stays the LCP image and the fallback (no JS, reduced motion, no WebGL, a failed load). -->
+  <div class="avatar" data-avatar-anchor="card">
     <Image
+      data-avatar-poster
       src={getImageFor("avatar")}
       alt={avatar.alt}
       width={avatar.width}
@@ -45,6 +48,7 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     />
     {riveSrc && <RiveAvatar src={riveSrc} width={avatar.width} height={avatar.height} />}
     {showBadge && <span class="placeholder-badge">placeholder</span>}
+    <span class="load" aria-hidden="true" data-avatar-progress></span>
   </div>
   <!-- Decorative HUD bars, one per lane colour; no labels since r2 (text is a caption only). -->
   <div class="bars" aria-hidden="true">
@@ -143,6 +147,38 @@ const showBadge = import.meta.env.DEV && isPlaceholder("avatar");
     aspect-ratio: 4 / 5;
     object-fit: cover;
     border-radius: var(--radius-sm);
+  }
+
+  /* Live (r9): the card lets the canvas through (the world paints its colour behind her) and the
+     poster fades out over the model. */
+  .card:global(.is-live) {
+    background-color: transparent;
+  }
+
+  .avatar img {
+    transition: opacity 400ms var(--ease-out);
+  }
+
+  .card:global(.is-live) .avatar img {
+    opacity: 0;
+  }
+
+  /* Model download progress: a hairline under the poster; gone once she is live or not coming. */
+  .load {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-creative), var(--color-growth), var(--color-data));
+    transform: scaleX(var(--p, 0));
+    transform-origin: left center;
+    transition: transform 200ms linear;
+  }
+
+  :global(html[data-avatar]) .load,
+  :global(html[data-motion="reduced"]) .load {
+    display: none;
   }
 
   .placeholder-badge {

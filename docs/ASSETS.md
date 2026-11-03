@@ -13,8 +13,9 @@ Slot data (paths, sizes, alt text) lives in `src/data/assets.ts`. Alt text follo
 
 | Slot | Path | Size (px) | Format | Appears on | Should show | Alt text |
 |---|---|---|---|---|---|---|
-| avatar | `src/assets/avatar/avatar.png` | 1200×1500 (4:5) | PNG | `/` hero, character-select card (LCP image) | The original illustrated avatar, high resolution | Illustrated anime avatar of Aden Khan, product marketer |
-| ogDefault | `src/assets/og/default.png` | 1200×630 | PNG | `og:image` / `twitter:image` on every page | Social card (prompt 18 adds per-page cards) | Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple |
+| avatar | `src/assets/avatar/avatar.webp` | 1200×1500 (4:5) | WebP, transparent | `/` hero, character-select card (LCP image, and the poster under the live 3D model) | Rendered from the owner's VRoid model by `node scripts/render-avatar.mjs poster` (r9): relaxed pose, slight smile, looking at the camera, a red rim glow on one side and blue on the other, composited outside her silhouette | 3D anime avatar of Aden Khan, product marketer |
+| ogDefault | `src/assets/og/default.png` | 1200×630 | PNG | `og:image` / `twitter:image` on /thanks/ and the 404 | Social card | Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple |
+| og-home, og-about, og-work, og-contact | `src/assets/og/<page>.png` | 1200×630 | PNG | `og:image` on that page | Rendered from the model by `node scripts/render-avatar.mjs og` (r9): navy background, red and blue orb glows, the page's accent, her in the right third. No text | Set per page in `src/data/seo.ts` |
 > **r4:** the case studies render visual stories (`src/components/sections/work/CaseVisual.astro`) instead of these six images, so the mission slots are **reserved** for real evidence screenshots and are not shown on the site yet. The gallery slots below are still used.
 
 | mission-01 | `src/assets/work/mission-01.webp` | 1200×800 (3:2) | WebP | `/work/` case study 1 | Meta ads and Amplitude results, Sadiq.ai | Meta ads and Amplitude results for Sadiq.ai showing lower customer acquisition cost |
@@ -43,6 +44,26 @@ Slot data (paths, sizes, alt text) lives in `src/data/assets.ts`. Alt text follo
 - Original work the owner has rights to. No third-party characters, logos or named techniques (IP rule, `CLAUDE.md`).
 - No important text baked into images; repeat any key number in the page text.
 - Screenshots: crop to the content; no device mockups.
+
+## The VRoid avatar (r9)
+
+- **Model:** `public/models/avatar.vrm` (VRM 1.0, 14 expressions, MToon, about 41k triangles, 16 MB). The owner's file: never modified, re-exported or compressed. The site loads it lazily after first paint and keeps it for the whole visit. `netlify.toml` serves `/models/*` as `model/gltf-binary` so the CDN compresses it.
+- **Look rule:** her MToon materials are untouched, and she is lit like VRoid Studio: one white key light plus a white ambient, set in `src/components/three/avatar/look.ts`. `node scripts/render-avatar.mjs tune <dir> '[[key, ambient], …]'` matched her cheek to VRoid's own thumbnail inside the VRM: rgb(244 212 187) against rgb(244 212 185). See `docs/screens/round4/look-compare.png`.
+- **Re-render the stills** after changing the look or framing: `node scripts/render-avatar.mjs all` (poster and the four social cards) and `node scripts/render-avatar.mjs look` (the comparison images).
+- **Expressions the site uses:** happy, surprised, angry, relaxed and blink. The loader warns in the console if the model lacks one.
+
+### Optional animation clips (.vrma)
+
+Procedural poses need no files. Dropping a VRM animation into `src/assets/anim/` replaces the matching pose at the next build; the clip is crossfaded in an `AnimationMixer` through `@pixiv/three-vrm-animation`. Clips live in `src/assets` (not `public/models/anim/`), so the build knows which exist and the browser never probes for missing files.
+
+| Pose | File |
+|---|---|
+| idle (loops) | `src/assets/anim/idle.vrma` |
+| wave | `src/assets/anim/wave.vrma` |
+| point | `src/assets/anim/point.vrma` |
+| cast-ready | `src/assets/anim/cast-ready.vrma` |
+| cast-charge | `src/assets/anim/cast-charge.vrma` |
+| cast-release | `src/assets/anim/cast-release.vrma` |
 
 ## Optional animation slots
 
