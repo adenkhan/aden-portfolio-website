@@ -303,6 +303,7 @@ export class World {
   private velPhase = 0;
   private vel = 0;
   private strike = 0;
+  private impactShake = 0;
   /** Reduced motion: the Home still shows the merged purple sphere. */
   stillMode = false;
 
@@ -988,6 +989,12 @@ export class World {
     if (!this.running) this.renderStill();
   }
 
+  /** A manga-panel impact (r8b): a short camera shake that decays in about 0.3 s. */
+  impact(strength: number) {
+    this.impactShake = Math.max(this.impactShake, strength);
+    this.lastInput = performance.now();
+  }
+
   notifyInput() {
     this.lastInput = performance.now();
   }
@@ -1047,6 +1054,12 @@ export class World {
     this.camPos.lerp(this.camPosTarget, ck);
     this.camLook.lerp(this.camLookTarget, ck);
     this.camera.position.copy(this.camPos);
+    if (this.impactShake > 0.01) {
+      const k = this.impactShake * 0.08;
+      this.camera.position.x += (Math.random() - 0.5) * k;
+      this.camera.position.y += (Math.random() - 0.5) * k;
+      this.impactShake *= Math.exp(-dt * 14);
+    }
     this.camera.lookAt(this.camLook);
     this.camera.updateMatrixWorld();
 

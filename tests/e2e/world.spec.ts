@@ -115,9 +115,20 @@ test("Work: case studies pull the camera to their formation; skills light the co
 test("About: each arc lights its node as it scrolls past", async ({ page }) => {
   await page.goto("/about/?world=force");
   await ready(page);
-  await centre(page.locator("[data-arc-panel]").last());
+  // The arcs pin on desktop (r8b): scroll to the end of the pin, re-measuring on every poll.
   await expect
-    .poll(() => page.evaluate(() => window.__akWorld!.world.input.arcsLit), { timeout: 8000 })
+    .poll(
+      async () => {
+        await page.evaluate(() => {
+          const spacer = document.querySelector("[data-arc-panel]")!.closest(".pin-spacer");
+          const y = spacer ? spacer.getBoundingClientRect().bottom + window.scrollY - innerHeight : 99999;
+          if (window.__akLenis) window.__akLenis.scrollTo(y, { immediate: true });
+          else window.scrollTo(0, y);
+        });
+        return page.evaluate(() => window.__akWorld!.world.input.arcsLit);
+      },
+      { timeout: 15000 },
+    )
     .toBe(4);
 });
 

@@ -628,8 +628,26 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 
 - **Velocity.** Every frame (`gsap.ticker`), Lenis velocity is smoothed (×0.15 per frame) into a 0–1 amount: 0 below |v| 8, full at |v| 40. It's written as `--v` on the overlay element only. Writing it to `<html>` would restyle the whole page each frame (animation-performance).
 - **Speed lines.** A fixed SVG overlay of radial streaks starting at 62–74% of the half-diagonal, so they cover the edges, never the reading area. Opacity is 0.9 × the amount, scaled up to 1.06. The streaks are 35% text colour, 1.2 px, `aria-hidden`, and take no pointer events.
-- **Headings.** \`main h1\` and visible \`h2\` skew in the scroll direction: skewY = −v × 0.08, clamped ±4°, applied only past the threshold, through GSAP transforms.
-- **3D world.** Dust and field particles squeeze sideways and lengthen into vertical streaks (\`uStretch\`, the same threshold and range).
+- **Headings.** `main h1` and visible `h2` skew in the scroll direction: skewY = −v × 0.08, clamped ±4°, applied only past the threshold, through GSAP transforms.
+- **3D world.** Dust and field particles squeeze sideways and lengthen into vertical streaks (`uStretch`, the same threshold and range).
 - **Rest.** Everything eases back to 0 as the velocity decays; there's no timer.
 - **Mobile.** 20 streaks instead of 40, skew clamped ±2°. Touch scrolling is native, so the effect appears only when Lenis reports velocity.
 - **Reduced motion.** Not created (the module runs only inside the motion context).
+
+## 18. Manga panels on About (r8b)
+
+`src/lib/motion/moments/about.ts`, `ArcPanel.astro`; the world listens for `ak:arc-lit`, `ak:about-progress` and `ak:impact`.
+
+- **Pin (desktop, at least 64rem wide and 700 px tall, and only when the whole grid fits with 40 px to spare).** The arcs section pins with its centre at the screen's centre for 4 × 60% of a screen. Each quarter of the pin slams the next panel into its 2×2 cell.
+- **Snap.** Resting inside the pin for 180 ms moves the page, through Lenis (0.6 s), to the nearest beat: the middle of a panel's step, or the end of the pin. This is the same idle snap as the Home teaser (r7).
+- **Slam.** The panel drops from scale 1.12 with a ±2° tilt in 0.32 s (`power4.in`). Meanwhile an ink blot bleeds it into view: a CSS mask whose SVG circle is roughened by `feTurbulence` + `feDisplacementMap`, grown from 0% to 260% in 0.5 s (`power2.out`). The mask is removed when the slam ends.
+- **Impact (on the hit).**
+  - a 2-frame `filter: invert(1)` flash, then normal;
+  - a halftone burst (lane-coloured dots) behind the stat chip, scale 0.3 → 1.7, fading out in 0.45 s;
+  - a 4 px shake;
+  - speed lines drawn outward;
+  - the lane edge drawing in.
+- **3D.** On the same beat, `ak:arc-lit` lights that panel's node on the path, and `ak:impact` shakes the camera (±0.04 units, decaying in about 0.3 s). The path's camera progress is reported as `ak:about-progress`.
+- **Mobile and short screens.** No pin and no snap. Each panel slams when its top reaches 70% of the screen, from scale 1.06 with no tilt. The ink blot is a smooth radial gradient (no turbulence filter to rasterise). Flash, burst, shake and node lighting are kept.
+- **Reduced motion.** No pin, no slam: the panels are in place, every node is lit and the world is a still frame.
+- **No JavaScript.** Panels, chips and text are plain HTML; the ink, burst and flash only exist as script-set states.

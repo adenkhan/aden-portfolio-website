@@ -130,27 +130,17 @@ function wirePage(world: World, reduced: boolean): () => void {
   }
 
   if (station === "about") {
-    const panels = document.querySelector("[data-arc-panel]")?.parentElement;
-    if (panels && !reduced)
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: panels,
-          start: "top 75%",
-          end: "bottom 35%",
-          onUpdate: (self) => (input.aboutProgress = self.progress),
-        }),
-      );
-    document.querySelectorAll("[data-arc-panel]").forEach((panel, i) => {
-      if (reduced) return;
-      triggers.push(
-        ScrollTrigger.create({
-          trigger: panel,
-          start: "top 70%",
-          onEnter: () => (input.arcsLit = Math.max(input.arcsLit, i + 1)),
-          onLeaveBack: () => (input.arcsLit = i),
-        }),
-      );
+    // r8b: the About motion pins the arcs and reports the path progress, each slam (which lights its
+    // node on the same beat) and each impact (a small camera shake).
+    on(window, "ak:about-progress", (event) => {
+      input.aboutProgress = (event as CustomEvent<{ progress: number }>).detail.progress;
+      world.notifyInput();
     });
+    on(window, "ak:arc-lit", (event) => {
+      input.arcsLit = (event as CustomEvent<{ count: number }>).detail.count;
+      world.notifyInput();
+    });
+    on(window, "ak:impact", () => world.impact(1));
     // Still frame: every node lit, framed on the early path (clear of the H1).
     if (reduced) {
       input.aboutProgress = 0.35;

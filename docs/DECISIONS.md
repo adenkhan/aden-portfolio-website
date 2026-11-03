@@ -452,3 +452,10 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Decision: fast scroll fades manga speed lines in around the edges, skews headings in the scroll direction and stretches the 3D particles into streaks; all of it settles at rest (`docs/MOTION.md` §17).
 - Ruling: the smoothed velocity is `--v` on the overlay, not on `<html>`. Headings skew through GSAP transforms instead of a CSS variable, because an inherited variable changing every frame would restyle the whole page (animation-performance). Cost if wrong: none visible.
 - Ruling (owner, r8): faster checks per feature (type check, build, the feature's own tests, one screenshot). The full suite and Lighthouse run once after r8g.
+
+## 2026-11-03 — r8b: manga panels
+- Decision: on desktop the About arcs pin, and each step of scroll slams one panel in with an ink-bleed mask, a 2-frame inverted flash, a chip halftone burst and a camera shake. The panel's path node lights on the same beat (`docs/MOTION.md` §18).
+- Ruling: the ink bleed is a CSS `mask-image` (an SVG data URI with feTurbulence + feDisplacementMap) grown by `mask-size`, not an SVG `<mask>` referenced by id, because Chromium does not apply SVG `<mask>` references to HTML elements. Cost if wrong: none; the look is the same.
+- Ruling: the pin uses the same idle snap as the r7 teaser instead of `lenis/snap`, with beats at the middle of each panel's step plus the end of the pin. The pin turns on only when the grid fits on screen; otherwise it falls back to the phone behaviour. Cost if wrong: on a very short desktop window, no pin.
+- Ruling: slams are one-way (scrolling back up does not hide panels), so the lit-node count only grows. Cost if wrong: nodes don't unlight on the way back up.
+- The About test no longer expects "no pin"; the phone test does.

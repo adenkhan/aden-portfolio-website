@@ -32,7 +32,6 @@ const rays = Array.from({ length: 14 }, (_, i) => {
       <line x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} />
     ))}
   </svg>
-  <span class="flash" aria-hidden="true" data-impact-flash></span>
   <span class="edge" aria-hidden="true" data-arc-edge></span>
   <h3>
     <span class="period">{arc.period}</span>
@@ -43,7 +42,10 @@ const rays = Array.from({ length: 14 }, (_, i) => {
     <span class="org">{arc.org}</span>
   </h3>
   <p class="text">{arc.line}</p>
-  <p class="chip">{arc.chip}</p>
+  <p class="chip">
+    <span class="burst" aria-hidden="true" data-chip-burst></span>
+    {arc.chip}
+  </p>
 </li>
 
 <style>
@@ -56,8 +58,7 @@ const rays = Array.from({ length: 14 }, (_, i) => {
     scroll-margin-top: 2rem;
   }
 
-  .speed,
-  .flash {
+  .speed {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -72,8 +73,21 @@ const rays = Array.from({ length: 14 }, (_, i) => {
     vector-effect: non-scaling-stroke;
   }
 
-  .flash {
-    background-color: var(--color-text);
+  /* Ink-bleed reveal (r8b): while the motion layer slams the panel in, it is masked by an ink blot
+     that grows from the centre. The blot's edge is roughened by feTurbulence + feDisplacementMap
+     inside the mask image; phones get the smooth blot (cheaper to rasterise as it grows). */
+  .panel:global(.is-inking) {
+    --ink-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cfilter id='i' x='-30%25' y='-30%25' width='160%25' height='160%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.09' numOctaves='2' seed='7'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='16' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Ccircle cx='50' cy='50' r='34' filter='url(%23i)'/%3E%3C/svg%3E");
+    mask-image: var(--ink-mask);
+    mask-repeat: no-repeat;
+    mask-position: 50% 50%;
+    mask-size: var(--ink-size, 260%) var(--ink-size, 260%);
+  }
+
+  @media (width < 48rem) {
+    .panel:global(.is-inking) {
+      --ink-mask: radial-gradient(circle, #000 34%, transparent 35%);
+    }
   }
 
   .panel > :global(h3),
@@ -129,6 +143,8 @@ const rays = Array.from({ length: 14 }, (_, i) => {
 
   /* Stat chip: the arc's one number, in its lane colour. */
   .chip {
+    position: relative;
+    isolation: isolate;
     display: inline-block;
     margin: 1rem 0 0;
     padding: 0.25rem 0.75rem;
@@ -139,6 +155,18 @@ const rays = Array.from({ length: 14 }, (_, i) => {
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     color: var(--lane-colour);
+  }
+
+  /* Halftone burst behind the chip on impact (r8b). Hidden until the motion layer fires it. */
+  .burst {
+    position: absolute;
+    inset: -70% -35%;
+    z-index: -1;
+    opacity: 0;
+    background-image: radial-gradient(circle, var(--lane-colour) 1.3px, transparent 1.8px);
+    background-size: 7px 7px;
+    mask-image: radial-gradient(closest-side, #000 30%, transparent);
+    pointer-events: none;
   }
 
   [data-lane="creative"] {

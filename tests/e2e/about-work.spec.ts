@@ -7,18 +7,42 @@ const settled = (el: Locator) =>
     return Number(s.opacity) === 1 && Math.abs(m.m41) < 0.5 && Math.abs(m.m42) < 0.5 && Math.abs(m.b) < 0.001;
   });
 
-test("About: origin-arc panels assemble and settle; education and goals reveal", async ({ page }) => {
-  await page.goto("/about/");
-  for (const panel of await page.locator("[data-arc-panel]").all()) {
-    await panel.scrollIntoViewIfNeeded();
-    await expect.poll(() => settled(panel), { timeout: 3000 }).toBe(true);
+/** Steps down the whole page (through any pin), letting each step's triggers fire. */
+const scrollThrough = async (page: import("@playwright/test").Page) => {
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y <= height; y += 250) {
+    await page.evaluate(
+      (top) => window.__akLenis?.scrollTo(top, { immediate: true }) ?? window.scrollTo(0, top),
+      y,
+    );
+    await page.waitForTimeout(60);
   }
+};
+
+test("About: origin-arc panels slam in through the pin and settle; education and goals reveal", async ({
+  page,
+}) => {
+  await page.goto("/about/");
+  // Desktop (1280×720): the arcs pin while the panels slam in one step at a time (r8b).
+  await expect(page.locator(".pin-spacer [data-arc-panel]")).toHaveCount(4);
+  await scrollThrough(page);
+  for (const panel of await page.locator("[data-arc-panel]").all())
+    await expect.poll(() => settled(panel), { timeout: 3000 }).toBe(true);
   for (const section of await page.locator('[data-reveal="section"]').all()) {
     await section.scrollIntoViewIfNeeded();
     await expect.poll(() => settled(section), { timeout: 3000 }).toBe(true);
   }
-  // No pinning on About.
+});
+
+test("About phone: no pin, each panel slams as it scrolls in", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/about/");
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
+  for (const panel of await page.locator("[data-arc-panel]").all()) {
+    // Centred, as a reader scrolls it, so its top passes the 70% trigger line.
+    await panel.evaluate((n) => n.scrollIntoView({ block: "center" }));
+    await expect.poll(() => settled(panel), { timeout: 3000 }).toBe(true);
+  }
 });
 
 const caseScroll = (page: import("@playwright/test").Page, index: number) =>
