@@ -487,3 +487,16 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: the "Back to top" label sits in the footer (outside the word budgets). The link is captured before Lenis's `anchors` handling, which would otherwise scroll it without the overlay.
 - Also fixed (r8b): jumping past the pinned About arcs (End key, a reload further down, a rewind) now slams every panel; before, panels after the first could stay hidden.
 - Known: under full parallel test load, the r8c portal and r8g rewind tests can time out. Run alone or in their group they pass (two runs of 49 in a row).
+
+## 2026-11-03 — r8 wrap-up: full suite and Lighthouse
+- `npm run verify` passes: `astro check` 0 errors, build, first-load JS 76.5–78.8 KB gzip per page (limit 150; lazy 184–191 KB, reported only), 123/123 Playwright tests.
+- Lighthouse (local production preview, default world detection), performance / accessibility / best practices / SEO:
+
+  | Page | Desktop | Mobile |
+  |---|---|---|
+  | Home | 89 / 100 / 100 / 100 | 74 / 100 / 100 / 100 |
+  | About | 95 / 100 / 100 / 100 | 82 / 100 / 100 / 100 |
+  | Work | 93 / 100 / 100 / 100 | 69 / 100 / 100 / 100 |
+  | Contact | 89 / 100 / 100 / 100 | 86 / 100 / 100 / 100 |
+
+  Every page meets the R1 budgets (desktop ≥ 75, mobile ≥ 65, SEO and accessibility ≥ 95). Headless Lighthouse has only software WebGL, so these runs use the static world. The r3 open risk stands: forced-3D mobile Home scored 55.
