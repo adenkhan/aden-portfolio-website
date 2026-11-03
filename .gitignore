@@ -30,3 +30,14 @@ playwright-report/
 
 # superpowers scratch
 .superpowers/
+
+# Submission kit (r12): only the markdown is committed; images, video, Lighthouse reports and the zip are not.
+submission-kit.zip
+submission-kit/screenshots/
+submission-kit/**/*.png
+submission-kit/**/*.mp4
+submission-kit/**/*.json
+submission-kit/**/*.html
+submission-kit/**/.done
+*.tmp.cjs
+*.tmp.mjs
