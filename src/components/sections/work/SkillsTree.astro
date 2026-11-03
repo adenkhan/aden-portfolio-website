@@ -103,6 +103,16 @@ const skillLanes = isWorstCase() ? worstSkillLanes : demoLanes;
     gap: 0.5rem;
   }
 
+  /* With the velocity marquee (r8e) the chips are shown there instead: kept here for screen readers. */
+  .tree:global(.has-marquee) .chips {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .chips li {
     padding: 0.5rem 0.75rem;
     background-color: var(--color-bg-surface);

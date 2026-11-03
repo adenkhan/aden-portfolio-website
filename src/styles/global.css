@@ -473,3 +473,75 @@ html[data-portal]::view-transition-old(*),
 html[data-portal]::view-transition-new(*) {
   animation: none !important;
 }
+
+/* Velocity marquee of skills (r8e, docs/MOTION.md §21): two rows built from the skills tree's chips,
+   tilted slightly in 3D. Created by script; never for reduced motion. */
+.marquee {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 2.5rem 1rem;
+  overflow-x: clip;
+  transform: perspective(900px) rotateX(12deg) rotateZ(-1.5deg);
+  transform-origin: 50% 50%;
+}
+
+.marquee-row {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-row[data-row="1"] {
+  transform: rotateZ(1.5deg);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 2.5rem;
+  width: max-content;
+  padding-inline: 1.25rem;
+  will-change: transform;
+}
+
+.marquee-word {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.2rem + 3vw, 4rem);
+  line-height: 1.1;
+  font-weight: 900;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--lane-colour);
+  transition:
+    color var(--duration-hover) ease,
+    text-shadow var(--duration-hover) ease;
+}
+
+.marquee-word.is-lit {
+  color: var(--lane-colour);
+  text-shadow: 0 0 24px color-mix(in srgb, var(--lane-colour) 55%, transparent);
+}
+
+.marquee-word[data-lane="creative"] {
+  --lane-colour: var(--color-creative);
+}
+
+.marquee-word[data-lane="data"] {
+  --lane-colour: var(--color-data);
+}
+
+.marquee-word[data-lane="both"] {
+  --lane-colour: var(--color-growth);
+}
+
+@media (width < 48rem) {
+  .marquee {
+    transform: perspective(700px) rotateX(8deg);
+  }
+
+  .marquee-row[data-row="1"] {
+    transform: none;
+  }
+
+  .marquee-word {
+    -webkit-text-stroke-width: 0.75px;
+  }
+}

@@ -470,3 +470,8 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 - Ruling: the open control is an icon-only button inside the card rather than "click anywhere on the card", which keeps a real, focusable control and adds no visible words to the case's word budget. Cost if wrong: a smaller target than the whole card.
 - Ruling: GSAP tweens are awaited through `onComplete`, never a bare `.then()`: a thenable timeline resolved with itself never settled and left the dialog stuck open. Close requests during the open morph are queued.
 - Also fixed: the cursor's press-release no longer warns "GSAP target .btn not found" on pages without buttons.
+
+## 2026-11-03 — r8e: velocity marquee
+- Decision: two rows of skill words drift in opposite directions, flip with the scroll direction, speed up with scroll velocity and tilt slightly in 3D. Hovering a word pauses its row and lights its lane's 3D cluster (`docs/MOTION.md` §21).
+- Ruling: the marquee is built from the skills tree's chips, and the chips are hidden on screen (kept for screen readers) while it runs, so no skill is shown twice (§4a "say each fact once"). Cost if wrong: with motion on, the tree shows lane names only and the skills live in the marquee.
+- Ruling: velocity is measured from `scrollY` deltas, so native touch scrolling on phones speeds the rows too; direction prefers `lenis.direction`. The world's skills trigger now spans the whole skills section, so the band counts as part of it.

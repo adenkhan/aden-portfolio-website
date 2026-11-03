@@ -249,3 +249,59 @@ test.describe("r8d reduced motion", () => {
     expect(await card.evaluate((c) => getComputedStyle(c).transform)).toBe("none");
   });
 });
+
+const trackX = (page: Page, row: number) =>
+  page
+    .locator(`[data-marquee] .marquee-row[data-row="${row}"] .marquee-track`)
+    .evaluate((t) => new DOMMatrix(getComputedStyle(t).transform).m41);
+
+test.describe("r8e velocity marquee", () => {
+  test("rows drift in opposite directions, flip with scroll direction, pause and light a lane on hover", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/work/?world=force");
+    const band = page.locator("[data-marquee]");
+    await expect(band).toHaveCount(1);
+    await expect(band.locator(".marquee-row")).toHaveCount(2);
+    // Each skill is still in the tree's HTML for screen readers, hidden on screen.
+    const chip = page.locator("[data-tree-chip]").first();
+    expect(await chip.evaluate((n) => n.parentElement!.getBoundingClientRect().width)).toBeLessThanOrEqual(1);
+    await band.evaluate((b) => b.scrollIntoView({ block: "center" }));
+    await page.waitForTimeout(300);
+    const drift = async (row: number) => {
+      const a = await trackX(page, row);
+      await page.waitForTimeout(400);
+      // Wrapped positions can jump by one copy's width; the small step is the drift.
+      return (await trackX(page, row)) - a;
+    };
+    const down0 = await drift(0);
+    const down1 = await drift(1);
+    expect(Math.sign(down0)).toBe(-Math.sign(down1));
+    // Scrolling up flips both rows.
+    await page.mouse.move(10, 10);
+    await page.mouse.wheel(0, -200);
+    await page.waitForTimeout(500);
+    const up0 = await drift(0);
+    expect(Math.sign(up0)).toBe(-Math.sign(down0));
+    // Hover a word: its row stops and its lane's cluster lights.
+    // The words never hold still, so point at one with the mouse instead of a stability-checked hover.
+    const box = (await band.locator(".marquee-row[data-row='1'] .marquee-word").nth(2).boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 2 });
+    await page.waitForTimeout(600);
+    expect(Math.abs(await drift(1))).toBeLessThan(2);
+    const lit = band.locator(".marquee-word.is-lit").first();
+    await expect(lit).toBeAttached();
+    const lane = Number(await lit.getAttribute("data-lane-index"));
+    await expect.poll(() => page.evaluate(() => window.__akWorld?.world.input.laneHover)).toBe(lane);
+  });
+});
+
+test.describe("r8e reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+  test("no marquee; the skill chips show in the tree", async ({ page }) => {
+    await page.goto("/work/");
+    await expect(page.locator("[data-marquee]")).toHaveCount(0);
+    await expect(page.locator("[data-tree-chip]").first()).toBeVisible();
+  });
+});

@@ -674,3 +674,15 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
 - **Mobile.** The same takeover, morphs 25% shorter; there is no horizontal scroll at 375 px.
 - **Reduced motion.** The dialog opens and closes at once, with no morph.
 - **No JavaScript.** The open buttons stay hidden and the case studies are the plain stack.
+
+## 21. Velocity marquee of skills (r8e)
+
+`src/lib/motion/moments/marquee.ts`; styles in `global.css`; the world listens for `ak:lane-hover`.
+
+- **Built from the tree.** The motion layer builds two rows from the skills tree's own chips (row 1: the first two lanes, row 2: the other two), each word in its lane's colour as outline type. The chips stay in the tree's HTML for screen readers but are hidden on screen while the marquee shows them, so each skill appears once. The band is `aria-hidden`.
+- **Motion.** The rows drift in opposite directions at 46 px/s. The page's scroll direction (`lenis.direction`, or the sign of the scroll delta) flips both. The smoothed scroll speed adds up to 1,100 px/s, which settles back to the drift at rest. Each track is two copies wrapped by one copy's width (`gsap.utils.wrap`), with transforms only, through `quickSetter` on `gsap.ticker`. It runs only while the band is on screen (ScrollTrigger toggle).
+- **Tilt.** The band sits at `perspective(900px) rotateX(12deg) rotateZ(-1.5deg)`, and the second row counter-rotates 1.5°.
+- **Hover (fine pointers).** Hovering a word eases its row to a stop, fills that lane's words with colour and a soft glow, and lights that lane's cluster in the 3D world (`ak:lane-hover`). Leaving the band resumes both rows.
+- **Mobile.** A 28 px/s drift, a boost of up to 600 px/s, no rotateZ, an 8° tilt, thinner outlines. Velocity comes from native touch scrolling too. Touch has no hover, so the rows never pause.
+- **Reduced motion.** No marquee; the chips show in the tree as before.
+- **No JavaScript.** The tree with its chips.

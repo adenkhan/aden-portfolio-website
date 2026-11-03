@@ -155,7 +155,9 @@ function wirePage(world: World, reduced: boolean): () => void {
       input.activeCase = (event as CustomEvent<{ index: number }>).detail.index;
       world.notifyInput();
     });
-    const tree = document.querySelector("[data-tree]");
+    // The skills section, so the velocity marquee above the tree (r8e) counts as part of it.
+    const tree =
+      document.querySelector("[data-tree]")?.closest("section") ?? document.querySelector("[data-tree]");
     input.lanes = [...document.querySelectorAll("[data-tree-lane]")];
     if (tree && !reduced)
       triggers.push(
@@ -169,6 +171,11 @@ function wirePage(world: World, reduced: boolean): () => void {
           },
         }),
       );
+    // Hovering a word in the velocity marquee lights its lane's cluster (r8e).
+    on(window, "ak:lane-hover", (event) => {
+      input.laneHover = (event as CustomEvent<{ index: number }>).detail.index;
+      world.notifyInput();
+    });
     input.lanes.forEach((lane, i) => {
       const enter = () => {
         input.laneHover = i;

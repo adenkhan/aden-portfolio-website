@@ -3,6 +3,7 @@ import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { gsap, ScrollTrigger } from "../eases";
 import type { MomentContext } from "../types";
 import { buildCase, type CaseMotion } from "./case-visuals";
+import { skillsMarquee } from "./marquee";
 import { wipes } from "./wipes";
 
 gsap.registerPlugin(DrawSVGPlugin, InertiaPlugin);
@@ -312,7 +313,8 @@ function gallery(ctx: MomentContext): (() => void) | void {
 export function work(ctx: MomentContext): () => void {
   const cleanups: Array<() => void> = [];
   cleanups.push(wipes(["#skills", "#gallery"]));
-  for (const moment of [cases, skillsTree, gallery]) {
+  // The marquee goes first: it hides the chips, which changes the tree's layout the SVG is drawn from.
+  for (const moment of [cases, skillsMarquee, skillsTree, gallery]) {
     const cleanup = moment(ctx);
     if (cleanup) cleanups.push(cleanup);
   }
