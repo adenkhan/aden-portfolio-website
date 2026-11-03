@@ -736,3 +736,13 @@ The intro is now 3.5 s, up from the 3 s ceiling, at the owner's request (r7).
   - **Between pages:** she floats from one station's box to the next over 0.9 s, under the portal.
 - **Performance.** Phones and the low tier drop her MToon outlines. She is not updated or drawn while her box is off screen.
 - **Reduced motion, no WebGL, no JavaScript or a failed load.** The poster only; the model is never downloaded. The canvas stays `aria-hidden`; all meaning is in the HTML.
+
+## 25. Campaign shelf and the real SEO tool (r10)
+
+`src/components/sections/work/CampaignShelf.astro` (carousels, fans and the lightbox; component scripts, so they work the same with reduced motion), `ToolVisual.astro` and the `tool` builder in `case-visuals.ts`.
+
+- **Carousels.** Scroll-snap tracks, one phone-sized post per slide, with arrows and a live counter. The selected-slides carousel counts with the slides' own numbers (`01 / 08`). Touch swipes natively. A mouse drags the track with snapping off; on release, the velocity is projected 150 ms ahead and it lands on that slide. A drag never opens the lightbox; the image's native drag is cancelled. Arrow keys move the focused track.
+- **Fans.** Campaign and concept posts sit like a hand of cards (±7° steps). They spread to ±13° on hover or focus with a fine pointer, or when the card is 60% in view on touch: a `transform` transition, 300 ms, `--ease-out`. Each fan is one button (overlapping posts would be targets too close together). It opens the viewer on the post that was clicked, or the first one from the keyboard.
+- **Lightbox.** A native modal `<dialog>` (focus trap and Esc). It fades in over 200 ms with `@starting-style` (none with reduced motion). It shows the full image, its alt text as a visible caption (announced through `aria-describedby` and a polite live region), the campaign name and the position. Arrow keys and touch swipes move between images. Lenis stops while it is open, and focus returns to the trigger.
+- **The tool (case 3).** A browser frame cycles the five screens: each fades in over the one below for 0.5 s, then holds for 2.6 s, in the case's loop. The playbook steps (Configure → Research → AI visibility check → Brief → Write) light one by one on the move beat, scrubbed by scroll on desktop and played once on phones. The end state (no JavaScript, reduced motion) is the first screen with every step lit. Phones stack the frame over a row of steps.
+- **Reduced motion.** No fan transition (the spread state still applies) and no lightbox fade. Carousel arrows jump without smooth scrolling. The tool visual stays in its end state.

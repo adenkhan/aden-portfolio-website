@@ -6,7 +6,9 @@
 import { about } from "../timeline";
 import { caseStudies } from "../missions";
 import { skillLanes } from "../skills";
-import type { Arc, AssetKey, CaseStudy, SkillLane } from "../types";
+import { campaigns } from "../campaigns";
+import type { Campaign } from "../campaigns";
+import type { Arc, CaseStudy, SkillLane } from "../types";
 
 export const worstCaseStudies: CaseStudy[] = [
   {
@@ -18,7 +20,6 @@ export const worstCaseStudies: CaseStudy[] = [
     resultLead: "Cut cost per activated seller",
     resultRest: "from $1,284.50 to $359.66 across 12 markets in 6 weeks",
     count: undefined,
-    evidence: "mission-missing",
   },
   {
     ...caseStudies[1],
@@ -28,7 +29,6 @@ export const worstCaseStudies: CaseStudy[] = [
     resultLead: "+1%",
     resultRest: "",
     count: undefined,
-    evidence: undefined,
   },
   {
     ...caseStudies[2],
@@ -62,4 +62,20 @@ export const worstSkillLanes: SkillLane[] = [
   skillLanes[3],
 ];
 
-export const worstGallery: AssetKey[] = ["gallery-01", "gallery-missing", "gallery-02"];
+/** Campaign shelf extremes: a long title and client, a one-slide carousel, a missing image (r10). */
+export const worstCampaigns: Campaign[] = [
+  {
+    ...campaigns[0],
+    id: "worst-long",
+    title: "Why shoppers add to cart and then abandon it at the very last step of checkout",
+    client: "Sadiq.ai × Blysmo Pakistan Skincare and Personal Care Private Limited",
+    caption: campaigns[0].caption.repeat(3),
+  },
+  { ...campaigns[1], id: "worst-one", slides: campaigns[1].slides.slice(0, 1) },
+  {
+    ...campaigns[2],
+    id: "worst-missing",
+    slides: [{ ...campaigns[2].slides[0], file: "missing-file.webp" }, ...campaigns[2].slides.slice(1, 2)],
+  },
+  campaigns[5],
+];

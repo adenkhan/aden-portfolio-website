@@ -23,7 +23,6 @@ export const caseStudies: CaseStudy[] = [
       funnel: ["sign-up", "onboarding", "adoption"],
     },
     lane: "both",
-    evidence: "mission-01",
   },
   {
     id: "let-the-robots-do-the-busywork",
@@ -37,7 +36,6 @@ export const caseStudies: CaseStudy[] = [
     resultRest: "",
     visual: { kind: "workflow", illustrative: true, steps: ["capture", "enrich", "lifecycle email", "CRM"] },
     lane: "data",
-    evidence: "mission-02",
   },
   {
     id: "an-seo-writers-cockpit",
@@ -45,21 +43,20 @@ export const caseStudies: CaseStudy[] = [
     title: "An SEO writer’s cockpit",
     company: "10Pearls",
     problem: "Writers juggled keyword tools, competitor tabs and drafts.",
-    move: "One app combining Ahrefs keyword ideas, competitor research and drafting, plus a cannibalization checker.",
+    // The owner's copy, word for word (r10).
+    move: "An internal content app with three modes (generate an article, optimize an existing page, import a brief) and step-by-step playbooks: SEO blog post, pillar page and quick update, with research, AI visibility checks and gap analysis built in. Plus a separate cannibalization checker.",
     result: "Overlaps caught before publishing",
     resultLead: "Overlaps caught before publishing",
     resultRest: "",
+    // The real tool (r10): screenshots of its public pages and the SEO blog post playbook's steps.
     visual: {
-      kind: "cockpit",
-      illustrative: true,
-      column: "research",
-      draft: "draft",
-      keywords: ["go-to-market", "onboarding guide", "SaaS pricing", "onboarding tips", "case studies"],
-      overlap: [1, 3],
-      flag: "overlap",
+      kind: "tool",
+      illustrative: false,
+      url: "internal-tool-seo-g8de.vercel.app/create",
+      steps: ["Configure", "Research", "AI visibility check", "Brief", "Write"],
     },
     lane: "data",
-    evidence: "mission-03",
+    link: { label: "Open the tool", url: "https://internal-tool-seo-g8de.vercel.app/create" },
   },
   {
     id: "open-doors-in-us-proptech",
@@ -78,7 +75,6 @@ export const caseStudies: CaseStudy[] = [
       tickerLabel: "applications / week",
     },
     lane: "both",
-    evidence: "mission-04",
   },
   {
     id: "make-founders-notice",
@@ -99,7 +95,6 @@ export const caseStudies: CaseStudy[] = [
       cards: ["reel", "carousel", "story", "reel", "carousel"],
     },
     lane: "creative",
-    evidence: "mission-05",
   },
   {
     id: "fund-the-club",
@@ -122,6 +117,5 @@ export const caseStudies: CaseStudy[] = [
       followersLabel: "followers",
     },
     lane: "creative",
-    evidence: "mission-06",
   },
 ];

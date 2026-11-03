@@ -1,12 +1,11 @@
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { gsap, ScrollTrigger } from "../eases";
 import type { MomentContext } from "../types";
 import { buildCase, type CaseMotion } from "./case-visuals";
 import { skillsMarquee } from "./marquee";
 import { wipes } from "./wipes";
 
-gsap.registerPlugin(DrawSVGPlugin, InertiaPlugin);
+gsap.registerPlugin(DrawSVGPlugin);
 const SVG = "http://www.w3.org/2000/svg";
 
 const caseActive = (index: number) =>
@@ -233,88 +232,11 @@ function skillsTree(ctx: MomentContext): (() => void) | void {
   };
 }
 
-/**
- * Creative gallery (r4): a mouse-draggable strip with momentum, and cards that tilt in 3D toward a
- * fine pointer. Dragging moves the strip's native scroll position and InertiaPlugin carries the
- * release velocity, so the scrollbar, arrow keys and touch swipe keep working. (Draggable's
- * scrollLeft mode wraps the list items in a div, which breaks the list; see docs/DECISIONS.md, r4.)
- * Touch devices keep native swipe; their momentum is the browser's own.
- */
-function gallery(ctx: MomentContext): (() => void) | void {
-  const track = document.querySelector<HTMLElement>("[data-gallery] [data-gallery-track]");
-  if (!track) return;
-  const cleanups: Array<() => void> = [];
-
-  if (ctx.fine) {
-    track.classList.add("is-draggable");
-    InertiaPlugin.track(track, "scrollLeft");
-    let startX = 0;
-    let startScroll = 0;
-    let dragging = false;
-    const max = () => track.scrollWidth - track.clientWidth;
-    const down = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse" || event.button !== 0) return;
-      dragging = true;
-      startX = event.clientX;
-      startScroll = track.scrollLeft;
-      gsap.killTweensOf(track);
-      track.setPointerCapture(event.pointerId);
-      track.classList.add("is-dragging");
-    };
-    const move = (event: PointerEvent) => {
-      if (dragging) track.scrollLeft = startScroll - (event.clientX - startX);
-    };
-    const up = () => {
-      if (!dragging) return;
-      dragging = false;
-      track.classList.remove("is-dragging");
-      gsap.to(track, { inertia: { scrollLeft: { velocity: "auto", min: 0, max: max() } } });
-    };
-    track.addEventListener("pointerdown", down);
-    track.addEventListener("pointermove", move);
-    track.addEventListener("pointerup", up);
-    track.addEventListener("pointercancel", up);
-    cleanups.push(() => {
-      track.removeEventListener("pointerdown", down);
-      track.removeEventListener("pointermove", move);
-      track.removeEventListener("pointerup", up);
-      track.removeEventListener("pointercancel", up);
-      InertiaPlugin.untrack(track);
-      gsap.killTweensOf(track);
-      track.classList.remove("is-draggable", "is-dragging");
-    });
-
-    // Tilt: each card leans toward the pointer (rotateX/Y, at most 8°), and settles back on leave.
-    for (const figure of track.querySelectorAll<HTMLElement>("figure")) {
-      const rx = gsap.quickTo(figure, "rotationX", { duration: 0.4, ease: "ui-out" });
-      const ry = gsap.quickTo(figure, "rotationY", { duration: 0.4, ease: "ui-out" });
-      gsap.set(figure, { transformPerspective: 700 });
-      const move = (event: PointerEvent) => {
-        const box = figure.getBoundingClientRect();
-        ry(((event.clientX - box.left) / box.width - 0.5) * 16);
-        rx(-((event.clientY - box.top) / box.height - 0.5) * 12);
-      };
-      const leave = () => {
-        rx(0);
-        ry(0);
-      };
-      figure.addEventListener("pointermove", move);
-      figure.addEventListener("pointerleave", leave);
-      cleanups.push(() => {
-        figure.removeEventListener("pointermove", move);
-        figure.removeEventListener("pointerleave", leave);
-        gsap.set(figure, { clearProps: "transform" });
-      });
-    }
-  }
-  return () => cleanups.forEach((fn) => fn());
-}
-
 export function work(ctx: MomentContext): () => void {
   const cleanups: Array<() => void> = [];
-  cleanups.push(wipes(["#skills", "#gallery"]));
+  cleanups.push(wipes(["#skills", "#campaigns"]));
   // The marquee goes first: it hides the chips, which changes the tree's layout the SVG is drawn from.
-  for (const moment of [cases, skillsMarquee, skillsTree, gallery]) {
+  for (const moment of [cases, skillsMarquee, skillsTree]) {
     const cleanup = moment(ctx);
     if (cleanup) cleanups.push(cleanup);
   }

@@ -1,0 +1,771 @@
+---
+import Img from "@/components/ui/Img.astro";
+import { campaigns as realCampaigns, formatChip, type Campaign } from "@/data/campaigns";
+import { worstCampaigns } from "@/data/fixtures/worst";
+import { work } from "@/data/timeline";
+import type { AssetKey } from "@/data/types";
+import { isWorstCase } from "@/lib/fixtures";
+
+const campaigns: Campaign[] = isWorstCase() ? worstCampaigns : realCampaigns;
+const assetOf = (file: string) => `creative-${file.replace(/\.webp$/, "")}` as AssetKey;
+// Fanned posts: angle and offset (% of the card) for each post, at rest and spread.
+const fan = (i: number, n: number) => {
+  const mid = (n - 1) / 2;
+  return { rest: (i - mid) * 7, spread: (i - mid) * 13, x: (i - mid) * 14, y: Math.abs(i - mid) * 3 };
+};
+---
+
+<!--
+  Campaign shelf (r10, docs/MOTION.md §25): the owner's real creative work, one card per campaign.
+  Carousels swipe (scroll-snap) with arrows and a counter; campaigns fan out like a hand of cards;
+  any image opens the lightbox. Every image is a button with its alt text; captions are real HTML.
+  Works without JavaScript as plain scrollable carousels and fans.
+-->
+<section class="container-site block" id="campaigns" aria-labelledby="campaigns-title" data-campaigns>
+  <h2 id="campaigns-title">{work.galleryHeading}</h2>
+  <ul class="shelf">
+    {campaigns.map((c) => (
+      <li>
+        <figure class="campaign" data-campaign={c.id} data-format={c.format} style={`--tint: ${c.tint}`}>
+          <div class="media">
+            {c.format === "carousel" ? (
+              <div class="carousel" data-carousel>
+                <ul
+                  class="track"
+                  aria-label={`${c.title}, slides`}
+                  tabindex="0"
+                  data-lenis-prevent
+                  data-track
+                >
+                  {c.slides.map((s, i) => (
+                    <li
+                      class="slide"
+                      aria-label={`${s.number ? `Slide ${s.number}` : `${i + 1} of ${c.slides.length}`}`}
+                    >
+                      <button
+                        type="button"
+                        class="open"
+                        data-lightbox-open
+                        data-lb-item
+                        data-index={i}
+                        data-alt={s.alt}
+                        data-label={s.number ? `Slide ${s.number}` : `${i + 1} / ${c.slides.length}`}
+                      >
+                        <Img
+                          asset={assetOf(s.file)}
+                          widths={[400, 800, 1200]}
+                          sizes="(min-width: 64rem) 380px, (min-width: 48rem) 45vw, 90vw"
+                        />
+                        <span class="sr-only">View larger</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                <div class="controls" data-controls hidden>
+                  <button type="button" class="arrow" data-prev aria-label={`Previous slide, ${c.title}`}>
+                    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M10 3 5 8l5 5" />
+                    </svg>
+                  </button>
+                  <p class="counter" aria-live="polite" data-counter>
+                    {c.slides[0].number ?? 1} / {c.selected ? c.slides.at(-1)!.number : c.slides.length}
+                  </p>
+                  <button type="button" class="arrow" data-next aria-label={`Next slide, ${c.title}`}>
+                    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="m6 3 5 5-5 5" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // One button for the whole fan (overlapping posts would be targets too close together):
+              // it opens the viewer on the post that was clicked, or the first one from the keyboard.
+              <button type="button" class="fan" data-fan data-lightbox-open data-count={c.slides.length}>
+                {c.slides.map((s, i) => {
+                  const f = fan(i, c.slides.length);
+                  return (
+                    <span
+                      class="post"
+                      data-lb-item
+                      data-alt={s.alt}
+                      data-label={`${i + 1} / ${c.slides.length}`}
+                      style={`--r: ${f.rest}deg; --rs: ${f.spread}deg; --x: ${f.x}%; --y: ${f.y}%; --z: ${i === Math.round((c.slides.length - 1) / 2) ? 3 : 2 - Math.abs(i - (c.slides.length - 1) / 2)}; --ratio: ${s.width} / ${s.height}`}
+                    >
+                      <Img
+                        asset={assetOf(s.file)}
+                        widths={[400, 800, 1200]}
+                        sizes="(min-width: 64rem) 260px, (min-width: 48rem) 30vw, 60vw"
+                      />
+                    </span>
+                  );
+                })}
+                <span class="sr-only">
+                  View {c.slides.length === 1 ? "larger" : `all ${c.slides.length} posts larger`}
+                </span>
+              </button>
+            )}
+          </div>
+          <figcaption class="info">
+            <p class="chip">{formatChip(c)}</p>
+            <h3>{c.title}</h3>
+            <p class="client">{c.client}</p>
+            <p class="caption">{c.caption}</p>
+            {c.disclaimer && <p class="disclaimer">{c.disclaimer}</p>}
+          </figcaption>
+        </figure>
+      </li>
+    ))}
+  </ul>
+
+  <!-- One lightbox for the shelf: a modal dialog (focus trap and Esc come with it). -->
+  <dialog
+    class="lightbox"
+    aria-label="Image viewer"
+    aria-describedby="lb-caption"
+    data-lightbox
+    data-lenis-prevent
+  >
+    <figure class="lb-figure">
+      <div class="lb-image" data-lb-image></div>
+      <figcaption class="lb-caption" id="lb-caption">
+        <span class="lb-campaign" data-lb-campaign></span>
+        <span class="lb-count" data-lb-count></span>
+        <span class="lb-alt" aria-live="polite" data-lb-alt></span>
+      </figcaption>
+    </figure>
+    <button type="button" class="lb-btn lb-prev" data-lb-prev aria-label="Previous image">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M10 3 5 8l5 5" />
+      </svg>
+    </button>
+    <button type="button" class="lb-btn lb-next" data-lb-next aria-label="Next image">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="m6 3 5 5-5 5" />
+      </svg>
+    </button>
+    <button type="button" class="lb-btn lb-close" data-lb-close aria-label="Close image viewer">
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M3 3l10 10M13 3 3 13" />
+      </svg>
+    </button>
+  </dialog>
+</section>
+
+<script>
+  import { onPage } from "@/lib/page";
+
+  /**
+   * Carousels (scroll-snap tracks with arrows, a counter and mouse drag with momentum) and the
+   * lightbox. Not motion-layer code: both work the same with reduced motion.
+   */
+  onPage(() => {
+    const root = document.querySelector<HTMLElement>("[data-campaigns]");
+    if (!root) return;
+    const off: Array<() => void> = [];
+    const on = (t: EventTarget, type: string, fn: (e: Event) => void, o?: AddEventListenerOptions) => {
+      t.addEventListener(type, fn, o);
+      off.push(() => t.removeEventListener(type, fn, o));
+    };
+    const smooth = () => (matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+
+    // Carousels.
+    root.querySelectorAll<HTMLElement>("[data-carousel]").forEach((carousel) => {
+      const track = carousel.querySelector<HTMLElement>("[data-track]")!;
+      const slides = [...track.querySelectorAll<HTMLElement>(".slide")];
+      const counter = carousel.querySelector<HTMLElement>("[data-counter]")!;
+      const controls = carousel.querySelector<HTMLElement>("[data-controls]")!;
+      const prev = carousel.querySelector<HTMLButtonElement>("[data-prev]")!;
+      const next = carousel.querySelector<HTMLButtonElement>("[data-next]")!;
+      const labels = slides.map((s) => s.querySelector<HTMLElement>("[data-lightbox-open]")!.dataset.label!);
+      controls.hidden = false;
+      const index = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+      const go = (i: number) => {
+        const to = Math.max(0, Math.min(slides.length - 1, i));
+        track.scrollTo({ left: to * track.clientWidth, behavior: smooth() });
+      };
+      const update = () => {
+        const i = index();
+        const label = labels[i] ?? "";
+        counter.textContent = label.startsWith("Slide")
+          ? `${label.replace("Slide ", "")} / ${labels.at(-1)!.replace("Slide ", "")}`
+          : label;
+        prev.disabled = i <= 0;
+        next.disabled = i >= slides.length - 1;
+      };
+      on(prev, "click", () => go(index() - 1));
+      on(next, "click", () => go(index() + 1));
+      on(track, "scroll", update, { passive: true });
+      on(track, "keydown", (e) => {
+        const k = (e as KeyboardEvent).key;
+        if (k === "ArrowRight" || k === "ArrowLeft") {
+          e.preventDefault();
+          go(index() + (k === "ArrowRight" ? 1 : -1));
+        }
+      });
+      update();
+
+      // Mouse drag with momentum (touch uses the native swipe): the track follows the pointer with
+      // snapping off, then lands on the slide its release velocity points at.
+      let start = 0;
+      let left = 0;
+      let lastX = 0;
+      let lastT = 0;
+      let v = 0;
+      let dragging = false;
+      let moved = false;
+      on(track, "pointerdown", (e) => {
+        const p = e as PointerEvent;
+        if (p.pointerType !== "mouse" || p.button !== 0) return;
+        dragging = true;
+        moved = false;
+        start = lastX = p.clientX;
+        lastT = performance.now();
+        left = track.scrollLeft;
+        v = 0;
+      });
+      on(window, "pointermove", (e) => {
+        if (!dragging) return;
+        const p = e as PointerEvent;
+        const dx = p.clientX - start;
+        if (!moved && Math.abs(dx) > 5) {
+          moved = true;
+          track.classList.add("is-dragging");
+        }
+        if (!moved) return;
+        const now = performance.now();
+        v = (p.clientX - lastX) / Math.max(1, now - lastT);
+        lastX = p.clientX;
+        lastT = now;
+        track.scrollLeft = left - dx;
+      });
+      // An image's native drag-and-drop would swallow the pointer events mid-drag.
+      on(track, "dragstart", (e) => e.preventDefault());
+      on(window, "pointercancel", () => {
+        if (!dragging) return;
+        dragging = false;
+        track.classList.remove("is-dragging");
+        go(index());
+      });
+      on(window, "pointerup", () => {
+        if (!dragging) return;
+        dragging = false;
+        if (!moved) return;
+        // Project the release velocity 150 ms ahead, then snap to that slide.
+        const projected = track.scrollLeft - v * 150;
+        track.classList.remove("is-dragging");
+        go(Math.round(projected / Math.max(1, track.clientWidth)));
+      });
+      // A drag is not a click: keep the lightbox shut after one.
+      on(
+        track,
+        "click",
+        (e) => {
+          if (moved) {
+            e.preventDefault();
+            e.stopPropagation();
+            moved = false;
+          }
+        },
+        { capture: true },
+      );
+    });
+
+    // Fans spread when the card comes into view on touch screens (hover spreads them with a mouse).
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      const io = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((en) => en.target.classList.toggle("is-spread", en.intersectionRatio > 0.6)),
+        { threshold: [0, 0.6, 1] },
+      );
+      root.querySelectorAll("[data-fan]").forEach((f) => io.observe(f));
+      off.push(() => io.disconnect());
+    }
+
+    // Lightbox.
+    const box = root.querySelector<HTMLDialogElement>("[data-lightbox]")!;
+    const imageHost = box.querySelector<HTMLElement>("[data-lb-image]")!;
+    const altEl = box.querySelector<HTMLElement>("[data-lb-alt]")!;
+    const nameEl = box.querySelector<HTMLElement>("[data-lb-campaign]")!;
+    const countEl = box.querySelector<HTMLElement>("[data-lb-count]")!;
+    let items: HTMLElement[] = [];
+    let current = 0;
+    let trigger: HTMLElement | null = null;
+    const show = (i: number) => {
+      current = (i + items.length) % items.length;
+      const item = items[current];
+      const picture = item.querySelector("picture")?.cloneNode(true) as HTMLElement | undefined;
+      imageHost.replaceChildren();
+      if (picture) {
+        const img = picture.querySelector("img")!;
+        // The full image: the largest rendition, sized to the viewer.
+        picture.querySelectorAll("source").forEach((s) => s.setAttribute("sizes", "min(90vw, 1200px)"));
+        img.setAttribute("sizes", "min(90vw, 1200px)");
+        img.loading = "eager";
+        img.alt = item.dataset.alt ?? "";
+        imageHost.append(picture);
+      }
+      altEl.textContent = item.dataset.alt ?? "";
+      countEl.textContent = items.length > 1 ? (item.dataset.label ?? "") : "";
+      const multi = items.length > 1;
+      box.querySelector<HTMLElement>("[data-lb-prev]")!.hidden = !multi;
+      box.querySelector<HTMLElement>("[data-lb-next]")!.hidden = !multi;
+    };
+    const open = (e: Event) => {
+      const button = (e.target as Element).closest<HTMLElement>("[data-lightbox-open]");
+      if (!button) return;
+      const card = button.closest<HTMLElement>("[data-campaign]")!;
+      items = [...card.querySelectorAll<HTMLElement>("[data-lb-item]")];
+      nameEl.textContent = card.querySelector("h3")?.textContent ?? "";
+      trigger = button;
+      // A carousel slide is its own item; in a fan, the post under the pointer (or the first).
+      const item = (e.target as Element).closest<HTMLElement>("[data-lb-item]");
+      show(Math.max(0, items.indexOf(item ?? button)));
+      window.__akLenis?.stop();
+      box.showModal();
+    };
+    const close = () => box.open && box.close();
+    on(root, "click", open);
+    on(box.querySelector("[data-lb-close]")!, "click", close);
+    on(box.querySelector("[data-lb-prev]")!, "click", () => show(current - 1));
+    on(box.querySelector("[data-lb-next]")!, "click", () => show(current + 1));
+    on(box, "click", (e) => e.target === box && close());
+    on(box, "keydown", (e) => {
+      const k = (e as KeyboardEvent).key;
+      if (k === "ArrowRight") show(current + 1);
+      if (k === "ArrowLeft") show(current - 1);
+    });
+    on(box, "close", () => {
+      window.__akLenis?.start();
+      imageHost.replaceChildren();
+      trigger?.focus({ preventScroll: true });
+    });
+    // Swipe between images on touch.
+    let sx = 0;
+    on(box, "pointerdown", (e) => (sx = (e as PointerEvent).clientX));
+    on(box, "pointerup", (e) => {
+      const dx = (e as PointerEvent).clientX - sx;
+      if ((e as PointerEvent).pointerType !== "mouse" && Math.abs(dx) > 50 && items.length > 1)
+        show(current + (dx < 0 ? 1 : -1));
+    });
+
+    return () => {
+      off.forEach((fn) => fn());
+      close();
+    };
+  });
+</script>
+
+<style>
+  .block {
+    padding-block: 4rem 0;
+  }
+
+  h2 {
+    margin: 0 0 1.5rem;
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+    font-weight: 900;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .shelf {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (width >= 48rem) {
+    .shelf {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 64rem) {
+    .shelf {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* A panel (DESIGN.md): the creative sits on its own soft tint, the caption under it. */
+  .campaign {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+
+  .media {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--tint) 30%, var(--color-bg-surface));
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  .open,
+  .fan {
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: zoom-in;
+  }
+
+  .open:focus-visible,
+  .fan:focus-visible,
+  .track:focus-visible,
+  .arrow:focus-visible,
+  .lb-btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: -2px;
+  }
+
+  /* Carousel: a phone-sized Instagram post per slide, one at a time. */
+  .carousel,
+  .track {
+    height: 100%;
+  }
+
+  .track {
+    display: flex;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+  }
+
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .track:global(.is-dragging) {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  .slide {
+    display: grid;
+    place-items: center;
+    flex: 0 0 100%;
+    padding: 9%;
+    scroll-snap-align: center;
+  }
+
+  .slide .open {
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+  }
+
+  .controls {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .controls[hidden] {
+    display: none;
+  }
+
+  .arrow {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-text);
+    background-color: color-mix(in srgb, var(--color-bg-void) 80%, transparent);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    transition: transform var(--duration-press) ease-out;
+  }
+
+  .arrow:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .arrow svg,
+  .lb-btn svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .counter {
+    margin: 0;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-pill);
+    background-color: color-mix(in srgb, var(--color-bg-void) 80%, transparent);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text);
+  }
+
+  /* Fan: posts stacked like a hand of cards; they spread on hover (mouse) or in view (touch). */
+  .fan {
+    position: relative;
+    height: 100%;
+  }
+
+  .post {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: var(--z);
+    width: 54%;
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.4);
+    transform: translate(calc(-50% + var(--x) * 0.45), calc(-50% + var(--y))) rotate(var(--r));
+    transition: transform 300ms var(--ease-out);
+  }
+
+  [data-format="concept"] .post {
+    width: 40%;
+  }
+
+  .fan:global(.is-spread) .post {
+    transform: translate(calc(-50% + var(--x) * 1.6), calc(-50% + var(--y) * 2)) rotate(var(--rs));
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .fan:hover .post,
+    .fan:focus-within .post {
+      transform: translate(calc(-50% + var(--x) * 1.6), calc(-50% + var(--y) * 2)) rotate(var(--rs));
+    }
+
+    .fan .post:hover {
+      z-index: 5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .post {
+      transition: none;
+    }
+  }
+
+  .post :global(.img-slot),
+  .slide :global(.img-slot) {
+    height: 100%;
+  }
+
+  .post :global(img),
+  .slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Caption: the format as a HUD label, then title, client and the one-line caption. */
+  .info {
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .chip {
+    justify-self: start;
+    margin: 0 0 0.25rem;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-muted);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+    font-weight: 800;
+  }
+
+  .client {
+    margin: 0;
+    font-size: var(--text-caption);
+    color: var(--color-text-subtle);
+  }
+
+  .caption {
+    margin: 0.25rem 0 0;
+    color: var(--color-text-muted);
+  }
+
+  .disclaimer {
+    margin: 0.5rem 0 0;
+    padding: 0.375rem 0.625rem;
+    border: 1px dashed var(--color-line-strong);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text);
+  }
+
+  /* Lightbox: the image at full size with its alt text as a visible caption. */
+  .lightbox {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: max(1rem, env(safe-area-inset-top, 0px)) 1rem max(1rem, env(safe-area-inset-bottom, 0px));
+    color: var(--color-text);
+    background-color: rgb(5 6 15 / 0.94);
+    border: 0;
+    opacity: 1;
+    transition:
+      opacity 200ms var(--ease-out),
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  @starting-style {
+    .lightbox[open] {
+      opacity: 0;
+    }
+  }
+
+  .lightbox::backdrop {
+    background-color: transparent;
+  }
+
+  .lb-figure {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    height: 100%;
+    margin: 0;
+  }
+
+  .lb-image {
+    display: grid;
+    place-items: center;
+    min-height: 0;
+  }
+
+  .lb-image :global(picture),
+  .lb-image :global(img) {
+    display: block;
+    max-width: min(90vw, 1200px);
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+
+  .lb-image :global(picture) {
+    height: 100%;
+  }
+
+  .lb-image :global(img) {
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .lb-caption {
+    display: grid;
+    gap: 0.25rem;
+    max-width: 60ch;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .lb-campaign {
+    font-weight: 700;
+  }
+
+  .lb-count {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    color: var(--color-text-subtle);
+  }
+
+  .lb-alt {
+    color: var(--color-text-muted);
+  }
+
+  .lb-btn {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--color-text);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform var(--duration-press) ease-out;
+  }
+
+  .lb-btn:active {
+    transform: scale(0.94);
+  }
+
+  .lb-btn[hidden] {
+    display: none;
+  }
+
+  .lb-close {
+    top: max(1rem, env(safe-area-inset-top, 0px));
+    right: 1rem;
+  }
+
+  .lb-prev,
+  .lb-next {
+    top: 50%;
+    translate: 0 -50%;
+  }
+
+  .lb-prev {
+    left: 1rem;
+  }
+
+  .lb-next {
+    right: 1rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox {
+      transition: none;
+    }
+  }
+</style>

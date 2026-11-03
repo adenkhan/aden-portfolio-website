@@ -1,6 +1,7 @@
 ---
 import { work } from "@/data/timeline";
 import type { CaseVisual, CountUp } from "@/data/types";
+import ToolVisual from "./ToolVisual.astro";
 
 interface Props {
   visual: CaseVisual;
@@ -34,268 +35,272 @@ const fanAngles = [-24, -12, 0, 12, 24];
 
 <div class="visual">
   <div class="stage" data-case-visual={v.kind}>
-    <svg
-      viewBox="0 0 720 300"
-      class="viz"
-      aria-hidden="true"
-      focusable="false"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {v.kind === "cac" && (
-        <>
-          <text x="140" y="30" class="lbl" text-anchor="middle">
-            {v.costLabel}
-          </text>
-          <rect x="80" y="50" width="120" height="220" rx="8" class="ghost" />
-          <rect
-            x="80"
-            y={50 + 220 * (v.drop / 100)}
-            width="120"
-            height={220 * (1 - v.drop / 100)}
-            rx="8"
-            class="fill-growth"
-            data-cac-bar
-            data-full-y="50"
-            data-full-h="220"
-          />
-          <g data-cac-delta>
-            <path d={`M140 ${50 + 220 * (v.drop / 100) - 46} v 30 m -8 -10 l 8 10 l 8 -10`} class="arrow" />
-            <text x="140" y={50 + 220 * (v.drop / 100) - 56} class="big" text-anchor="middle">
-              −{v.drop}%
+    {v.kind === "tool" ? (
+      <ToolVisual url={v.url} steps={v.steps} />
+    ) : (
+      <svg
+        viewBox="0 0 720 300"
+        class="viz"
+        aria-hidden="true"
+        focusable="false"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {v.kind === "cac" && (
+          <>
+            <text x="140" y="30" class="lbl" text-anchor="middle">
+              {v.costLabel}
             </text>
-          </g>
-          {v.funnel.map((label, i) => {
-            const top = [360, 270, 180][i];
-            const bottom = [270, 180, 120][i];
-            const y = 50 + i * 78;
-            const d = `M${490 - top / 2} ${y} H${490 + top / 2} L${490 + bottom / 2} ${y + 62} H${490 - bottom / 2} Z`;
-            return (
-              <g>
-                <path d={d} class="ghost" />
-                <path d={d} class="fill-data soft" data-funnel-fill />
-                <text x="490" y={y + 38} class="lbl on" text-anchor="middle">
+            <rect x="80" y="50" width="120" height="220" rx="8" class="ghost" />
+            <rect
+              x="80"
+              y={50 + 220 * (v.drop / 100)}
+              width="120"
+              height={220 * (1 - v.drop / 100)}
+              rx="8"
+              class="fill-growth"
+              data-cac-bar
+              data-full-y="50"
+              data-full-h="220"
+            />
+            <g data-cac-delta>
+              <path d={`M140 ${50 + 220 * (v.drop / 100) - 46} v 30 m -8 -10 l 8 10 l 8 -10`} class="arrow" />
+              <text x="140" y={50 + 220 * (v.drop / 100) - 56} class="big" text-anchor="middle">
+                −{v.drop}%
+              </text>
+            </g>
+            {v.funnel.map((label, i) => {
+              const top = [360, 270, 180][i];
+              const bottom = [270, 180, 120][i];
+              const y = 50 + i * 78;
+              const d = `M${490 - top / 2} ${y} H${490 + top / 2} L${490 + bottom / 2} ${y + 62} H${490 - bottom / 2} Z`;
+              return (
+                <g>
+                  <path d={d} class="ghost" />
+                  <path d={d} class="fill-data soft" data-funnel-fill />
+                  <text x="490" y={y + 38} class="lbl on" text-anchor="middle">
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
+          </>
+        )}
+
+        {v.kind === "workflow" && (
+          <>
+            {v.steps.slice(0, -1).map((_, i) => {
+              const x1 = 90 + i * 180;
+              const x2 = x1 + 180;
+              const bend = i % 2 ? 210 : 70;
+              return (
+                <path
+                  d={`M${x1 + 36} 140 C${x1 + 90} ${bend} ${x2 - 90} ${bend} ${x2 - 36} 140`}
+                  class="edge"
+                  data-edge
+                />
+              );
+            })}
+            {v.steps.map((label, i) => (
+              <g transform={`translate(${90 + i * 180} 140)`}>
+                <g data-node>
+                  <circle r="34" class="node" />
+                  <circle r="9" class="fill-data" data-node-core />
+                </g>
+                <text y="78" class="lbl" text-anchor="middle">
                   {label}
                 </text>
               </g>
-            );
-          })}
-        </>
-      )}
+            ))}
+            {[0, 1, 2].map(() => (
+              <circle r="7" class="packet" data-packet transform="translate(630 140)" />
+            ))}
+          </>
+        )}
 
-      {v.kind === "workflow" && (
-        <>
-          {v.steps.slice(0, -1).map((_, i) => {
-            const x1 = 90 + i * 180;
-            const x2 = x1 + 180;
-            const bend = i % 2 ? 210 : 70;
-            return (
-              <path
-                d={`M${x1 + 36} 140 C${x1 + 90} ${bend} ${x2 - 90} ${bend} ${x2 - 36} 140`}
-                class="edge"
-                data-edge
-              />
-            );
-          })}
-          {v.steps.map((label, i) => (
-            <g transform={`translate(${90 + i * 180} 140)`}>
-              <g data-node>
-                <circle r="34" class="node" />
-                <circle r="9" class="fill-data" data-node-core />
-              </g>
-              <text y="78" class="lbl" text-anchor="middle">
-                {label}
+        {v.kind === "cockpit" && (
+          <>
+            <rect x="20" y="40" width="210" height="240" rx="12" class="panel" />
+            <text x="36" y="68" class="lbl">
+              {v.column}
+            </text>
+            {v.keywords.map((_, i) => (
+              <rect x="36" y={84 + i * 38} width="178" height="28" rx="14" class="ghost" />
+            ))}
+            <rect x="300" y="40" width="400" height="240" rx="12" class="panel" />
+            <text x="320" y="68" class="lbl">
+              {v.draft}
+            </text>
+            {[84, 132, 176, 224, 256].map((y, i) => (
+              <rect x="320" y={y} width={[340, 300, 320, 260, 200][i]} height="6" rx="3" class="line" />
+            ))}
+            {v.keywords.map((label, i) => {
+              const [fx, fy] = chipFinal[i];
+              const clash = v.overlap.includes(i);
+              return (
+                <g transform={`translate(${fx} ${fy})`}>
+                  <g
+                    data-chip
+                    data-dx={36 - fx}
+                    data-dy={84 + i * 38 - fy}
+                    data-clash-chip={clash ? "" : undefined}
+                  >
+                    <rect width={chipWidth(label)} height="28" rx="14" class="chip" />
+                    {clash && <rect width={chipWidth(label)} height="28" rx="14" class="clash" data-clash />}
+                    <text x={chipWidth(label) / 2} y="19" class="chip-text" text-anchor="middle">
+                      {label}
+                    </text>
+                  </g>
+                </g>
+              );
+            })}
+            <g data-flag>
+              <path d="M520 214 h-16" class="arrow warn" />
+              <text x="528" y="220" class="lbl warn">
+                {v.flag}
               </text>
             </g>
-          ))}
-          {[0, 1, 2].map(() => (
-            <circle r="7" class="packet" data-packet transform="translate(630 140)" />
-          ))}
-        </>
-      )}
+          </>
+        )}
 
-      {v.kind === "cockpit" && (
-        <>
-          <rect x="20" y="40" width="210" height="240" rx="12" class="panel" />
-          <text x="36" y="68" class="lbl">
-            {v.column}
-          </text>
-          {v.keywords.map((_, i) => (
-            <rect x="36" y={84 + i * 38} width="178" height="28" rx="14" class="ghost" />
-          ))}
-          <rect x="300" y="40" width="400" height="240" rx="12" class="panel" />
-          <text x="320" y="68" class="lbl">
-            {v.draft}
-          </text>
-          {[84, 132, 176, 224, 256].map((y, i) => (
-            <rect x="320" y={y} width={[340, 300, 320, 260, 200][i]} height="6" rx="3" class="line" />
-          ))}
-          {v.keywords.map((label, i) => {
-            const [fx, fy] = chipFinal[i];
-            const clash = v.overlap.includes(i);
-            return (
-              <g transform={`translate(${fx} ${fy})`}>
-                <g
-                  data-chip
-                  data-dx={36 - fx}
-                  data-dy={84 + i * 38 - fy}
-                  data-clash-chip={clash ? "" : undefined}
-                >
-                  <rect width={chipWidth(label)} height="28" rx="14" class="chip" />
-                  {clash && <rect width={chipWidth(label)} height="28" rx="14" class="clash" data-clash />}
-                  <text x={chipWidth(label) / 2} y="19" class="chip-text" text-anchor="middle">
+        {v.kind === "pipeline" && (
+          <>
+            {v.stages.map((label, i) => (
+              <g>
+                <rect x={20 + i * 175} y="20" width="160" height="190" rx="12" class="panel" />
+                <text x={100 + i * 175} y="48" class="lbl" text-anchor="middle">
+                  {label}
+                </text>
+              </g>
+            ))}
+            {dotColumns.map((col, k) => {
+              const before = dotColumns.slice(0, k).filter((c) => c === col).length;
+              const fx = 100 + col * 175;
+              const fy = 82 + before * 32;
+              return (
+                <g transform={`translate(${fx} ${fy})`}>
+                  <circle
+                    r="10"
+                    class={col === 3 ? "fill-growth" : "fill-data"}
+                    data-dot
+                    data-dx={100 - fx}
+                    data-dy={82 + (k % 4) * 32 - fy}
+                  />
+                </g>
+              );
+            })}
+            <text x="20" y="262" class="lbl">
+              {v.tickerLabel}
+            </text>
+            {Array.from({ length: 8 }, (_, j) => (
+              <rect x={280 + j * 52} y="240" width="40" height="34" rx="8" class="tick" data-tick />
+            ))}
+          </>
+        )}
+
+        {v.kind === "reach" && (
+          <>
+            {v.cards.map((label, i) => (
+              <g transform={`rotate(${fanAngles[i]} 240 330)`}>
+                <g data-card data-angle={fanAngles[i]}>
+                  <rect x="198" y="110" width="84" height="140" rx="12" class={`card card-${i % 3}`} />
+                  <text x="240" y="138" class="lbl on small" text-anchor="middle">
                     {label}
                   </text>
                 </g>
               </g>
-            );
-          })}
-          <g data-flag>
-            <path d="M520 214 h-16" class="arrow warn" />
-            <text x="528" y="220" class="lbl warn">
-              {v.flag}
+            ))}
+            <text x="560" y="294" class="lbl" text-anchor="middle">
+              {v.liftLabel}
             </text>
-          </g>
-        </>
-      )}
+            <rect x="510" y={270 - 140} width="100" height="140" rx="8" class="ghost" />
+            <rect
+              x="510"
+              y={270 - 140 * (1 + v.lift / 100)}
+              width="100"
+              height={140 * (1 + v.lift / 100)}
+              rx="8"
+              class="fill-creative"
+              data-reach-bar
+              data-base-y={270 - 140}
+              data-base-h="140"
+            />
+            <text
+              x="560"
+              y={270 - 140 * (1 + v.lift / 100) - 12}
+              class="big"
+              text-anchor="middle"
+              data-reach-delta
+            >
+              +{v.lift}%
+            </text>
+          </>
+        )}
 
-      {v.kind === "pipeline" && (
-        <>
-          {v.stages.map((label, i) => (
-            <g>
-              <rect x={20 + i * 175} y="20" width="160" height="190" rx="12" class="panel" />
-              <text x={100 + i * 175} y="48" class="lbl" text-anchor="middle">
-                {label}
-              </text>
-            </g>
-          ))}
-          {dotColumns.map((col, k) => {
-            const before = dotColumns.slice(0, k).filter((c) => c === col).length;
-            const fx = 100 + col * 175;
-            const fy = 82 + before * 32;
-            return (
-              <g transform={`translate(${fx} ${fy})`}>
-                <circle
-                  r="10"
-                  class={col === 3 ? "fill-growth" : "fill-data"}
-                  data-dot
-                  data-dx={100 - fx}
-                  data-dy={82 + (k % 4) * 32 - fy}
-                />
-              </g>
-            );
-          })}
-          <text x="20" y="262" class="lbl">
-            {v.tickerLabel}
-          </text>
-          {Array.from({ length: 8 }, (_, j) => (
-            <rect x={280 + j * 52} y="240" width="40" height="34" rx="8" class="tick" data-tick />
-          ))}
-        </>
-      )}
-
-      {v.kind === "reach" && (
-        <>
-          {v.cards.map((label, i) => (
-            <g transform={`rotate(${fanAngles[i]} 240 330)`}>
-              <g data-card data-angle={fanAngles[i]}>
-                <rect x="198" y="110" width="84" height="140" rx="12" class={`card card-${i % 3}`} />
-                <text x="240" y="138" class="lbl on small" text-anchor="middle">
-                  {label}
-                </text>
-              </g>
-            </g>
-          ))}
-          <text x="560" y="294" class="lbl" text-anchor="middle">
-            {v.liftLabel}
-          </text>
-          <rect x="510" y={270 - 140} width="100" height="140" rx="8" class="ghost" />
-          <rect
-            x="510"
-            y={270 - 140 * (1 + v.lift / 100)}
-            width="100"
-            height={140 * (1 + v.lift / 100)}
-            rx="8"
-            class="fill-creative"
-            data-reach-bar
-            data-base-y={270 - 140}
-            data-base-h="140"
-          />
-          <text
-            x="560"
-            y={270 - 140 * (1 + v.lift / 100) - 12}
-            class="big"
-            text-anchor="middle"
-            data-reach-delta
-          >
-            +{v.lift}%
-          </text>
-        </>
-      )}
-
-      {v.kind === "club" && (
-        <>
-          {Array.from({ length: v.proposals.value }, (_, i) => {
-            const fx = 30 + (i % 5) * 46;
-            const fy = 60 + Math.floor(i / 5) * 40;
-            return (
-              <g transform={`translate(${fx} ${fy})`}>
-                <g data-envelope data-dx={-fx - 60} data-dy={150 - fy}>
-                  <rect width="36" height="26" rx="4" class="envelope" />
-                  <path d="M2 3 L18 15 L34 3" class="envelope-flap" />
+        {v.kind === "club" && (
+          <>
+            {Array.from({ length: v.proposals.value }, (_, i) => {
+              const fx = 30 + (i % 5) * 46;
+              const fy = 60 + Math.floor(i / 5) * 40;
+              return (
+                <g transform={`translate(${fx} ${fy})`}>
+                  <g data-envelope data-dx={-fx - 60} data-dy={150 - fy}>
+                    <rect width="36" height="26" rx="4" class="envelope" />
+                    <path d="M2 3 L18 15 L34 3" class="envelope-flap" />
+                  </g>
+                </g>
+              );
+            })}
+            <text
+              x="30"
+              y="210"
+              class="count"
+              data-viz-count={v.proposals.value}
+              data-prefix={v.proposals.prefix}
+              data-suffix={v.proposals.suffix}
+            >
+              {fmt(v.proposals)}
+            </text>
+            <text x="30" y="240" class="lbl">
+              {v.proposalsLabel}
+            </text>
+            {Array.from({ length: 7 }, (_, i) => (
+              <g transform={`translate(380 ${244 - i * 22})`}>
+                <g data-coin>
+                  <ellipse rx="44" ry="12" cy="6" class="coin-side" />
+                  <ellipse rx="44" ry="12" class="coin" />
                 </g>
               </g>
-            );
-          })}
-          <text
-            x="30"
-            y="210"
-            class="count"
-            data-viz-count={v.proposals.value}
-            data-prefix={v.proposals.prefix}
-            data-suffix={v.proposals.suffix}
-          >
-            {fmt(v.proposals)}
-          </text>
-          <text x="30" y="240" class="lbl">
-            {v.proposalsLabel}
-          </text>
-          {Array.from({ length: 7 }, (_, i) => (
-            <g transform={`translate(380 ${244 - i * 22})`}>
-              <g data-coin>
-                <ellipse rx="44" ry="12" cy="6" class="coin-side" />
-                <ellipse rx="44" ry="12" class="coin" />
-              </g>
-            </g>
-          ))}
-          <text
-            x="380"
-            y="40"
-            class="count"
-            text-anchor="middle"
-            data-viz-count={v.raised.value}
-            data-prefix={v.raised.prefix}
-            data-suffix={v.raised.suffix}
-          >
-            {fmt(v.raised)}
-          </text>
-          <text
-            x="600"
-            y="150"
-            class="count"
-            text-anchor="middle"
-            data-viz-count={v.followers.value}
-            data-prefix={v.followers.prefix}
-            data-suffix={v.followers.suffix}
-          >
-            {fmt(v.followers)}
-          </text>
-          <text x="600" y="180" class="lbl" text-anchor="middle">
-            {v.followersLabel}
-          </text>
-          <circle cx="600" cy="140" r="78" class="ring" data-follow-ring />
-        </>
-      )}
-    </svg>
+            ))}
+            <text
+              x="380"
+              y="40"
+              class="count"
+              text-anchor="middle"
+              data-viz-count={v.raised.value}
+              data-prefix={v.raised.prefix}
+              data-suffix={v.raised.suffix}
+            >
+              {fmt(v.raised)}
+            </text>
+            <text
+              x="600"
+              y="150"
+              class="count"
+              text-anchor="middle"
+              data-viz-count={v.followers.value}
+              data-prefix={v.followers.prefix}
+              data-suffix={v.followers.suffix}
+            >
+              {fmt(v.followers)}
+            </text>
+            <text x="600" y="180" class="lbl" text-anchor="middle">
+              {v.followersLabel}
+            </text>
+            <circle cx="600" cy="140" r="78" class="ring" data-follow-ring />
+          </>
+        )}
+      </svg>
+    )}
   </div>
   {v.illustrative && <p class="tag">{work.illustrative}</p>}
 </div>

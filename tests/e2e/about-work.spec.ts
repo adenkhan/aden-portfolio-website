@@ -136,39 +136,7 @@ test("Work: skills tree draws SVG branches; skills stay real text", async ({ pag
   await expect(tree.getByText("Amplitude", { exact: true })).toBeVisible();
 });
 
-test("Work: the gallery drags with momentum on desktop and keeps native scrolling", async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/work/?world=off");
-  const track = page.locator("[data-gallery-track]");
-  await track.scrollIntoViewIfNeeded();
-  await expect(track).toHaveClass(/is-draggable/);
-  const box = (await track.boundingBox())!;
-  await page.mouse.move(box.x + 600, box.y + 150);
-  await page.mouse.down();
-  await page.mouse.move(box.x + 300, box.y + 150, { steps: 6 });
-  await page.mouse.up();
-  // Momentum carries it past the 300 px dragged.
-  await expect.poll(() => track.evaluate((n) => n.scrollLeft), { timeout: 3000 }).toBeGreaterThan(300);
-  expect(await track.evaluate((n) => getComputedStyle(n).overflowX)).toBe("auto");
-  // Images are lazy and keep their slot alt text.
-  const imgs = track.locator("img");
-  await expect(imgs.first()).toHaveAttribute("loading", "lazy");
-  await expect(imgs.first()).toHaveAttribute(
-    "alt",
-    "Meta ad creative for Sadiq.ai Blessed Friday sale, 89% off",
-  );
-});
-
-test.describe("touch phone", () => {
-  test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true });
-  test("Work: the gallery is a native swipe strip with scroll-snap", async ({ page }) => {
-    await page.goto("/work/");
-    const track = page.locator("[data-gallery-track]");
-    expect(await track.evaluate((n) => getComputedStyle(n).scrollSnapType)).toContain("x");
-    expect(await track.evaluate((n) => getComputedStyle(n).overflowX)).toBe("auto");
-    await expect(track).not.toHaveClass(/is-draggable/);
-  });
-});
+// The campaign shelf (r10) replaced the gallery; its tests are in r10.spec.ts.
 
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });

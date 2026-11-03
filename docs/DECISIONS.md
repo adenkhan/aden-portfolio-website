@@ -521,3 +521,12 @@ Scores (1 to 5, higher is better; performance is "cheap to run"):
 
   Work mobile sits exactly at its 65 floor.
 - Tests: forced-world tests that do not need the avatar pass `?avatar=off`, so they don't parse 16 MB in software WebGL. The flaky Work world test (since r8) gets 40 s to settle.
+
+## 2026-11-03 — r10: real creatives and the SEO tool
+- Decision: the owner's 19 creatives replace every gallery placeholder as a "Campaign shelf" on /work. Each campaign is one card (`src/data/campaigns.ts`, the owner's copy and alt text word for word), with swipeable carousels, fanned campaigns and an accessible lightbox. Placeholder slots with no real asset were deleted: the eight gallery slots, including the HubSpot and n8n workflow ones, and the six case-study screenshot slots (`evidence`), which were never rendered.
+- IP rule clarified (owner, r10): the rule covers the site's own design and animations, not the owner's past work shown as portfolio pieces, such as the Good Liar concept posters. These show a visible "Concept / spec work, not affiliated with any brand or franchise" label. Franchise names never appear in alt text, file names, headings or meta tags. Added to CLAUDE.md §4.
+- The files arrived in `src/assets/work/`; they were moved to `src/assets/work/creative/` as the brief names.
+- Case study 3 now shows the real tool: five Playwright captures of its public pages (Create, Articles, Research, Dashboard, AI Visibility; none needed a login or showed private data) in a browser frame, plus its SEO blog post playbook. It links to the live tool in a new tab and is not iframed. The "illustrative" tag is gone for this case.
+- Ruling: the owner's Move text for case 3 (word for word) takes the case to 73 visible words and wraps to two lines on desktop. The owner's copy wins over the 60-word budget and the one-line rule, so case 3 is a logged exception in `copy.spec.ts`. Cost if wrong: one case reads denser than the others.
+- Ruling: each fan is one button, not one per post. Axe flagged the overlapping posts as targets too close together (WCAG 2.5.8). The click still opens the post that was clicked.
+- Metadata: a new /work description (143 characters), a collage Open Graph card (`scripts/render-og-work.mjs`) and JSON-LD: an ItemList of CreativeWork (name, caption, cover URL, the Person as creator, the client as `about`) plus the tool as a SoftwareApplication. Validated in `tests/e2e/r10.spec.ts`.

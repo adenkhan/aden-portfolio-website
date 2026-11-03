@@ -15,24 +15,17 @@ Slot data (paths, sizes, alt text) lives in `src/data/assets.ts`. Alt text follo
 |---|---|---|---|---|---|---|
 | avatar | `src/assets/avatar/avatar.webp` | 1200×1500 (4:5) | WebP, transparent | `/` hero, character-select card (LCP image, and the poster under the live 3D model) | Rendered from the owner's VRoid model by `node scripts/render-avatar.mjs poster` (r9): relaxed pose, slight smile, looking at the camera, a red rim glow on one side and blue on the other, composited outside her silhouette | 3D anime avatar of Aden Khan, product marketer |
 | ogDefault | `src/assets/og/default.png` | 1200×630 | PNG | `og:image` / `twitter:image` on /thanks/ and the 404 | Social card | Aden Khan, Product Marketer: portfolio card with red and blue orbs meeting in purple |
-| og-home, og-about, og-work, og-contact | `src/assets/og/<page>.png` | 1200×630 | PNG | `og:image` on that page | Rendered from the model by `node scripts/render-avatar.mjs og` (r9): navy background, red and blue orb glows, the page's accent, her in the right third. No text | Set per page in `src/data/seo.ts` |
+| og-home, og-about, og-contact | `src/assets/og/<page>.png` | 1200×630 | PNG | `og:image` on that page | Rendered from the model by `node scripts/render-avatar.mjs og` (r9): navy background, red and blue orb glows, the page's accent, her in the right third. No text | Set per page in `src/data/seo.ts` |
+| og-work | `src/assets/og/work.png` | 1200×630 | PNG | `og:image` on `/work/` | A collage of five creatives with the page title, rendered by `node scripts/render-og-work.mjs` (r10) | Product marketing missions: a collage of Aden Khan's Instagram carousels and seller campaign posts |
+| creative-* (19) | `src/assets/work/creative/<file>.webp` | 1200×1200, or 1024×1536 for the concept posters | WebP | `/work/` campaign shelf | The owner's campaign creatives; file names, order and alt text are in `src/data/campaigns.ts` (one entry per campaign) | Per image, in `src/data/campaigns.ts` |
+| seo-tool-01 … 05 | `src/assets/work/seo-tool/seo-tool-0N-<page>.webp` | 1440×900 | WebP | `/work/` case study 3 (browser-frame visual) | Screens of the SEO tool's public pages (Create, Articles, Research, Dashboard, AI Visibility), captured with Playwright (r10) | Per image, in `seoToolShots` in `src/data/assets.ts` |
 > **r4:** the case studies render visual stories (`src/components/sections/work/CaseVisual.astro`) instead of these six images, so the mission slots are **reserved** for real evidence screenshots and are not shown on the site yet. The gallery slots below are still used.
 
-| mission-01 | `src/assets/work/mission-01.webp` | 1200×800 (3:2) | WebP | `/work/` case study 1 | Meta ads and Amplitude results, Sadiq.ai | Meta ads and Amplitude results for Sadiq.ai showing lower customer acquisition cost |
-| mission-02 | `src/assets/work/mission-02.webp` | 1200×800 | WebP | `/work/` case study 2 | HubSpot / n8n workflow, 10Pearls | HubSpot and n8n workflow automating lead capture and CRM handoff at 10Pearls |
-| mission-03 | `src/assets/work/mission-03.webp` | 1200×800 | WebP | `/work/` case study 3 | The SEO writing app and cannibalization checker, 10Pearls | SEO writing app with Ahrefs keyword ideas and a cannibalization checker, built at 10Pearls |
-| mission-04 | `src/assets/work/mission-04.webp` | 1200×800 | WebP | `/work/` case study 4 | Sales Navigator pipeline or funding tracker, Leasap | LinkedIn Sales Navigator pipeline and funding tracker built for Leasap |
-| mission-05 | `src/assets/work/mission-05.webp` | 1200×800 | WebP | `/work/` case study 5 | i2iScale campaign creative, Invest2Innovate | LinkedIn and Instagram campaign creative for the Invest2Innovate i2iScale accelerator |
-| mission-06 | `src/assets/work/mission-06.webp` | 1200×800 | WebP | `/work/` case study 6 | Society sponsorship proposal or post | Sponsorship proposal and social post for the IBA Animation & Pop Culture Society |
-| gallery-01 | `src/assets/work/gallery-01.webp` | 1080×1350 (4:5) | WebP | `/work/` creative gallery | Sadiq.ai Blessed Friday Meta ad | Meta ad creative for Sadiq.ai Blessed Friday sale, 89% off |
-| gallery-02 | `src/assets/work/gallery-02.webp` | 1080×1350 | WebP | `/work/` creative gallery | Amplitude onboarding funnel | Amplitude onboarding funnel dashboard for Sadiq.ai |
-| gallery-03 | `src/assets/work/gallery-03.webp` | 1080×1350 | WebP | `/work/` creative gallery | i2iScale LinkedIn carousel | LinkedIn carousel for the i2iScale accelerator program |
-| gallery-04 | `src/assets/work/gallery-04.webp` | 1080×1350 | WebP | `/work/` creative gallery | i2iScale Instagram reel cover | Instagram reel cover for the i2iScale accelerator program |
-| gallery-05 | `src/assets/work/gallery-05.webp` | 1080×1350 | WebP | `/work/` creative gallery | Sadiq.ai Meta ad for sellers | Meta ad creative for Sadiq.ai online sellers |
-| gallery-06 | `src/assets/work/gallery-06.webp` | 1080×1350 | WebP | `/work/` creative gallery | HubSpot lifecycle email workflow | HubSpot lifecycle email workflow built at 10Pearls |
-| gallery-07 | `src/assets/work/gallery-07.webp` | 1080×1350 | WebP | `/work/` creative gallery | n8n enrichment workflow | n8n lead enrichment workflow built at 10Pearls |
-| gallery-08 | `src/assets/work/gallery-08.webp` | 1080×1350 | WebP | `/work/` creative gallery | Society social post | Social post for the IBA Animation and Pop Culture Society |
 | cvPdf | `public/cv/aden-khan-cv.pdf` | A4 | PDF | CV buttons (nav, Home hero, Contact) | The real CV | Link text: "Download CV (PDF)" |
+
+## Campaign shelf (r10)
+
+The 19 creatives replaced every gallery placeholder; the placeholder slots with no real asset (the eight gallery slots, including the HubSpot and n8n workflow ones, and the six case-study screenshot slots, which were never shown) were deleted. To add a campaign or a slide, put the WebP in `src/assets/work/creative/` and add it to `src/data/campaigns.ts` with its width, height and alt text; the slot, the shelf card and the JSON-LD follow from that entry. Never use franchise names in alt text, file names, headings or meta tags.
 
 ## Not tracked as slots
 - **Favicons** (`public/favicon.svg`, `public/favicon.ico`, `public/apple-touch-icon.png`): generated "AK" marks. Replace the files to change them.

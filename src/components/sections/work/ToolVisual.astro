@@ -1,0 +1,183 @@
+---
+import Img from "@/components/ui/Img.astro";
+import { seoToolShots } from "@/data/assets";
+
+interface Props {
+  url: string;
+  steps: string[];
+}
+
+const { url, steps } = Astro.props;
+const shots = seoToolShots.map((s) => `seo-tool-${s.file.replace(/^seo-tool-|\.webp$/g, "")}` as const);
+---
+
+<!--
+  The real SEO tool (r10, case study 3): its public pages in a browser frame, beside the SEO blog post
+  playbook. End state without JavaScript or with reduced motion: the first screen, every step lit.
+  With motion the steps light one by one on the case's beats, then the frame cycles the screens.
+-->
+<div class="tool">
+  <div class="browser" data-tool-browser>
+    <div class="bar" aria-hidden="true">
+      <span class="dots">
+        <i></i>
+        <i></i>
+        <i></i>
+      </span>
+      <span class="url">{url}</span>
+    </div>
+    <div class="screen">
+      {shots.map((id) => (
+        <div class="shot" data-tool-shot>
+          <Img asset={id} widths={[400, 800, 1200]} sizes="(min-width: 64rem) 560px, 90vw" />
+        </div>
+      ))}
+    </div>
+  </div>
+  <ol class="steps" aria-label="SEO blog post playbook" data-tool-steps>
+    {steps.map((step) => (
+      <li data-tool-step>
+        <span class="node" aria-hidden="true"></span>
+        {step}
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .tool {
+    display: grid;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  /* A plain browser frame: a title bar with the address, the screen under it. */
+  .browser {
+    overflow: hidden;
+    background-color: var(--color-bg-void);
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-sm);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--color-text-subtle);
+  }
+
+  .dots {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .dots i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background-color: var(--color-line-strong);
+  }
+
+  .url {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* The screens are stacked; the first sets the size, the rest cross-fade over it. */
+  .screen {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background-color: #f8fafc;
+  }
+
+  .shot {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .shot:first-child {
+    opacity: 1;
+  }
+
+  .shot :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+
+  /* The playbook: a row of steps on phones, a column with a rail from 48rem. */
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-label);
+    line-height: var(--text-mono-label--line-height);
+    color: var(--color-text);
+  }
+
+  .steps li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .node {
+    flex-shrink: 0;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background-color: var(--lane-colour, var(--color-data));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--lane-colour, var(--color-data)) 25%, transparent);
+  }
+
+  @media (width >= 48rem) {
+    /* The frame, then the playbook right beside it (not pushed to the far edge). */
+    .tool {
+      grid-template-columns: auto auto;
+      justify-content: start;
+      align-items: center;
+      column-gap: clamp(1.5rem, 4vw, 3rem);
+    }
+
+    .browser {
+      height: 100%;
+      max-height: 100%;
+      aspect-ratio: 16 / 11;
+      justify-self: start;
+    }
+
+    .screen {
+      aspect-ratio: auto;
+      height: calc(100% - 1.75rem);
+    }
+
+    .steps {
+      flex-direction: column;
+      gap: 1.1rem;
+      padding-left: 0.25rem;
+    }
+
+    /* The rail joining the steps. */
+    .steps li:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 1rem;
+      left: 0.28rem;
+      width: 1px;
+      height: 1.1rem;
+      background-color: var(--color-line-strong);
+    }
+  }
+</style>

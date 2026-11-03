@@ -24,7 +24,7 @@ const pages = [
   },
   {
     route: "/work/",
-    texts: ["Cut the cost of growth", "Fund the club", "Data & automation", "Creative drops"],
+    texts: ["Cut the cost of growth", "Fund the club", "Data & automation", "Campaign shelf"],
   },
   {
     route: "/contact/",

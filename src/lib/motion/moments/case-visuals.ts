@@ -56,6 +56,30 @@ const builders: Record<
   string,
   (svg: SVGSVGElement, tl: gsap.core.Timeline, loop: gsap.core.Timeline) => void
 > = {
+  // 3 (r10). The real tool: the browser frame rises in, the playbook lights step by step on the move
+  //    beat, then the frame cycles through the tool's screens. Each screen fades in over the one
+  //    below it, so the picture never passes through a half-mix of two.
+  tool(stage, tl, loop) {
+    const frame = stage.querySelector("[data-tool-browser]");
+    const steps = stage.querySelectorAll("[data-tool-step]");
+    const shots = gsap.utils.toArray<HTMLElement>(stage.querySelectorAll("[data-tool-shot]"));
+    tl.from(frame, { opacity: 0, y: 16, duration: 0.4 }, B1).fromTo(
+      steps,
+      { opacity: 0.3 },
+      { opacity: 1, duration: 0.15, stagger: 0.09, ease: "none" },
+      B2,
+    );
+    const hold = 2.6;
+    shots
+      .slice(1)
+      .forEach((shot, i) => loop.to(shot, { opacity: 1, duration: 0.5, ease: "ui-in-out" }, (i + 1) * hold));
+    const last = shots.at(-1);
+    if (last && shots.length > 1)
+      loop
+        .set(shots.slice(1, -1), { opacity: 0 }, shots.length * hold)
+        .to(last, { opacity: 0, duration: 0.5, ease: "ui-in-out" }, shots.length * hold);
+  },
+
   // 1. The acquisition-cost bar starts full, the onboarding funnel fills stage by stage, then the bar
   //    shrinks by 72% (its real value) as the result lands.
   cac(svg, tl, loop) {
@@ -213,7 +237,9 @@ export function buildCase(root: HTMLElement): CaseMotion {
   const loop = gsap.timeline({ paused: true, repeat: -1, repeatDelay: 1.6 });
   const stage = root.querySelector<HTMLElement>("[data-case-visual]");
   const svg = stage?.querySelector("svg");
-  if (stage && svg) builders[stage.dataset.caseVisual ?? ""]?.(svg, beats, loop);
+  // The tool visual (r10) is HTML, not a drawing: its builder gets the stage itself.
+  const target = stage?.dataset.caseVisual === "tool" ? stage : svg;
+  if (stage && target) builders[stage.dataset.caseVisual ?? ""]?.(target as SVGSVGElement, beats, loop);
   captions(beats, root);
   return { beats, loop };
 }

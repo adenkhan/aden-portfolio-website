@@ -1,6 +1,7 @@
 ---
 import { work } from "@/data/timeline";
 import type { CaseStudy } from "@/data/types";
+import Button from "@/components/ui/Button.astro";
 import CaseVisual from "./CaseVisual.astro";
 
 interface Props {
@@ -103,6 +104,14 @@ const count = study.count;
         </dd>
       </div>
     </dl>
+    {study.link && (
+      <p class="link">
+        <Button href={study.link.url} variant="secondary" target="_blank" rel="noopener">
+          {study.link.label}
+          <span class="sr-only"> (opens in a new tab)</span>
+        </Button>
+      </p>
+    )}
   </div>
 </li>
 
@@ -265,6 +274,15 @@ const count = study.count;
     color: var(--lane-colour);
     background-color: transparent;
     box-shadow: inset 0 0 0 1px var(--lane-colour);
+  }
+
+  .link {
+    margin: 0.25rem 0 0;
+  }
+
+  /* The real tool (r10) sizes itself on phones: the frame's own ratio, then the playbook row. */
+  .card :global(.stage[data-case-visual="tool"]) {
+    aspect-ratio: auto;
   }
 
   /* The result is the hero: its number (or line) in display type, the rest as its caption. */

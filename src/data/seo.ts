@@ -24,9 +24,10 @@ export const seo: Record<PageId, PageSeo> = {
     path: "/work/",
     title: "Product Marketing Projects & Skills | Aden Khan",
     description:
-      "Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more.",
+      "Product marketing case studies and campaigns: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, social carousels and seller campaigns.",
     h1: "Product marketing missions",
-    ogImageAlt: "3D anime avatar of Aden Khan, product marketer, in a blue glow",
+    ogImageAlt:
+      "Product marketing missions: a collage of Aden Khan's Instagram carousels and seller campaign posts",
   },
   contact: {
     id: "contact",

@@ -1,20 +1,42 @@
 ---
-import CreativeGallery from "@/components/sections/work/CreativeGallery.astro";
+import CampaignShelf from "@/components/sections/work/CampaignShelf.astro";
 import CaseStudies from "@/components/sections/work/CaseStudies.astro";
 import CaseTakeover from "@/components/sections/work/CaseTakeover.astro";
 import SkillsTree from "@/components/sections/work/SkillsTree.astro";
 import PageTitle from "@/components/ui/PageTitle.astro";
+import { getImage } from "astro:assets";
+import { campaigns } from "@/data/campaigns";
+import { SITE_URL } from "@/data/site";
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getImageFor } from "@/lib/images";
+import { workJsonLd } from "@/lib/jsonld";
+
+// Structured data (r10): each campaign with its cover image's absolute URL.
+const works = await Promise.all(
+  campaigns.map(async (c) => {
+    const cover = await getImage({
+      src: getImageFor(`creative-${c.slides[0].file.replace(/\.webp$/, "")}`),
+      width: 1200,
+      format: "webp",
+    });
+    return {
+      name: c.title,
+      description: c.caption,
+      image: new URL(cover.src, SITE_URL).href,
+      client: c.client,
+    };
+  }),
+);
 ---
 
-<BaseLayout page="work">
+<BaseLayout page="work" jsonLd={workJsonLd(works)}>
   <header class="container-site page-head">
     <PageTitle page="work" reveal />
   </header>
   <CaseStudies />
   <CaseTakeover />
   <SkillsTree />
-  <CreativeGallery />
+  <CampaignShelf />
 </BaseLayout>
 
 <style>

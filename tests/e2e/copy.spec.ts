@@ -49,7 +49,12 @@ test("each Work case study stays within 60 visible words", async ({ page }) => {
   await page.goto("/work/");
   const studies = page.locator("[data-case-study]");
   await expect(studies).toHaveCount(6);
-  for (const study of await studies.all()) expect((await visibleWords(study)).length).toBeLessThanOrEqual(60);
+  for (const study of await studies.all()) {
+    // The owner's own Move text for the SEO tool (r10, word for word) plus its playbook steps and the
+    // "Open the tool" link go past 60: an owner-copy exception, logged in docs/DECISIONS.md.
+    const max = (await study.getAttribute("id")) === "mission-an-seo-writers-cockpit" ? 75 : 60;
+    expect((await visibleWords(study)).length).toBeLessThanOrEqual(max);
+  }
 });
 
 test("BBA, IBA Karachi and the availability line appear once, in About", async ({ page }) => {
@@ -72,6 +77,8 @@ test("case-study lines each stay on one line on desktop", async ({ page }) => {
   const multiLine = await page.locator("[data-case-study]").evaluateAll((studies) =>
     studies.flatMap((study) =>
       [study.querySelector("h3")!, ...study.querySelectorAll("dd")]
+        // The SEO tool's Move is the owner's own two-sentence text (r10): it may wrap.
+        .filter((el) => !(study.id === "mission-an-seo-writers-cockpit" && el.closest("[data-beat='2']")))
         .filter((el) => {
           // Count line boxes from the text's rects (the result line mixes type sizes on one line).
           const range = document.createRange();

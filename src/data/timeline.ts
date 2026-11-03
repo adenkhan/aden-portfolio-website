@@ -59,7 +59,7 @@ export const about: AboutCopy = {
 export const work: WorkCopy = {
   missionsHeading: "Case studies",
   skillsHeading: "Skills",
-  galleryHeading: "Creative drops",
+  galleryHeading: "Campaign shelf",
   caseLabels: { company: "Company", problem: "Problem", move: "Move", result: "Result" },
   illustrative: "illustrative",
   sequenceLabel: "Case studies, scroll to move through them",

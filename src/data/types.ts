@@ -74,6 +74,8 @@ export type CaseVisual =
       flag: string;
     }
   | { kind: "pipeline"; illustrative: true; stages: string[]; tickerLabel: string }
+  /** The real tool (r10): screenshots in a browser frame beside its playbook steps. */
+  | { kind: "tool"; illustrative: false; url: string; steps: string[] }
   | { kind: "reach"; illustrative: true; lift: number; liftLabel: string; cards: string[] }
   | {
       kind: "club";
@@ -101,7 +103,8 @@ export interface CaseStudy {
   count?: CountUp;
   visual: CaseVisual;
   lane: Lane;
-  evidence?: AssetKey;
+  /** A live link shown under the captions (r10: the SEO tool). Opens in a new tab. */
+  link?: { label: string; url: string };
 }
 
 export interface SkillLane {
@@ -184,12 +187,7 @@ export interface PageSeo {
 }
 
 export type AssetKey =
-  | "avatar"
-  | "ogDefault"
-  | `og-${string}`
-  | "cvPdf"
-  | `mission-${string}`
-  | `gallery-${string}`;
+  "avatar" | "ogDefault" | `og-${string}` | "cvPdf" | `creative-${string}` | `seo-tool-${string}`;
 
 export interface AssetSlot {
   id: AssetKey;

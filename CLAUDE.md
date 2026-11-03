@@ -55,7 +55,7 @@ Node `>=22.23.4`. Astro uses its default static output (no `output` set in `astr
 - `prefers-reduced-motion` users get a calm, static version of every effect: no intro, no parallax, no large movement. This is the only setting that turns effects static.
 - Mobile first. Works at 360px wide with no horizontal scroll.
 - The hero image is the original illustrated avatar (no photo, by the owner's choice).
-- IP rule: no characters, logos, names or named techniques from any anime or other franchise. The red-orb plus blue-orb collision is an original effect and is never labelled with a franchise term.
+- IP rule: no characters, logos, names or named techniques from any anime or other franchise. The red-orb plus blue-orb collision is an original effect and is never labelled with a franchise term. The rule covers the site's own design and animations, not the owner's past work shown as portfolio pieces (the Good Liar concept posters, r10; `docs/DECISIONS.md`). Even there, never use franchise names in alt text, file names, headings or meta tags.
 - Deploy target is Netlify, with GitHub Pages as backup. **Do not deploy to Vercel**; the rubric does not allow it.
 
 ## 4a. Round 2 rules (from r1, 2026-11-02)

@@ -37,7 +37,7 @@ Limits: title ≤ 60 characters, description ≤ 155 characters, exactly one H1.
 |---|---|---|---|
 | `/` | Aden Khan, Product Marketer \| Portfolio (39) | Aden Khan is a product marketer in Karachi blending storytelling, analytics and automation to drive adoption and growth for tech products. (138) | Aden Khan, Product Marketer |
 | `/about/` | About Aden Khan, Product Marketing \| IBA Karachi (48) | IBA Karachi BBA Marketing student focused on tech product marketing, product analytics and go-to-market. Background, education and goals. (137) | Origin arc of a product marketer |
-| `/work/` | Product Marketing Projects & Skills \| Aden Khan (47) | Product marketing case studies: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, automation in HubSpot and n8n, and more. (131) | Product marketing missions |
+| `/work/` | Product Marketing Projects & Skills \| Aden Khan (47) | Product marketing case studies and campaigns: 72% lower CAC at Sadiq.ai, an SEO content app at 10Pearls, social carousels and seller campaigns. (143) | Product marketing missions |
 | `/contact/` | Contact Aden Khan, Product Marketer (35) | Hiring for product marketing? Reach Aden Khan by email or LinkedIn. Open to internships and full-time roles from mid-2027. (122) | Open a channel |
 | `/thanks/` | Message received \| Aden Khan | Thanks for getting in touch. Aden Khan will reply by email. | Message received |
 | `/404` | Page not found \| Aden Khan | This page does not exist. Go to Aden Khan's product marketing work or contact page. | Page not found |
