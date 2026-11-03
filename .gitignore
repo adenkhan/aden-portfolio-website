@@ -41,3 +41,4 @@ submission-kit/**/*.html
 submission-kit/**/.done
 *.tmp.cjs
 *.tmp.mjs
+submission-kit/**/*.svg

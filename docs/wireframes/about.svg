@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1362" viewBox="0 0 1440 1362" font-family="Inter, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1367" viewBox="0 0 1440 1367" font-family="Inter, Arial, sans-serif">
 <g id="about">
-<rect id="frame" x="0" y="0" width="1440" height="1362" fill="#FFFFFF" stroke="#BDBDBD" stroke-width="1"/>
+<rect id="frame" x="0" y="0" width="1440" height="1367" fill="#FFFFFF" stroke="#BDBDBD" stroke-width="1"/>
 <g id="3d-world-canvas">
 <rect x="0" y="0" width="1440" height="900" fill="#F3F3F3" stroke="#E2E2E2" stroke-width="1"/><path d="M0 0 L1440 900 M1440 0 L0 900" stroke="#E2E2E2" stroke-width="1" fill="none"/>
 <text x="1424" y="884" font-size="12" fill="#9E9E9E" text-anchor="end">3D world canvas (fixed, behind the page)</text>
@@ -47,26 +47,26 @@
 <g id="motion-3d-avatar-glances-at-slams"><rect x="1081.5" y="469.4" width="190" height="238" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="1080.5" y="448.4" width="188.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="1088.5" y="461.4" font-size="11" font-weight="500" fill="#6D28D9">3D avatar: glances at slams</text></g>
 </g>
 <g id="education">
-<rect x="152.5" y="847.5" width="371.4" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
-<rect x="171.5" y="860.9" width="335.4" height="7.1" rx="3.6" fill="#CFCFCF"/>
-<rect x="535.9" y="847.5" width="277.8" height="36.2" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
-<rect x="554.9" y="860.9" width="241.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
-<g id="motion-wipe-chips-stamp"><rect x="113.5" y="800.5" width="1198" height="82.2" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="112.5" y="779.5" width="131.2" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="120.5" y="792.5" font-size="11" font-weight="500" fill="#6D28D9">wipe + chips stamp</text></g>
+<rect x="152.5" y="847.5" width="448.8" height="40.4" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="171.5" y="862.1" width="412.8" height="8.8" rx="4.4" fill="#CFCFCF"/>
+<rect x="613.3" y="847.5" width="333.6" height="40.4" rx="4" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<rect x="632.3" y="862.1" width="297.6" height="8.8" rx="4.4" fill="#CFCFCF"/>
+<g id="motion-wipe-chips-stamp"><rect x="113.5" y="800.5" width="1198" height="86.4" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="112.5" y="779.5" width="131.2" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="120.5" y="792.5" font-size="11" font-weight="500" fill="#6D28D9">wipe + chips stamp</text></g>
 </g>
 <g id="next-quest">
-<rect x="152.5" y="947.7" width="640" height="137.7" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
-<text x="177.5" y="987.3" font-size="13" font-weight="700" fill="#212121">Next quest</text>
-<rect x="177.5" y="1010.7" width="554.3" height="9.7" rx="4.8" fill="#DDDDDD"/><rect x="177.5" y="1040.7" width="133.7" height="9.7" rx="4.8" fill="#DDDDDD"/>
-<rect x="152.5" y="1109.3" width="174.6" height="48" rx="24" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="239.8" y="1138.9" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">See the missions</text>
-<rect x="339.1" y="1109.3" width="165.1" height="48" rx="24" fill="#616161" stroke="#616161" stroke-width="1"/><text x="421.6" y="1138.9" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">Open a channel</text>
-<g id="motion-wipe-label-decode"><rect x="113.5" y="884.7" width="1198" height="271.7" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="112.5" y="863.7" width="137.6" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="120.5" y="876.7" font-size="11" font-weight="500" fill="#6D28D9">wipe + label decode</text></g>
+<rect x="152.5" y="951.9" width="640" height="137.7" rx="12" fill="#FAFAFA" stroke="#9E9E9E" stroke-width="1"/>
+<text x="177.5" y="991.3" font-size="13" font-weight="700" fill="#212121">Next quest</text>
+<rect x="177.5" y="1015.7" width="554.3" height="9.7" rx="4.8" fill="#DDDDDD"/><rect x="177.5" y="1044.7" width="133.7" height="9.7" rx="4.8" fill="#DDDDDD"/>
+<rect x="152.5" y="1113.5" width="174.6" height="48" rx="24" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="239.8" y="1143.1" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">See the missions</text>
+<rect x="339.1" y="1113.5" width="165.1" height="48" rx="24" fill="#616161" stroke="#616161" stroke-width="1"/><text x="421.6" y="1143.1" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">Open a channel</text>
+<g id="motion-wipe-label-decode"><rect x="113.5" y="888.9" width="1198" height="271.7" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="112.5" y="867.9" width="137.6" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="120.5" y="880.9" font-size="11" font-weight="500" fill="#6D28D9">wipe + label decode</text></g>
 </g>
 <g id="footer">
-<rect x="152.5" y="1304.2" width="359.2" height="7.6" rx="3.8" fill="#DDDDDD"/>
-<rect x="679" y="1286.3" width="109.5" height="44" rx="0" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="733.7" y="1312.9" font-size="13" font-weight="600" fill="#212121" text-anchor="middle">◀◀Back to top</text>
-<text x="955.7" y="1312.5" font-size="14" font-weight="500" fill="#424242">aden.khan613@gmail.com</text>
-<text x="1147.1" y="1312.5" font-size="13.1" font-weight="500" fill="#424242">LinkedIn</text>
-<text x="1226.1" y="1312.5" font-size="14" font-weight="500" fill="#424242">GitHub</text>
-<g id="motion-vhs-rewind-to-top"><rect x="680" y="1287.3" width="107.5" height="42" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="679" y="1266.3" width="124.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="687" y="1279.3" font-size="11" font-weight="500" fill="#6D28D9">VHS rewind to top</text></g>
+<rect x="152.5" y="1308.2" width="359.2" height="7.6" rx="3.8" fill="#DDDDDD"/>
+<rect x="679" y="1290.5" width="109.5" height="44" rx="0" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="733.7" y="1317.1" font-size="13" font-weight="600" fill="#212121" text-anchor="middle">◀◀Back to top</text>
+<text x="955.7" y="1316.5" font-size="14" font-weight="500" fill="#424242">aden.khan613@gmail.com</text>
+<text x="1147.1" y="1316.5" font-size="13.1" font-weight="500" fill="#424242">LinkedIn</text>
+<text x="1226.1" y="1316.5" font-size="14" font-weight="500" fill="#424242">GitHub</text>
+<g id="motion-vhs-rewind-to-top"><rect x="680" y="1291.5" width="107.5" height="42" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4"/><rect x="679" y="1270.5" width="124.8" height="18" rx="9" fill="#F3EEFF" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3 2"/><text x="687" y="1283.5" font-size="11" font-weight="500" fill="#6D28D9">VHS rewind to top</text></g>
 </g>
 </g></svg>

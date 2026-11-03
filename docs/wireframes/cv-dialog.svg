@@ -39,7 +39,7 @@
 <g id="cv-dialog-layer"><rect id="dialog-panel" x="432.5" y="174.625" width="560" height="550.734375" rx="12" fill="#FFFFFF" stroke="#616161" stroke-width="1.5"/>
 <g id="cv-dialog">
 
-<g id="dialog-content">
+<g id="cv-dialog">
 <text x="457.5" y="225.1" font-size="20.7" font-weight="700" fill="#212121">Aden Khan, CV</text>
 <rect x="892.5" y="199.6" width="75" height="44" rx="4" fill="#FFFFFF" stroke="#616161" stroke-width="1"/><text x="930" y="227.2" font-size="16" font-weight="600" fill="#212121" text-anchor="middle">Close</text>
 <rect x="457.5" y="257.9" width="280.8" height="7.1" rx="3.6" fill="#CFCFCF"/>
